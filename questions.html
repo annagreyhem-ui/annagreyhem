@@ -208,7 +208,7 @@ function choose(letter) {
       // all answered – decide destination
       const allB = answers.every(a => a === 'B');
       setTimeout(() => {
-        window.location.href = allB ? './shadow.html' : './lookagain.html';
+        window.location.href = allB ? './main.html' : './lookagain.html';
       }, 600);
     }
   }, 900);
