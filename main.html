@@ -60,8 +60,8 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
   position:fixed; bottom:60px; left:50%;
   transform:translateX(-50%);
   font-family:'IM Fell English',serif;
-  font-size:clamp(14px,2vw,20px);
-  color:white; letter-spacing:0.2em;
+  font-size:clamp(40px,6vw,72px);
+  color:white; letter-spacing:0.15em;
   font-style:italic; opacity:0;
   white-space:nowrap; pointer-events:none;
   z-index:50;
@@ -207,26 +207,27 @@ const holeWrap  = document.getElementById('hole-wrap');
 const hole      = document.getElementById('hole');
 const tagline   = document.getElementById('tagline');
 
-// 3s: hole appears
+// 2s: hole opens
 setTimeout(() => {
   holeWrap.classList.add('visible');
   setTimeout(() => hole.classList.add('open'), 100);
-}, 3000);
+}, 2000);
 
-// 5s: rabbit falls into hole
+// 4s: rabbit starts falling into hole
 setTimeout(() => {
   rabbitSvg.style.animation = 'none';
-  rabbitSvg.style.transition = 'transform 0.5s ease-in, opacity 0.4s ease-in';
-  rabbitSvg.style.transform  = 'translateY(50px) scaleY(0.7) scaleX(1.15)';
+  rabbitSvg.style.transition = 'transform 1s ease-in, opacity 0.8s ease-in';
+  rabbitSvg.style.transform  = 'translateY(40px) scaleY(0.7) scaleX(1.15)';
+
+  // tagline flickers in simultaneously
+  flickerIn(tagline);
 
   setTimeout(() => {
-    rabbitSvg.style.transform = 'translateY(120px) scaleY(0.1) scaleX(0.5)';
+    rabbitSvg.style.transform = 'translateY(130px) scaleY(0.1) scaleX(0.5)';
     rabbitSvg.style.opacity   = '0';
+  }, 800);
 
-    // immediately after: flicker tagline
-    setTimeout(() => flickerIn(tagline), 300);
-  }, 500);
-}, 5000);
+}, 4000);
 
 function flickerIn(el) {
   const steps = [
