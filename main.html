@@ -8,19 +8,19 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none; }
-
+ 
 .cursor {
   position:fixed; width:8px; height:8px; background:white;
   border-radius:50%; pointer-events:none; z-index:9999;
   transform:translate(-50%,-50%);
 }
-
+ 
 #scene1 {
   position:fixed; inset:0;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:50px;
 }
-
+ 
 #rabbit-svg {
   width:144px; height:144px;
   animation: hop 0.6s ease-in-out infinite alternate;
@@ -36,10 +36,10 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
 #ear-right { animation: wiggle-r 1.2s ease-in-out infinite; transform-origin:bottom center; }
 @keyframes wiggle-l { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(4deg)} }
 @keyframes wiggle-r { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(8deg)} 75%{transform:rotate(-4deg)} }
-
+ 
 #hole-wrap { opacity:0; transition:opacity 0.8s; }
 #hole-wrap.visible { opacity:1; }
-
+ 
 #hole {
   width:180px; height:55px;
   background: radial-gradient(ellipse at 50% 60%, #1a1a1a 0%, #000 80%);
@@ -55,18 +55,18 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
   box-shadow: 0 0 40px rgba(255,255,255,0.08), 0 0 0 3px #333,
               inset 0 6px 18px rgba(0,0,0,0.95);
 }
-
+ 
 #tagline {
   position:fixed; bottom:60px; left:50%;
   transform:translateX(-50%);
   font-family:'IM Fell English',serif;
-  font-size:clamp(40px,6vw,72px);
+  font-size:clamp(16px,2.2vw,26px);
   color:white; letter-spacing:0.15em;
   font-style:italic; opacity:0;
   white-space:nowrap; pointer-events:none;
   z-index:50;
 }
-
+ 
 /* ── FALL SCREEN ── */
 #fall-screen {
   position:fixed; inset:0; background:#000;
@@ -132,9 +132,9 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
 </style>
 </head>
 <body>
-
+ 
 <div class="cursor" id="cursor"></div>
-
+ 
 <div id="scene1">
   <svg id="rabbit-svg" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
@@ -160,14 +160,14 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
     <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
     <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
   </svg>
-
+ 
   <div id="hole-wrap">
     <div id="hole" onclick="startFall()"></div>
   </div>
 </div>
-
+ 
 <div id="tagline">Follow the white rabbit.</div>
-
+ 
 <div id="fall-screen">
   <div id="tunnel">
     <div class="tunnel-wall-l"></div>
@@ -192,7 +192,7 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
     </svg>
   </div>
 </div>
-
+ 
 <script>
 const cursor = document.getElementById('cursor');
 document.addEventListener('mousemove', e => {
@@ -201,34 +201,34 @@ document.addEventListener('mousemove', e => {
 });
 document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
 document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
-
+ 
 const rabbitSvg = document.getElementById('rabbit-svg');
 const holeWrap  = document.getElementById('hole-wrap');
 const hole      = document.getElementById('hole');
 const tagline   = document.getElementById('tagline');
-
+ 
 // 2s: hole opens
 setTimeout(() => {
   holeWrap.classList.add('visible');
   setTimeout(() => hole.classList.add('open'), 100);
 }, 2000);
-
+ 
 // 4s: rabbit starts falling into hole
 setTimeout(() => {
   rabbitSvg.style.animation = 'none';
   rabbitSvg.style.transition = 'transform 1s ease-in, opacity 0.8s ease-in';
   rabbitSvg.style.transform  = 'translateY(40px) scaleY(0.7) scaleX(1.15)';
-
+ 
   // tagline flickers in simultaneously
   flickerIn(tagline);
-
+ 
   setTimeout(() => {
     rabbitSvg.style.transform = 'translateY(130px) scaleY(0.1) scaleX(0.5)';
     rabbitSvg.style.opacity   = '0';
   }, 800);
-
+ 
 }, 4000);
-
+ 
 function flickerIn(el) {
   const steps = [
     [0,   0.9],
@@ -247,13 +247,13 @@ function flickerIn(el) {
     setTimeout(() => el.style.opacity = val, delay);
   });
 }
-
+ 
 function startFall() {
   const fallScreen = document.getElementById('fall-screen');
   fallScreen.style.display = 'block';
-
+ 
   const tunnel = document.getElementById('tunnel');
-
+ 
   for (let i = 0; i < 20; i++) {
     const ring = document.createElement('div');
     ring.className = 'ring';
@@ -264,7 +264,7 @@ function startFall() {
     `;
     tunnel.appendChild(ring);
   }
-
+ 
   const colors = ['#fff','#ffd700','#ff69b4','#c8a2c8','#add8e6','#fffacd','#e0b0ff'];
   for (let i = 0; i < 90; i++) {
     const g = document.createElement('div');
@@ -281,7 +281,7 @@ function startFall() {
     `;
     fallScreen.appendChild(g);
   }
-
+ 
   setTimeout(() => {
     window.location.href = './questions.html';
   }, 5000);
