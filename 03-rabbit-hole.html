@@ -248,8 +248,6 @@ function flickerIn(el) {
   });
 }
 
-// auto-start fall after 9s if user doesnt click
-setTimeout(() => { if(document.getElementById("fall-screen").style.display !== "block") startFall(); }, 9000);
 
 function startFall() {
   const fallScreen = document.getElementById('fall-screen');
