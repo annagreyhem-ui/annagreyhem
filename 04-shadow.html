@@ -315,14 +315,19 @@ function injectNav(storyEl) {
   nav.className = 'nav';
 
   if (current === 0) {
-    // Special: click to enter, fades in after 4s
-    const enter = document.createElement('div');
-    enter.style.cssText = 'opacity:0;transition:opacity 1.2s;font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:#333;letter-spacing:0.2em;cursor:pointer;padding:8px 0;text-align:center;';
-    enter.textContent = 'click to enter';
-    enter.onclick = () => navigate(1);
-    nav.appendChild(enter);
-    storyEl.appendChild(nav);
-    setTimeout(() => { enter.style.opacity = '1'; }, 4000);
+    // click anywhere to enter
+    const overlay = document.createElement('div');
+    overlay.id = 'click-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:100;cursor:pointer;';
+    overlay.onclick = () => { overlay.remove(); hint.remove(); navigate(1); };
+    document.body.appendChild(overlay);
+
+    // hint text fades in after 4s
+    const hint = document.createElement('div');
+    hint.style.cssText = 'position:fixed;bottom:48px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity 1.2s;font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:#444;letter-spacing:0.2em;white-space:nowrap;z-index:101;pointer-events:none;';
+    hint.textContent = 'click to enter';
+    document.body.appendChild(hint);
+    setTimeout(() => { hint.style.opacity = '1'; }, 4000);
     return;
   }
 
