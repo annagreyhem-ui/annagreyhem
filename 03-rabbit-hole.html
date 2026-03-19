@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anna Greyhem</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none; }
@@ -34,8 +34,8 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
 }
 #ear-left  { animation: wiggle-l 1.2s ease-in-out infinite; transform-origin:bottom center; }
 #ear-right { animation: wiggle-r 1.2s ease-in-out infinite; transform-origin:bottom center; }
-@keyframes wiggle-l { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(4deg)} }
-@keyframes wiggle-r { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(8deg)} 75%{transform:rotate(-4deg)} }
+@keyframes wiggle-l { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-4deg)} 75%{transform:rotate(2deg)} }
+@keyframes wiggle-r { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(4deg)} 75%{transform:rotate(-2deg)} }
 
 #hole-wrap { opacity:0; transition:opacity 0.8s; }
 #hole-wrap.visible { opacity:1; }
@@ -59,8 +59,8 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
 #tagline {
   position:fixed; bottom:60px; left:50%;
   transform:translateX(-50%);
-  font-family:'IM Fell English',serif;
-  font-size:clamp(16px,2.2vw,26px);
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(17px,2.2vw,22px);
   color:white; letter-spacing:0.15em;
   font-style:italic; opacity:0;
   white-space:nowrap; pointer-events:none;
@@ -173,6 +173,7 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
     <div class="tunnel-wall-l"></div>
     <div class="tunnel-wall-r"></div>
   </div>
+
   <div id="falling-rabbit">
     <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
       <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
@@ -195,9 +196,13 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
 
 <script>
 const cursor = document.getElementById('cursor');
+let cursorHideTimer = null;
 document.addEventListener('mousemove', e => {
   cursor.style.left = e.clientX + 'px';
   cursor.style.top  = e.clientY + 'px';
+  cursor.style.opacity = '1';
+  clearTimeout(cursorHideTimer);
+  cursorHideTimer = setTimeout(() => cursor.style.opacity = '0', 2000);
 });
 document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
 document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
@@ -219,34 +224,20 @@ setTimeout(() => {
   rabbitSvg.style.transition = 'transform 1s ease-in, opacity 0.8s ease-in';
   rabbitSvg.style.transform  = 'translateY(40px) scaleY(0.7) scaleX(1.15)';
 
-  // tagline flickers in simultaneously
-  flickerIn(tagline);
-
   setTimeout(() => {
     rabbitSvg.style.transform = 'translateY(130px) scaleY(0.1) scaleX(0.5)';
     rabbitSvg.style.opacity   = '0';
+
+    // tagline fades in 2s after rabbit is gone
+    setTimeout(() => {
+      tagline.style.transition = 'opacity 1.2s ease';
+      tagline.style.opacity = '1';
+    }, 2000);
   }, 800);
 
 }, 4000);
 
-function flickerIn(el) {
-  const steps = [
-    [0,   0.9],
-    [150, 0.0],
-    [350, 0.8],
-    [500, 0.0],
-    [800, 0.7],
-    [1050,0.0],
-    [1300,0.85],
-    [1600,0.15],
-    [2000,0.9],
-    [2400,0.3],
-    [2900,1.0],
-  ];
-  steps.forEach(([delay, val]) => {
-    setTimeout(() => el.style.opacity = val, delay);
-  });
-}
+
 
 
 function startFall() {
