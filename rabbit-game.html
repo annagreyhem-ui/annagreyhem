@@ -190,7 +190,8 @@ let speedBoost = 0; // extra speed from cookies
 
 const GRAVITY = 0.52;
 const JUMP_FORCE = -13;
-const SPEED = 3.4;
+const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+const SPEED = isMobile ? 2.2 : 3.4;
 const WORLD_W = 6200;
 
 function initRun() {
