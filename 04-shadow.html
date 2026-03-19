@@ -7,8 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#000; color:#ccc; font-family:Georgia,serif; font-size:19px; line-height:1.9; cursor:none; }
-.cursor { position:fixed; width:8px; height:8px; background:white; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:opacity 0.5s; }
+body { background:#000; color:#ccc; font-family:Georgia,serif; font-size:clamp(17px,2.2vw,22px); line-height:1.9; }
 .story { display:none; min-height:100vh; padding:80px 0 120px; animation:fadein 1.2s ease forwards; }
 .story.active { display:block; }
 @keyframes fadein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
@@ -64,7 +63,6 @@ p:last-of-type { margin-bottom:0; }
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
 <div id="fixed-nav">&#8964;</div>
 <div id="click-overlay"></div>
 <div id="click-hint">click to enter</div>
@@ -207,57 +205,43 @@ p:last-of-type { margin-bottom:0; }
   </div>
 </div>
 
-<!-- P10: I guess I did it -->
+<!-- P10: Pet the rabbit -->
 <div class="story" id="p10">
-  <div class="story-inner">
-    <h1>I guess, I did it.</h1>
-    <p>Das Publikum klatscht, Alice klatscht. Die Vorstellung ist vorbei. Der Vorhang schlie&szlig;t sich, doch Anna schl&uuml;pft noch ein letztes Mal zwischen dem schweren Samt hervor:</p>
-    <p class="em">Just remember. What I write is not always real, but it is always true. You signed up for feeling everything at once. You just felt everything at once.</p>
-    <p>Manches ist wahr, manches ist Kunst und beides bin ich.</p>
-    <p>Ich werde es wieder tun.</p>
-    <p>...</p>
-    <p>I think we are all done.</p>
-    <p>Until next time, bitches.</p>
-    <p>Kiss,<br>Anna</p>
-    <div class="rabbit-end" id="rabbit-end">
-      <svg style="width:72px;height:86px;animation:hop 0.6s ease-in-out infinite alternate;transform-origin:bottom center;" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
-        <ellipse cx="50" cy="55" rx="18" ry="16" fill="white"/>
-        <ellipse cx="38" cy="28" rx="6" ry="18" fill="white" transform="rotate(-8 38 42)"/>
-        <ellipse cx="38" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(-8 38 42)"/>
-        <ellipse cx="62" cy="28" rx="6" ry="18" fill="white" transform="rotate(8 62 42)"/>
-        <ellipse cx="62" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(8 62 42)"/>
-        <circle cx="43" cy="52" r="2.5" fill="#111"/>
-        <circle cx="43.8" cy="51.2" r="0.8" fill="white"/>
-        <circle cx="57" cy="52" r="2.5" fill="#111"/>
-        <circle cx="57.8" cy="51.2" r="0.8" fill="white"/>
-        <ellipse cx="50" cy="60" rx="2" ry="1.2" fill="#ffb6c1"/>
-        <line x1="18" y1="58" x2="40" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-        <line x1="18" y1="62" x2="40" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
-        <line x1="82" y1="58" x2="60" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-        <line x1="82" y1="62" x2="60" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
-        <circle cx="71" cy="90" r="7" fill="white"/>
-        <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
-        <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
-      </svg>
+  <div class="story-inner center-page">
+    <h1 id="pet-title" style="text-align:center;margin-bottom:60px;">Pet the rabbit</h1>
+    <div id="rabbit-pet" style="cursor:pointer;display:inline-block;position:relative;" title="pet me">
+      <div id="pet-hop" style="animation:hop 0.6s ease-in-out infinite alternate;transform-origin:bottom center;display:inline-block;">
+        <svg id="pet-svg" style="width:120px;height:144px;display:block;" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
+          <ellipse cx="50" cy="55" rx="18" ry="16" fill="white"/>
+          <ellipse cx="38" cy="28" rx="6" ry="18" fill="white" transform="rotate(-8 38 42)"/>
+          <ellipse cx="38" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(-8 38 42)"/>
+          <ellipse cx="62" cy="28" rx="6" ry="18" fill="white" transform="rotate(8 62 42)"/>
+          <ellipse cx="62" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(8 62 42)"/>
+          <circle cx="43" cy="52" r="2.5" fill="#111"/>
+          <circle cx="43.8" cy="51.2" r="0.8" fill="white"/>
+          <circle cx="57" cy="52" r="2.5" fill="#111"/>
+          <circle cx="57.8" cy="51.2" r="0.8" fill="white"/>
+          <ellipse cx="50" cy="60" rx="2" ry="1.2" fill="#ffb6c1"/>
+          <line x1="18" y1="58" x2="40" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
+          <line x1="18" y1="62" x2="40" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
+          <line x1="82" y1="58" x2="60" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
+          <line x1="82" y1="62" x2="60" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
+          <circle cx="71" cy="90" r="7" fill="white"/>
+          <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
+          <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
+        </svg>
+        <!-- Blue X overlay for glitch -->
+        <svg id="pet-x" style="display:none;position:absolute;top:0;left:0;width:120px;height:144px;" viewBox="0 0 120 144">
+          <line x1="20" y1="20" x2="100" y2="124" stroke="#0040ff" stroke-width="8" stroke-linecap="round"/>
+          <line x1="100" y1="20" x2="20" y2="124" stroke="#0040ff" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-// cursor
-var cursorEl = document.getElementById('cursor');
-var cursorHideTimer = null;
-document.addEventListener('mousemove', function(e) {
-  cursorEl.style.left = e.clientX + 'px';
-  cursorEl.style.top = e.clientY + 'px';
-  cursorEl.style.opacity = '1';
-  clearTimeout(cursorHideTimer);
-  cursorHideTimer = setTimeout(function() { cursorEl.style.opacity = '0'; }, 2000);
-});
-document.addEventListener('mouseleave', function() { cursorEl.style.opacity = '0'; });
-document.addEventListener('mouseenter', function() { cursorEl.style.opacity = '1'; });
-
 // pages
 var PAGES = ['p0','p1','p2','p3','p5','p6','p7','p8','p4','p9','pblood','p10'];
 var TOTAL = PAGES.length - 1;
@@ -273,10 +257,84 @@ fixedNav.addEventListener('click', function() { navigate(1); });
 var overlay = document.getElementById('click-overlay');
 var hint = document.getElementById('click-hint');
 
-// rabbit
-document.getElementById('rabbit-end').addEventListener('click', function() {
-  window.location.href = './rabbit-game.html';
-});
+// pet the rabbit
+var petCount = 0;
+var petGlitching = false;
+var petEl = document.getElementById('rabbit-pet');
+var petSvg = document.getElementById('pet-svg');
+var glitchCharsP = ['#','@','!','x','0','%','&'];
+
+if (petEl) {
+  petEl.addEventListener('click', function() {
+    petCount++;
+    // Bounce feedback
+    petSvg.style.transform = 'scale(1.15)';
+    setTimeout(function() { petSvg.style.transform = ''; }, 150);
+
+    if (petCount >= 5 && !petGlitching) {
+      petGlitching = true;
+      startPetGlitch();
+    }
+  });
+  petEl.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    petEl.click();
+  }, {passive:false});
+}
+
+function startPetGlitch() {
+  var glitches = 0;
+  var maxGlitches = 8 + Math.floor(Math.random() * 6);
+  var title = document.getElementById('pet-title');
+  var petX = document.getElementById('pet-x');
+  var petSvgEl = document.getElementById('pet-svg');
+
+  function doGlitch() {
+    if (glitches >= maxGlitches) {
+      window.location.href = './rabbit-game.html';
+      return;
+    }
+    glitches++;
+
+    // Second to last glitch: flash "Kill the rabbit."
+    var isKillMoment = (glitches === maxGlitches - 1);
+
+    // Randomly show blue X instead of rabbit
+    var showX = Math.random() < 0.5;
+    if (showX) {
+      petSvgEl.style.opacity = '0';
+      petX.style.display = 'block';
+    }
+
+    // Shake
+    petSvg.style.transform = 'translate(' + ((Math.random()-0.5)*24) + 'px,' + ((Math.random()-0.5)*14) + 'px)';
+
+    // Glitch title
+    if (title) {
+      if (isKillMoment) {
+        title.textContent = 'Kill the rabbit.';
+        title.style.color = '#cc0000';
+      } else {
+        var orig = 'Pet the rabbit';
+        var glitched = orig.split('').map(function(c) {
+          return Math.random() < 0.3 ? glitchCharsP[Math.floor(Math.random()*glitchCharsP.length)] : c;
+        }).join('');
+        title.textContent = glitched;
+        title.style.color = '';
+      }
+    }
+
+    setTimeout(function() {
+      petSvgEl.style.opacity = '1';
+      petX.style.display = 'none';
+      petSvg.style.transform = '';
+      if (title) { title.textContent = 'Pet the rabbit'; title.style.color = ''; }
+      setTimeout(doGlitch, 80 + Math.random() * 180);
+    }, isKillMoment ? 400 : 60 + Math.random() * 80);
+  }
+
+  doGlitch();
+}
 
 function showPage(n) {
   fixedNav.style.display = 'none';
