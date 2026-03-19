@@ -86,7 +86,7 @@ p:last-of-type { margin-bottom:0; }
 <!-- P1 -->
 <div class="story" id="p1">
   <div class="story-inner center-page">
-    <h1 style="text-align:center;font-size:clamp(24px,4vw,42px);letter-spacing:0.12em;margin:0;">Lost places in my mind</h1>
+    <h1 style="text-align:center;font-size:clamp(24px,4vw,42px);letter-spacing:0.12em;margin:0;color:#8b0000;">Lost places in my mind</h1>
   </div>
 </div>
 
@@ -96,7 +96,7 @@ p:last-of-type { margin-bottom:0; }
     <h1>Falling into the rabbit hole</h1>
     <p>Und Alice rannte dem Hasen nach. Sie wollte das wei&szlig;e H&auml;schen nicht entwischen lassen. Sie hatte doch noch so viele Karotten, die sie ihm geben w&uuml;rde. Und so viele Kuschelstunden, die sie schon geplant hatte. Also rannte Alice so schnell sie konnte.</p>
     <p>Und, ups. Da plumpste Alice in das Loch, dem Hasen hinterher. Zuerst war es dunkel und sie hatte Angst, dann sah sie, dass es gar nicht dunkel war. Es glitzerte und Schlieren von Farben zogen sich wie Nordlichter &uuml;ber die W&auml;nde hinweg. Das Kaninchen und sie schwebten auf dem Regenbogen. Es machte Spa&szlig; zu fliegen. Das Kaninchen trippelte unentwegt mit dem Fu&szlig;, es wartete auf etwas. Es wurde wieder dunkler. Sie schienen am anderen Ende des Tunnels anzukommen.</p>
-    <p>Alice und der Hase schlugen auf dem Boden auf. Alice war bewusstlos. Der Hase stand &uuml;ber ihr. Mit einem letzten Knacken brach er ihr Genick und hielt sie mit seinen Vorderl&auml;ufen, w&auml;hrend er Alice in St&uuml;cke riss.</p>
+    <p>Alice und der Hase schlugen auf dem Boden auf. Alice war bewusstlos. Der Hase stand &uuml;ber ihr. Mit einem letzten Knacken brach er ihr Genick und hielt sie mit seinen Vorderl&auml;ufen, w&auml;hrend er <span id="alice-name">Alice</span> in St&uuml;cke riss.</p>
   </div>
 </div>
 
@@ -168,9 +168,9 @@ p:last-of-type { margin-bottom:0; }
   <div class="story-inner centered">
     <h1 style="text-align:center;">Anyone?</h1>
     <p>Is there anyone else on this planet that feels relief thinking about that &ndash; when everything gets worse, they don&rsquo;t need to be here. They can just take their own life and the nothingness will let go of all the pain.</p>
-    <p>No one?</p>
-    <p>Ok then.</p>
-    <p>Me neither.</p>
+    <p id="anyone-no">No one?</p>
+    <p id="anyone-ok">Ok then.</p>
+    <p id="anyone-me">Me neither.</p>
   </div>
 </div>
 
@@ -193,7 +193,7 @@ p:last-of-type { margin-bottom:0; }
     <h1>Annas Monster</h1>
     <p>Ich jagte der Hoffnung nach, dem Gef&uuml;hl zu f&uuml;hlen.</p>
     <p class="dim">F&uuml;r die Kunst war ich in den Hasenbau gesprungen.<br>Jetzt sa&szlig; ich hier fest.</p>
-    <p><em>I keep shifting.</em></p>
+    <p><em id="monster-shift">I keep shifting.</em></p>
     <p class="dim">Das Buch zog mich nach unten, wie eine Droge.<br>
     Ich konnte nicht aufh&ouml;ren.<br>
     Ich konnte nichts anderes tun.<br>
@@ -212,7 +212,7 @@ p:last-of-type { margin-bottom:0; }
 <!-- P10: Pet the rabbit -->
 <div class="story" id="p10">
   <div class="story-inner center-page">
-    <h1 id="pet-title" style="text-align:center;margin-bottom:60px;">Pet the rabbit</h1>
+    <h1 id="pet-title" style="text-align:center;margin-bottom:60px;">Pet the rabbit.</h1>
     <div id="rabbit-pet" style="display:inline-block;position:relative;" title="pet me">
       <div id="pet-hop" style="animation:hop 0.6s ease-in-out infinite alternate;transform-origin:bottom center;display:inline-block;">
         <svg id="pet-svg" style="width:120px;height:144px;display:block;" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -319,7 +319,7 @@ function startPetGlitch() {
         title.textContent = 'Kill the rabbit.';
         title.style.color = '#cc0000';
       } else {
-        var orig = 'Pet the rabbit';
+        var orig = 'Pet the rabbit.';
         var glitched = orig.split('').map(function(c) {
           return Math.random() < 0.3 ? glitchCharsP[Math.floor(Math.random()*glitchCharsP.length)] : c;
         }).join('');
@@ -332,7 +332,7 @@ function startPetGlitch() {
       petSvgEl.style.opacity = '1';
       petX.style.display = 'none';
       petSvg.style.transform = '';
-      if (title) { title.textContent = 'Pet the rabbit'; title.style.color = ''; }
+      if (title) { title.textContent = 'Pet the rabbit.'; title.style.color = ''; }
       setTimeout(doGlitch, 80 + Math.random() * 180);
     }, isKillMoment ? 400 : 60 + Math.random() * 80);
   }
@@ -364,8 +364,8 @@ function showPage(n) {
   if (pageId === 'p4') startShiftGlitch();
   else stopShiftGlitch();
 
-  if (pageId === 'pblood') setupBloodObserver();
-  else stopBlood();
+  if (pageId === 'pblood') { setupBloodObserver(); }
+  else { stopBlood(); }
 
   if (pageId === 'p6') setTimeout(setupInsanityObserver, 600);
   else { if (insanityObserver) insanityObserver.disconnect(); }
@@ -438,16 +438,108 @@ function shiftBurst() {
 
 function startShiftGlitch() {
   stopShiftGlitch();
-  shiftTimer = setTimeout(function() {
-    shiftBurst();
-    function loop() { shiftBurst(); shiftTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
-    shiftTimer = setTimeout(loop, 1000);
-  }, 1500);
+  shiftBurst();
+  function loop() { shiftBurst(); shiftTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
+  shiftTimer = setTimeout(loop, 800);
 }
 
 function stopShiftGlitch() {
   if (shiftTimer) { clearTimeout(shiftTimer); shiftTimer = null; }
 }
+
+// ---- Easter egg: Alice → Anna flash ----
+(function() {
+  var el = document.getElementById('alice-name');
+  if (!el) return;
+  function flashAnna() {
+    el.textContent = 'Anna';
+    el.style.color = '';
+    el.style.fontStyle = 'normal';
+    setTimeout(function() {
+      el.textContent = 'Alice';
+      el.style.fontStyle = '';
+      setTimeout(flashAnna, 8000 + Math.random() * 12000);
+    }, 600);
+  }
+  setTimeout(flashAnna, 3000 + Math.random() * 5000);
+})();
+
+// ---- I keep shifting in Annas Monster – same glitch as p4 ----
+(function() {
+  var monStr = 'I keep shifting.';
+  var monEl = document.getElementById('monster-shift');
+  if (!monEl) return;
+  var monLetters = [];
+  monEl.textContent = '';
+  for (var i = 0; i < monStr.length; i++) {
+    var sp = document.createElement('span');
+    sp.className = 'sletter';
+    sp.textContent = monStr[i] === ' ' ? '\u00a0' : monStr[i];
+    monEl.appendChild(sp);
+    monLetters.push(sp);
+  }
+  var monTimer = null;
+  function doMonGlitch() {
+    var n = 2 + Math.floor(Math.random() * 4);
+    var saved = [];
+    for (var g = 0; g < n; g++) {
+      var idx = Math.floor(Math.random() * monLetters.length);
+      if (monStr[idx] === ' ') continue;
+      var s = monLetters[idx];
+      s.style.transform = 'translate('+((Math.random()-0.5)*14)+'px,'+((Math.random()-0.5)*10)+'px) rotate('+((Math.random()-0.5)*18)+'deg) scale('+(0.6+Math.random()*0.7)+')';
+      s.style.opacity = String(0.3 + Math.random() * 0.7);
+      if (Math.random() < 0.6) s.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+      saved.push({ el:s, orig: monStr[idx] === ' ' ? '\u00a0' : monStr[idx] });
+    }
+    monEl.style.transform = 'translate('+((Math.random()-0.5)*8)+'px,'+((Math.random()-0.5)*5)+'px)';
+    setTimeout(function() {
+      for (var r = 0; r < saved.length; r++) {
+        saved[r].el.style.transform = '';
+        saved[r].el.style.opacity = '1';
+        saved[r].el.textContent = saved[r].orig;
+      }
+      monEl.style.transform = '';
+    }, 60 + Math.random() * 90);
+  }
+  // Start when pblood page is active
+  var monObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      doMonGlitch();
+      function loop() { doMonGlitch(); monTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
+      monTimer = setTimeout(loop, 800);
+    } else {
+      if (monTimer) { clearTimeout(monTimer); monTimer = null; }
+    }
+  }, { threshold: 0.3 });
+  monObs.observe(monEl);
+})();
+
+// ---- Easter egg: Anyone – Yes Yes Yes in red ----
+(function() {
+  var no = document.getElementById('anyone-no');
+  var ok = document.getElementById('anyone-ok');
+  var me = document.getElementById('anyone-me');
+  if (!no || !ok || !me) return;
+  var origNo = 'No one?', origOk = 'Ok then.', origMe = 'Me neither.';
+  function flashYes() {
+    no.textContent = 'Yes.'; no.style.color = '#cc0000';
+    ok.textContent = 'Yes.'; ok.style.color = '#cc0000';
+    me.textContent = 'Yes.'; me.style.color = '#cc0000';
+    setTimeout(function() {
+      no.textContent = origNo; no.style.color = '';
+      ok.textContent = origOk; ok.style.color = '';
+      me.textContent = origMe; me.style.color = '';
+    }, 180);
+  }
+  // Fire once after page has been visible a moment
+  var p8obs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      p8obs.disconnect();
+      setTimeout(flashYes, 2500 + Math.random() * 2000);
+    }
+  }, { threshold: 0.5 });
+  p8obs.observe(no);
+})();
 
 // ---- A short insanity screen glitch ----
 var insanityDone = false;
@@ -481,9 +573,9 @@ function runJolts(inner, count, callback) {
   var jolts = 0;
   function jolt() {
     if (jolts >= count) { inner.style.transform = ''; if (callback) callback(); return; }
-    inner.style.transform = 'translate('+((Math.random()-0.5)*20)+'px,'+((Math.random()-0.5)*12)+'px)';
+    inner.style.transform = 'translate('+((Math.random()-0.5)*52)+'px,'+((Math.random()-0.5)*32)+'px) rotate('+((Math.random()-0.5)*3)+'deg)';
     jolts++;
-    setTimeout(jolt, 55 + Math.random() * 60);
+    setTimeout(jolt, 45 + Math.random() * 50);
   }
   jolt();
 }
