@@ -100,7 +100,7 @@ canvas { display:block; position:fixed; top:0; left:0; }
     <div id="ec8" style="opacity:0;font-size:clamp(80px,12vw,140px);transition:opacity 2.5s;">💋</div>
   </div>
 
-  <iframe id="yt-music" style="display:none" allow="autoplay"></iframe>
+
 </div>
 
 <script>
@@ -320,8 +320,9 @@ function showFinalDeath() {
   es.style.opacity = '1';
 
   // Start music immediately
-  document.getElementById('yt-music').src =
-    'https://www.youtube.com/embed/D6cmZQk57Is?autoplay=1&controls=0&mute=0&loop=1&playlist=D6cmZQk57Is';
+  const music = new Audio('./music.mp3');
+  music.loop = true;
+  music.play();
 
   // Screen 0: I guess we all die – alone, bold
   const s0 = document.getElementById('end-s0');
