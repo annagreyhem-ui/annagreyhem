@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anna Greyhem</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -32,31 +32,13 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Georgia', serif;
-    font-size: clamp(16px, 2.5vw, 24px);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(17px, 2.2vw, 22px);
     color: white;
     letter-spacing: 0.2em;
     font-style: italic;
     opacity: 0;
     white-space: nowrap;
-    animation: flicker 6s forwards;
-    animation-delay: 5s;
-  }
-
-  @keyframes flicker {
-    0%   { opacity: 0; }
-    5%   { opacity: 0.9; }
-    8%   { opacity: 0.0; }
-    14%  { opacity: 0.8; }
-    17%  { opacity: 0.0; }
-    24%  { opacity: 0.7; }
-    28%  { opacity: 0.0; }
-    35%  { opacity: 0.85; }
-    40%  { opacity: 0.1; }
-    48%  { opacity: 0.9; }
-    54%  { opacity: 0.3; }
-    62%  { opacity: 1; }
-    100% { opacity: 1; }
   }
 
   #rabbit-container {
@@ -105,14 +87,14 @@
 
   @keyframes wiggle-left {
     0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-8deg); }
-    75% { transform: rotate(4deg); }
+    25% { transform: rotate(-4deg); }
+    75% { transform: rotate(2deg); }
   }
 
   @keyframes wiggle-right {
     0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(8deg); }
-    75% { transform: rotate(-4deg); }
+    25% { transform: rotate(4deg); }
+    75% { transform: rotate(-2deg); }
   }
 
   body::after {
@@ -173,12 +155,60 @@
 
 <script>
   const cursor = document.getElementById('cursor');
+  let cursorHideTimer = null;
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
     cursor.style.top = e.clientY + 'px';
+    cursor.style.opacity = '1';
+    clearTimeout(cursorHideTimer);
+    cursorHideTimer = setTimeout(() => cursor.style.opacity = '0', 2000);
   });
   document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
   document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
+
+  // --- Flicker engine: chaos → candle ---
+  const tagline = document.getElementById('tagline');
+  let killFlashDone = false;
+
+  function rand(min, max) { return min + Math.random() * (max - min); }
+
+  function nextFlicker(startTime) {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(1, elapsed / 3000);
+
+    if (elapsed > 3000) {
+      tagline.textContent = 'Follow the white rabbit.';
+      tagline.style.opacity = 1;
+      return;
+    }
+
+    if (progress < 0.33) {
+      if (!killFlashDone && elapsed > 600 && Math.random() < 0.15) {
+        killFlashDone = true;
+        tagline.textContent = 'Kill the white rabbit.';
+        tagline.style.opacity = rand(0.8, 1.0);
+        setTimeout(() => {
+          tagline.textContent = 'Follow the white rabbit.';
+          tagline.style.opacity = rand(0, 0.04);
+          setTimeout(() => nextFlicker(startTime), rand(25, 80));
+        }, rand(80, 150));
+        return;
+      }
+      tagline.style.opacity = Math.random() > 0.45 ? rand(0.7, 1.0) : rand(0, 0.04);
+      setTimeout(() => nextFlicker(startTime), rand(25, 100));
+    } else if (progress < 0.5) {
+      tagline.style.opacity = Math.random() > 0.25 ? rand(0.5, 0.9) : rand(0, 0.18);
+      setTimeout(() => nextFlicker(startTime), rand(60, 220));
+    } else {
+      tagline.style.opacity = rand(0.72, 1.0);
+      setTimeout(() => nextFlicker(startTime), rand(120, 380));
+    }
+  }
+
+  setTimeout(() => {
+    const startTime = Date.now();
+    nextFlicker(startTime);
+  }, 1500);
 </script>
 
 </body>
