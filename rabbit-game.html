@@ -96,32 +96,23 @@ canvas { display:block; position:fixed; top:0; left:0; }
     <div id="ec4" style="opacity:0;position:absolute;font-style:italic;color:#fff;font-size:clamp(17px,2.2vw,22px);letter-spacing:0.06em;transition:opacity 1.5s;max-width:520px;line-height:1.9;">Ich werde es<br>wieder tun.</div>
   </div>
 
-  <!-- Screen 2: Anna's closing words + kiss beside Kiss/Anna -->
-  <div id="end-s2" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
-    <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">I think we are all done.</div>
-    <div id="ec6a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">Until next time,</div>
-    <div id="ec6b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">bitches.</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:32px;margin-top:24px;transform:translateX(8%);">
-      <div id="ec7kiss" style="opacity:0;transition:opacity 1.5s;flex-shrink:0;">
-        <img src="./kiss.jpg" style="width:clamp(140px,20vw,260px);height:auto;object-fit:contain;opacity:0.9;">
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-        <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
-        <div id="ec7b" style="opacity:0;transition:opacity 1.5s;align-self:flex-end;">
-          <img src="./Anna.png" style="height:clamp(150px,24vw,300px);width:auto;object-fit:contain;opacity:0.9;">
-        </div>
+  <!-- Screen 2: Anna's closing words, Kiss/Anna centered under "done" -->
+  <div id="end-s2" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;">
+    <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">I think we are all done.</div>
+    <div id="ec6a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Until next time,</div>
+    <div id="ec6b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">bitches.</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:16px;">
+      <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
+      <div id="ec7b" style="opacity:0;transition:opacity 1.5s;">
+        <img src="./Anna.png" style="height:clamp(150px,24vw,300px);width:auto;object-fit:contain;opacity:0.9;">
       </div>
     </div>
   </div>
 
-  <!-- Screen 3: Big kiss zoomed in + no way text + song credit -->
+  <!-- Screen 3: Big kiss zoomed in + no way text -->
   <div id="end-s3" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:32px;background:transparent;">
     <div id="ec8" style="opacity:0;transition:opacity 0.8s, transform 3s ease-out;transform:scale(0.3);"><img src="./kiss.jpg" style="width:min(50vw,50vh);height:auto;object-fit:contain;opacity:0.92;"></div>
     <div id="ec9" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(18px,2.5vw,32px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">There was no way to save the rabbit.</div>
-    <a id="song-credit-big" href="https://open.spotify.com/track/7bn5nXdatftk0CHSrd7NHQ" target="_blank"
-      style="opacity:0;transition:opacity 1.5s;font-style:italic;color:#666;font-size:clamp(16px,2.2vw,26px);letter-spacing:0.15em;text-decoration:none;">
-      <span style="color:#888;font-style:normal;">Song: </span>Artemas – how could u love somebody like me?
-    </a>
   </div>
 
 </div>
@@ -446,7 +437,6 @@ function showFinalDeath() {
               setTimeout(() => { document.getElementById('ec6b').style.opacity = '1'; }, 5500);
               setTimeout(() => { document.getElementById('ec7a').style.opacity = '1'; }, 7500);
               setTimeout(() => { document.getElementById('ec7b').style.opacity = '1'; }, 9000);
-              setTimeout(() => { document.getElementById('ec7kiss').style.opacity = '1'; }, 9000);
 
               // → Screen 3: big kiss
               setTimeout(() => {
@@ -455,14 +445,12 @@ function showFinalDeath() {
                   s2.style.display = 'none';
                   const s3 = document.getElementById('end-s3');
                   s3.style.display = 'flex';
-                  // Zoom in from small
                   setTimeout(() => {
                     const ec8 = document.getElementById('ec8');
                     ec8.style.opacity = '1';
                     setTimeout(() => { ec8.style.transform = 'scale(1)'; }, 50);
                   }, 300);
                   setTimeout(() => { document.getElementById('ec9').style.opacity = '1'; }, 2800);
-                  setTimeout(() => { document.getElementById('song-credit-big').style.opacity = '1'; }, 4500);
                 }, 1300);
               }, 13000);
             }, 1300);
