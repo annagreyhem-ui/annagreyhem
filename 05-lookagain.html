@@ -34,8 +34,9 @@ p.hint {
 <p>Look again.</p>
 <p class="hint">Hint: it gets dark in there.</p>
 <script>
-document.addEventListener('click', () => window.location.href = './02-questions.html');
-document.addEventListener('touchstart', () => window.location.href = './02-questions.html', {passive:true});
+function goBack() { window.location.href = './02-questions.html'; }
+document.addEventListener('click', goBack);
+document.addEventListener('touchend', goBack, {passive:true});
 </script>
 </body>
 </html>
