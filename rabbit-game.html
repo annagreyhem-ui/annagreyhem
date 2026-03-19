@@ -110,9 +110,11 @@ canvas { display:block; position:fixed; top:0; left:0; }
   </div>
 
   <!-- Screen 3: Big kiss zoomed in + no way text -->
-  <div id="end-s3" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:32px;background:transparent;">
-    <div id="ec8" style="opacity:0;transition:opacity 0.3s, transform 0.6s cubic-bezier(0.2,0,0.4,1);transform:scale(0.15);"><img src="./kiss.jpg" style="width:min(50vw,50vh);height:auto;object-fit:contain;opacity:0.92;"></div>
-    <div id="ec9" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(18px,2.5vw,32px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">There is no way to save the rabbit.</div>
+  <div id="end-s3" style="position:absolute;inset:0;display:none;background:transparent;">
+    <div id="ec8" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-62%) scale(0.15);opacity:0;transition:opacity 0.3s, transform 0.6s cubic-bezier(0.2,0,0.4,1);">
+      <img src="./kiss.jpg" style="width:min(50vw,50vh);height:auto;object-fit:contain;opacity:0.92;">
+    </div>
+    <div id="ec9" style="position:absolute;top:61.8%;left:50%;transform:translateX(-50%);opacity:0;font-style:italic;color:#fff;font-size:clamp(17px,2.2vw,22px);letter-spacing:0.06em;transition:opacity 1.5s;text-align:center;white-space:nowrap;">There is no way to save the rabbit.</div>
   </div>
 
 </div>
@@ -171,7 +173,8 @@ let finalAbyssX = 6120;
 let bloodStains = [];
 let showXEyes = false;
 let cookies = [];
-let speedBoost = 0; // extra speed from cookies
+let speedBoost = 0;
+let axe = { screenX: -80, swing: 0, swingDir: 1, sway: 0 };
 
 const GRAVITY = 0.52;
 const JUMP_FORCE = -13;
@@ -184,6 +187,7 @@ function initRun() {
   camX = 0;
   speedBoost = 0;
   cookies = [];
+  axe = { screenX: -80, swing: 0, swingDir: 1 };
   // X eyes persist if carrot was ever eaten
   showXEyes = carrotEaten;
   if (glitchInterval) { clearInterval(glitchInterval); glitchInterval = null; }
@@ -213,39 +217,43 @@ function buildWorld() {
   platforms = [];
   const groundY = H - 80;
 
-  // Ground segments – gap ~160px each, requires jump
+  // Ground segments – gaps reduced by ~20px
   const segs = [
     [0, 520],
-    [680, 200], [1040, 220], [1420, 200], [1780, 240],
-    [2180, 200], [2540, 220], [2920, 200], [3280, 240],
-    [3680, 200], [4040, 220], [4420, 200],
+    [680, 200], [1020, 220], [1390, 200], [1740, 240],
+    [2120, 200], [2470, 220], [2840, 200], [3190, 240],
+    [3600, 200], [3960, 220], [4330, 200],
     // Carrot platform
-    [4780, 240],
-    // Post-carrot platforms – player can keep going
-    [5180, 200], [5540, 180], [5880, 200],
-    // Final abyss – no more platforms after 6080
+    [4700, 240],
+    // Post-carrot platforms
+    [5090, 200], [5440, 180], [5770, 200],
+    // Final abyss
   ];
   segs.forEach(([x, w]) => platforms.push({x, y:groundY, w, h:80, type:'ground'}));
 
-  // Floating helpers – only on every other gap
+  // Floaters in every gap now
   const floaters = [
-    [560, H-195, 85],
-    [1220, H-255, 75],
-    [1680, H-215, 80],
-    [2440, H-235, 75],
-    [3160, H-205, 80],
-    [3860, H-225, 75],
-    [4660, H-195, 80],
-    // post-carrot floaters
-    [5020, H-210, 75],
-    [5380, H-230, 75],
-    [5740, H-200, 75],
+    [556,  H-195, 85],
+    [880,  H-220, 70],
+    [1196, H-255, 75],
+    [1600, H-215, 80],
+    [1940, H-200, 70],
+    [2336, H-235, 75],
+    [2670, H-210, 70],
+    [3056, H-205, 80],
+    [3400, H-220, 70],
+    [3764, H-225, 75],
+    [4130, H-200, 70],
+    [4554, H-195, 80],
+    [4900, H-215, 75],
+    [5294, H-230, 75],
+    [5630, H-200, 75],
   ];
   floaters.forEach(([x,y,w]) => platforms.push({x, y, w, h:12, type:'float'}));
 
   // Carrot sits on carrot platform
   carrot = {
-    x: 4780 + 95,
+    x: 4700 + 95,
     y: groundY - 52,
     w: 26, h: 52,
     eaten: false,
@@ -253,19 +261,19 @@ function buildWorld() {
 
   // Coffin at the end of the final platform
   coffin = {
-    x: 6060,
+    x: 5950,
     y: groundY - 70,
     w: 54, h: 70,
   };
 
-  finalAbyssX = 6120; // after this x, no more ground
+  finalAbyssX = 6010;
 
-  // Cookies scattered on ground platforms
+  // Ice cubes scattered on ground platforms
   cookies = [
-    {x: 850,  y: groundY - 22, w: 18, h: 18, eaten: false},
-    {x: 1950, y: groundY - 22, w: 18, h: 18, eaten: false},
-    {x: 3350, y: groundY - 22, w: 18, h: 18, eaten: false},
-    {x: 4100, y: groundY - 22, w: 18, h: 18, eaten: false},
+    {x: 820,  y: groundY - 22, w: 18, h: 18, eaten: false},
+    {x: 1900, y: groundY - 22, w: 18, h: 18, eaten: false},
+    {x: 3250, y: groundY - 22, w: 18, h: 18, eaten: false},
+    {x: 4020, y: groundY - 22, w: 18, h: 18, eaten: false},
   ];
 }
 
@@ -311,8 +319,11 @@ function restartGame() {
   m.style.pointerEvents = 'none';
   document.getElementById('msg-l1').textContent = '';
   document.getElementById('msg-l2').textContent = '';
-  document.getElementById('why-screen').style.opacity = '0';
-  document.getElementById('why-screen').style.pointerEvents = 'none';
+  const ws = document.getElementById('why-screen');
+  ws.style.opacity = '0';
+  ws.style.pointerEvents = 'none';
+  document.getElementById('why-text').style.opacity = '0';
+  document.getElementById('why-restart').style.opacity = '0';
   initRun();
 }
 
@@ -347,7 +358,6 @@ function showWhyScreen() {
   wt.style.opacity = '0';
   wr.style.opacity = '0';
 
-  // Slam in
   setTimeout(() => {
     wt.style.transition = 'opacity 0.08s';
     wt.style.opacity = '1';
@@ -357,29 +367,21 @@ function showWhyScreen() {
     }, 1500);
   }, 100);
 
-  // Tap anywhere or Space or Touch restarts
-  ws.addEventListener('click', function onWsClick() {
-    ws.removeEventListener('click', onWsClick);
-    document.removeEventListener('keydown', onWsKey);
-    document.removeEventListener('touchstart', onWsTouch);
-    restartGame();
-  });
-  const onWsKey = (e) => {
-    if (e.code === 'Space' || e.code === 'Enter') {
-      ws.removeEventListener('click', onWsClick);
-      document.removeEventListener('keydown', onWsKey);
-      document.removeEventListener('touchstart', onWsTouch);
-      restartGame();
-    }
-  };
-  const onWsTouch = () => {
-    ws.removeEventListener('click', onWsClick);
-    document.removeEventListener('keydown', onWsKey);
-    document.removeEventListener('touchstart', onWsTouch);
+  let done = false;
+  const doRestart = () => {
+    if (done) return;
+    done = true;
+    ws.removeEventListener('click', doRestart);
+    document.removeEventListener('keydown', onKey);
+    document.removeEventListener('touchstart', doRestart);
     restartGame();
   };
-  document.addEventListener('keydown', onWsKey);
-  document.addEventListener('touchstart', onWsTouch);
+  const onKey = (e) => {
+    if (e.code === 'Space' || e.code === 'Enter') doRestart();
+  };
+  ws.addEventListener('click', doRestart);
+  document.addEventListener('keydown', onKey);
+  document.addEventListener('touchstart', doRestart);
 }
 
 function showFinalDeath() {
@@ -457,7 +459,7 @@ function showFinalDeath() {
                   setTimeout(() => {
                     const ec8 = document.getElementById('ec8');
                     ec8.style.opacity = '1';
-                    setTimeout(() => { ec8.style.transform = 'scale(1)'; }, 50);
+                    setTimeout(() => { ec8.style.transform = 'translate(-50%,-62%) scale(1)'; }, 50);
                   }, 300);
                   setTimeout(() => { document.getElementById('ec9').style.opacity = '1'; }, 2800);
                 }, 1300);
@@ -482,15 +484,21 @@ function triggerDeath(byCarrot) {
   if (byCarrot) {
     carrotEaten = true;
     showXEyes = false;
+    let poisonedShown = false;
+    let whyShown = false;
 
     const skipHandlers = [];
+    const clearSkip = () => {
+      skipHandlers.forEach(h => {
+        document.removeEventListener('keydown', h);
+        document.removeEventListener('click', h);
+      });
+      skipHandlers.length = 0;
+    };
     const onSkip = (cb) => {
       const handler = (e) => {
         if (e.type === 'keydown' && e.code !== 'Space') return;
-        skipHandlers.forEach(h => {
-          document.removeEventListener('keydown', h);
-          document.removeEventListener('click', h);
-        });
+        clearSkip();
         cb();
       };
       skipHandlers.push(handler);
@@ -504,14 +512,21 @@ function triggerDeath(byCarrot) {
     const t1 = setTimeout(() => showPoisoned(), 1600);
 
     const showPoisoned = () => {
+      if (poisonedShown) return;
+      poisonedShown = true;
       clearTimeout(t1);
+      clearSkip();
       showXEyes = true;
       showMsg('The carrot was poisoned.', '');
       onSkip(() => goWhyScreen());
-      setTimeout(() => goWhyScreen(), 3000);
+      const t2 = setTimeout(() => goWhyScreen(), 3000);
+      skipHandlers._t2 = t2;
     };
 
     const goWhyScreen = () => {
+      if (whyShown) return;
+      whyShown = true;
+      clearSkip();
       hideMessage();
       setTimeout(() => { showWhyScreen(); }, 400);
     };
@@ -592,6 +607,14 @@ function update() {
   }
 
   camX = Math.max(0, rabbit.x - W * 0.32);
+
+  // Hooded figure chases rabbit
+  const rabbitScreenX = rabbit.x - camX;
+  const axeTargetX = rabbitScreenX - 130 - Math.sin(Date.now() / 800) * 20;
+  const axeChaseSpeed = 0.04 + speedBoost * 0.008;
+  axe.screenX += (axeTargetX - axe.screenX) * axeChaseSpeed;
+  // Slow sway
+  axe.sway = Math.sin(Date.now() / 700) * 0.06;
 
   // Fall off world – regular death
   if (rabbit.y > H + 80 && rabbit.x < finalAbyssX) {
@@ -946,6 +969,84 @@ function drawRabbitShape(sx, sy, mode) {
   ctx.beginPath(); ctx.ellipse(sx+8,sy+46,6,4,0,0,Math.PI*2); ctx.ellipse(sx+28,sy+46,6,4,0,0,Math.PI*2); ctx.fill();
 }
 
+// --- Hooded figure ---
+function drawAxe() {
+  if (!running || gameOver) return;
+  const ax = axe.screenX;
+  const floatY = Math.sin(Date.now() / 900) * 5;
+  const groundY = H - 80;
+  const figH = 110; // figure height
+  const fy = groundY - figH + floatY;
+
+  ctx.save();
+  ctx.translate(ax, fy);
+  ctx.rotate(axe.sway);
+  ctx.globalAlpha = 0.82;
+
+  // Robe/cloak – wide flowing shape
+  ctx.fillStyle = '#0a0a0a';
+  ctx.beginPath();
+  ctx.moveTo(10, figH);        // bottom right
+  ctx.lineTo(-10, figH);       // bottom left
+  ctx.lineTo(-22, figH - 20);  // hem left
+  ctx.lineTo(-18, 50);         // side left
+  ctx.lineTo(-12, 30);         // waist left
+  ctx.lineTo(-8, 18);          // chest left
+  ctx.lineTo(0, 10);           // neck
+  ctx.lineTo(8, 18);           // chest right
+  ctx.lineTo(12, 30);          // waist right
+  ctx.lineTo(18, 50);          // side right
+  ctx.lineTo(22, figH - 20);   // hem right
+  ctx.closePath();
+  ctx.fill();
+
+  // Hood – large, deep, slightly forward
+  ctx.fillStyle = '#080808';
+  ctx.beginPath();
+  ctx.ellipse(2, 14, 22, 26, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Hood shadow inside – the dark void face
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.ellipse(4, 18, 13, 16, 0.1, 0, Math.PI*2);
+  ctx.fill();
+
+  // Faint glowing eyes in the darkness
+  ctx.fillStyle = 'rgba(180,0,0,0.45)';
+  ctx.beginPath(); ctx.ellipse(0, 16, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(8, 16, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+
+  // Sleeve left – arm hanging
+  ctx.fillStyle = '#0a0a0a';
+  ctx.beginPath();
+  ctx.moveTo(-12, 40);
+  ctx.bezierCurveTo(-20, 50, -28, 65, -24, 80);
+  ctx.bezierCurveTo(-22, 86, -14, 86, -12, 80);
+  ctx.bezierCurveTo(-10, 65, -6, 50, -8, 40);
+  ctx.closePath();
+  ctx.fill();
+
+  // Bony hand hint
+  ctx.strokeStyle = 'rgba(200,200,180,0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(-22, 80); ctx.lineTo(-26, 88);
+  ctx.moveTo(-18, 82); ctx.lineTo(-20, 90);
+  ctx.moveTo(-14, 82); ctx.lineTo(-15, 90);
+  ctx.stroke();
+
+  // Subtle dark aura/shadow behind
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.ellipse(4, figH, 28, 10, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
 // --- Progress bar ---
 function drawProgress() {
   ctx.fillStyle = 'rgba(60,0,0,0.45)';
@@ -964,6 +1065,7 @@ function loop() {
   drawCarrot();
   drawAbyssDarkness();
   drawRabbit();
+  drawAxe();
   drawProgress();
   requestAnimationFrame(loop);
 }
