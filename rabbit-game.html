@@ -74,44 +74,58 @@ canvas { display:block; position:fixed; top:0; left:0; }
 </div>
 
 <div id="end-screen">
-  <!-- Screen 0: I guess we all die – alone, bold, warning -->
+  <!-- Screen 0: oops. – alone -->
   <div id="end-s0" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-    <div id="end-l1" style="opacity:0;font-style:italic;font-weight:bold;color:#cc0000;font-size:clamp(32px,6vw,80px);letter-spacing:0.08em;text-align:center;transition:opacity 1.5s;">oops. I guess we all die.</div>
+    <div id="end-l0" style="opacity:0;font-style:italic;font-weight:bold;color:#cc0000;font-size:clamp(32px,6vw,80px);letter-spacing:0.08em;text-align:center;transition:opacity 1.5s;">oops.</div>
   </div>
-  <!-- Song credit – appears with music, stays on all end screens -->
+
+  <!-- Screen 0b: I guess we all die. – alone -->
+  <div id="end-s0b" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;">
+    <div id="end-l1" style="opacity:0;font-style:italic;font-weight:bold;color:#cc0000;font-size:clamp(32px,6vw,80px);letter-spacing:0.08em;text-align:center;transition:opacity 1.5s;">I guess we all die.</div>
+  </div>
+
+  <!-- Song credit – appears with music -->
   <a id="song-credit" href="https://open.spotify.com/track/7bn5nXdatftk0CHSrd7NHQ" target="_blank"
     style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity 1.5s;
-    font-style:italic;color:#444;font-size:clamp(12px,1.4vw,15px);letter-spacing:0.12em;white-space:nowrap;
+    font-style:italic;color:#666;font-size:clamp(13px,1.6vw,18px);letter-spacing:0.12em;white-space:nowrap;
     text-decoration:none;pointer-events:none;">
-    Artemas – how could u love somebody like me?
+    <span style="color:#888;font-style:normal;">Song: </span>Artemas – how could u love somebody like me?
   </a>
 
-  <!-- Screen 1: Credits text -->
-  <div id="end-s1" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center;max-width:680px;margin:auto;padding:0 40px;">
-    <div id="ec0" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,42px);letter-spacing:0.1em;transition:opacity 1.5s;">I guess, I did it.</div>
-    <div id="ec1" style="opacity:0;font-style:italic;color:#666;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Das Publikum klatscht, Alice klatscht. Die Vorstellung ist vorbei. Der Vorhang schließt sich, doch Anna schlüpft noch ein letztes Mal zwischen dem schweren Samt hervor:</div>
-    <div id="ec2" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Just remember. What I write is not always real, but it is always true. You signed up for feeling everything at once. You just felt everything at once.</div>
-    <div id="ec3" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Manches ist wahr, manches ist Kunst und beides bin ich.</div>
-    <div id="ec4" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;transition:opacity 1.5s;">Ich werde es wieder tun.</div>
+  <!-- Screen 1: Credits text – appears line by line then scrolls up -->
+  <div id="end-s1" style="position:absolute;inset:0;display:none;overflow:hidden;">
+    <div id="end-s1-inner" style="display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center;max-width:680px;margin:0 auto;padding:40px 40px 120px;transform:translateY(0);transition:transform 0s;">
+      <div id="ec0" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,42px);letter-spacing:0.1em;transition:opacity 1.5s;">I guess, I did it.</div>
+      <div id="ec1" style="opacity:0;font-style:italic;color:#666;font-size:clamp(16px,2vw,24px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Das Publikum klatscht, Alice klatscht. Die Vorstellung ist vorbei. Der Vorhang schließt sich, doch Anna schlüpft noch ein letztes Mal zwischen dem schweren Samt hervor:</div>
+      <div id="ec2" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(16px,2vw,24px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Just remember. What I write is not always real, but it is always true. You signed up for feeling everything at once. You just felt everything at once.</div>
+      <div id="ec3" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(16px,2vw,24px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Manches ist wahr, manches ist Kunst und beides bin ich.</div>
+      <div id="ec4" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(16px,2vw,24px);letter-spacing:0.08em;transition:opacity 1.5s;">Ich werde es wieder tun.</div>
+    </div>
   </div>
 
-  <!-- Screen 2: Anna's closing words -->
+  <!-- Screen 2: Anna's closing words + kiss beside Kiss/Anna -->
   <div id="end-s2" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
     <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">I think we are all done.</div>
     <div id="ec6" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;text-align:center;">Until next time, bitches.</div>
-    <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;margin-top:24px;text-align:right;width:100%;max-width:600px;padding-right:40px;transition:opacity 1.5s;">Kiss,</div>
-    <div id="ec7b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;text-align:right;width:100%;max-width:600px;padding-right:40px;transition:opacity 1.5s;">Anna</div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;max-width:700px;padding-right:40px;gap:24px;margin-top:24px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
+        <div id="ec7b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;">Anna</div>
+      </div>
+      <div id="ec7kiss" style="opacity:0;transition:opacity 1.5s;flex-shrink:0;">
+        <img src="./kiss.jpg" style="width:clamp(80px,12vw,160px);height:auto;object-fit:contain;opacity:0.9;">
+      </div>
+    </div>
   </div>
 
-  <!-- Screen 3: Just the kiss + big song credit -->
+  <!-- Screen 3: Big kiss + song credit -->
   <div id="end-s3" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:40px;background:transparent;">
     <div id="ec8" style="opacity:0;transition:opacity 2.5s;"><img src="./kiss.jpg" style="width:min(95vw,95vh);height:auto;object-fit:contain;opacity:0.92;"></div>
     <a id="song-credit-big" href="https://open.spotify.com/track/7bn5nXdatftk0CHSrd7NHQ" target="_blank"
       style="opacity:0;transition:opacity 1.5s;font-style:italic;color:#666;font-size:clamp(16px,2.2vw,26px);letter-spacing:0.15em;text-decoration:none;">
-      Artemas – how could u love somebody like me?
+      <span style="color:#888;font-style:normal;">Song: </span>Artemas – how could u love somebody like me?
     </a>
   </div>
-
 
 </div>
 
@@ -331,66 +345,82 @@ function showFinalDeath() {
   const es = document.getElementById('end-screen');
   es.style.opacity = '1';
 
-  // Start music immediately
+  // Start music at oops
   const music = new Audio('./music.mp3');
   music.loop = true;
   music.play();
 
-  // Show song credit
+  // Song credit
   setTimeout(() => {
     const credit = document.getElementById('song-credit');
     credit.style.opacity = '1';
     credit.style.pointerEvents = 'auto';
-  }, 1000);
+  }, 1200);
 
-  // Screen 0: I guess we all die – alone, bold
+  // Screen 0: oops. alone
   const s0 = document.getElementById('end-s0');
   s0.style.display = 'flex';
-  setTimeout(() => { document.getElementById('end-l1').style.opacity = '1'; }, 500);
+  setTimeout(() => { document.getElementById('end-l0').style.opacity = '1'; }, 400);
 
-  // Transition to screen 1 after 4s
+  // → Screen 0b: I guess we all die.
   setTimeout(() => {
-    s0.style.transition = 'opacity 1.2s';
-    s0.style.opacity = '0';
+    s0.style.transition = 'opacity 1s'; s0.style.opacity = '0';
     setTimeout(() => {
       s0.style.display = 'none';
-      const s1 = document.getElementById('end-s1');
-      s1.style.display = 'flex';
-      setTimeout(() => { document.getElementById('ec0').style.opacity = '1'; }, 300);
-      setTimeout(() => { document.getElementById('ec1').style.opacity = '1'; }, 3500);
-      setTimeout(() => { document.getElementById('ec2').style.opacity = '1'; }, 8000);
-      setTimeout(() => { document.getElementById('ec3').style.opacity = '1'; }, 13000);
-      setTimeout(() => { document.getElementById('ec4').style.opacity = '1'; }, 16500);
+      const s0b = document.getElementById('end-s0b');
+      s0b.style.display = 'flex';
+      setTimeout(() => { document.getElementById('end-l1').style.opacity = '1'; }, 300);
 
-      // Transition to screen 2
+      // → Screen 1: credits
       setTimeout(() => {
-        s1.style.transition = 'opacity 1.2s';
-        s1.style.opacity = '0';
+        s0b.style.transition = 'opacity 1s'; s0b.style.opacity = '0';
         setTimeout(() => {
-          s1.style.display = 'none';
-          const s2 = document.getElementById('end-s2');
-          s2.style.display = 'flex';
-          setTimeout(() => { document.getElementById('ec5').style.opacity = '1'; }, 300);
-          setTimeout(() => { document.getElementById('ec6').style.opacity = '1'; }, 3800);
-          setTimeout(() => { document.getElementById('ec7a').style.opacity = '1'; }, 7000);
-          setTimeout(() => { document.getElementById('ec7b').style.opacity = '1'; }, 9000);
+          s0b.style.display = 'none';
+          const s1 = document.getElementById('end-s1');
+          s1.style.display = 'flex';
+          setTimeout(() => { document.getElementById('ec0').style.opacity = '1'; }, 300);
+          setTimeout(() => { document.getElementById('ec1').style.opacity = '1'; }, 3500);
+          setTimeout(() => { document.getElementById('ec2').style.opacity = '1'; }, 8000);
+          setTimeout(() => { document.getElementById('ec3').style.opacity = '1'; }, 13000);
+          setTimeout(() => { document.getElementById('ec4').style.opacity = '1'; }, 16500);
 
-          // Transition to screen 3 – just the kiss
+          // Scroll up after all lines visible
           setTimeout(() => {
-            s2.style.transition = 'opacity 1.2s';
-            s2.style.opacity = '0';
+            const inner = document.getElementById('end-s1-inner');
+            inner.style.transition = 'transform 6s ease-in-out';
+            inner.style.transform = 'translateY(-60vh)';
+          }, 19000);
+
+          // → Screen 2: closing words + kiss beside Anna
+          setTimeout(() => {
+            s1.style.transition = 'opacity 1.2s'; s1.style.opacity = '0';
             setTimeout(() => {
-              s2.style.display = 'none';
-              const s3 = document.getElementById('end-s3');
-              s3.style.display = 'flex';
-              setTimeout(() => { document.getElementById('ec8').style.opacity = '1'; }, 300);
-              setTimeout(() => { document.getElementById('song-credit-big').style.opacity = '1'; }, 2000);
+              s1.style.display = 'none';
+              const s2 = document.getElementById('end-s2');
+              s2.style.display = 'flex';
+              setTimeout(() => { document.getElementById('ec5').style.opacity = '1'; }, 300);
+              setTimeout(() => { document.getElementById('ec6').style.opacity = '1'; }, 3800);
+              setTimeout(() => { document.getElementById('ec7a').style.opacity = '1'; }, 7000);
+              setTimeout(() => { document.getElementById('ec7b').style.opacity = '1'; }, 9000);
+              setTimeout(() => { document.getElementById('ec7kiss').style.opacity = '1'; }, 9000);
+
+              // → Screen 3: big kiss
+              setTimeout(() => {
+                s2.style.transition = 'opacity 1.2s'; s2.style.opacity = '0';
+                setTimeout(() => {
+                  s2.style.display = 'none';
+                  const s3 = document.getElementById('end-s3');
+                  s3.style.display = 'flex';
+                  setTimeout(() => { document.getElementById('ec8').style.opacity = '1'; }, 300);
+                  setTimeout(() => { document.getElementById('song-credit-big').style.opacity = '1'; }, 2000);
+                }, 1300);
+              }, 13000);
             }, 1300);
-          }, 13000);
+          }, 26000);
         }, 1300);
-      }, 20000);
-    }, 1300);
-  }, 4500);
+      }, 4500);
+    }, 1100);
+  }, 3500);
 }
 function triggerDeath(byCarrot) {
   gameOver = true;
