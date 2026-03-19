@@ -3,390 +3,554 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anna Greyhem – Lost places in my mind</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;1,400&display=swap">
+<title>Anna Greyhem - Lost places in my mind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-  background:#000;
-  color:#bbb;
-  font-family:'EB Garamond', serif;
-  font-size:19px;
-  line-height:1.9;
-  cursor:none;
-}
-
-.cursor {
-  position:fixed; width:8px; height:8px; background:white;
-  border-radius:50%; pointer-events:none; z-index:9999;
-  transform:translate(-50%,-50%);
-}
-
-.story {
-  display:none;
-  min-height:100vh;
-  padding:80px 0 40px;
-  animation:fadein 1.2s ease forwards;
-}
+body { background:#000; color:#ccc; font-family:Georgia,serif; font-size:19px; line-height:1.9; cursor:none; }
+.cursor { position:fixed; width:8px; height:8px; background:white; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:opacity 0.5s; }
+.story { display:none; min-height:100vh; padding:80px 0 120px; animation:fadein 1.2s ease forwards; }
 .story.active { display:block; }
-
-@keyframes fadein {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.story-inner {
-  max-width:640px;
-  margin:0 auto;
-  padding:0 40px;
-}
-
-h1 {
-  font-family:'IM Fell English', serif;
-  font-style:italic;
-  font-weight:normal;
-  font-size:clamp(22px,3vw,32px);
-  color:#fff;
-  letter-spacing:0.08em;
-  margin-bottom:48px;
-  line-height:1.3;
-}
-
+@keyframes fadein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.story-inner { max-width:640px; margin:0 auto; padding:0 40px; }
+.center-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding-bottom:80px; }
+h1 { font-family:'IM Fell English',serif; font-style:italic; font-weight:normal; font-size:clamp(22px,3vw,32px); color:#fff; letter-spacing:0.08em; margin-bottom:48px; line-height:1.3; }
 p { margin-bottom:1.4em; }
 p:last-of-type { margin-bottom:0; }
-
-.dialogue {
-  margin-left:2em;
-  font-style:italic;
-  color:#999;
-}
-
+.dialogue { margin-left:2em; font-style:italic; color:#aaa; }
 .centered { text-align:center; }
 .centered p { margin-bottom:1.8em; }
-
 .em { font-style:italic; }
-.dash-word { font-style:italic; color:#888; }
+.dash-word { font-style:italic; color:#999; }
+.look-again { font-family:Georgia,serif; font-style:italic; color:#666; margin-bottom:40px; display:block; }
+.chat-prompt { color:#666; font-size:15px; font-style:italic; margin-bottom:1.8em; padding:14px 20px; border-left:1px solid #1a1a1a; }
+.chat-label { font-family:Georgia,serif; font-style:italic; font-size:16px; color:#777; margin-bottom:8px; }
+.chat-bubble { padding:14px 20px; border-left:1px solid #2a2a2a; margin-bottom:28px; color:#aaa; font-style:italic; }
+.chat-fyi { font-size:14px; color:#555; margin-top:32px; font-style:italic; }
 
-.look-again {
-  font-family:'IM Fell English',serif;
-  font-style:italic;
-  color:#555;
-  margin-bottom:40px;
-  display:block;
+/* Fixed nav arrow */
+#fixed-nav {
+  position:fixed; bottom:40px; left:50%; transform:translateX(-50%);
+  z-index:500; display:none;
+  font-size:36px; color:#888; cursor:pointer;
+  padding:8px 40px; transition:color 0.3s; user-select:none;
 }
+#fixed-nav:hover { color:#fff; }
 
-/* Chat */
-.chat-prompt {
-  color:#444;
-  font-size:15px;
-  font-style:italic;
-  margin-bottom:1.8em;
-  padding:14px 20px;
-  border-left:1px solid #1a1a1a;
-}
-.chat-label {
-  font-family:'IM Fell English', serif;
-  font-style:italic;
-  font-size:16px;
-  color:#555;
-  margin-bottom:8px;
-}
-.chat-bubble {
-  padding:14px 20px;
-  border-left:1px solid #2a2a2a;
-  margin-bottom:28px;
-  color:#999;
-  font-style:italic;
-}
-.chat-fyi {
-  font-size:14px;
-  color:#333;
-  margin-top:32px;
-  font-style:italic;
-}
+/* Click overlay for p0/p1 */
+#click-overlay { position:fixed; inset:0; z-index:400; cursor:pointer; display:none; }
+#click-hint { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); opacity:0; transition:opacity 1.2s; font-family:'IM Fell English',serif; font-style:italic; font-size:14px; color:#888; letter-spacing:0.2em; white-space:nowrap; z-index:401; pointer-events:none; }
 
-/* Nav at bottom of each story */
-.nav {
-  display:flex;
-  justify-content:center;
-  padding:64px 0 80px;
-}
-
-.nav-btn {
-  font-size:36px;
-  color:#2a2a2a;
-  cursor:pointer;
-  transition:color 0.3s;
-  user-select:none;
-  padding:8px 32px;
-}
-.nav-btn:hover { color:#fff; }
+/* Shifting page */
+#shift-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding-bottom:80px; }
+#shift-text { font-family:'IM Fell English',serif; font-style:italic; font-size:clamp(24px,4vw,40px); color:#fff; letter-spacing:0.1em; text-align:center; }
+.sletter { display:inline-block; }
 
 /* End screen */
-#end-screen {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:500;
-  animation:fadein 2s ease forwards;
-}
-#end-screen.active { display:block; }
+#end-screen { display:none; position:fixed; inset:0; background:#000; z-index:600; }
 
-@keyframes hop {
-  0%   { transform: translateY(0px)   scaleY(1)    scaleX(1); }
-  30%  { transform: translateY(0px)   scaleY(0.85) scaleX(1.1); }
-  60%  { transform: translateY(-10px) scaleY(1.1)  scaleX(0.95); }
-  100% { transform: translateY(-14px) scaleY(1.05) scaleX(0.97); }
-}
+/* Rabbit */
+@keyframes hop { 0%{transform:translateY(0) scaleY(1) scaleX(1)} 30%{transform:translateY(0) scaleY(0.85) scaleX(1.1)} 60%{transform:translateY(-10px) scaleY(1.1) scaleX(0.95)} 100%{transform:translateY(-14px) scaleY(1.05) scaleX(0.97)} }
+.rabbit-end { display:flex; justify-content:center; padding:60px 0 80px; cursor:pointer; }
 </style>
 </head>
 <body>
 
 <div class="cursor" id="cursor"></div>
+<div id="fixed-nav">&#8964;</div>
+<div id="click-overlay"></div>
+<div id="click-hint">click to enter</div>
+<div id="end-screen"></div>
 
-<!-- 0: You found it -->
-<div class="story active" id="s0">
-  <div class="story-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;">
-    <h1 style="text-align:center;margin-bottom:24px;">Lost places in my mind</h1>
-    <p style="text-align:center;color:#555;font-style:italic;letter-spacing:0.15em;">You found it.</p>
+<!-- P0 -->
+<div class="story active" id="p0">
+  <div class="story-inner center-page">
+    <p style="text-align:center;color:#888;font-style:italic;letter-spacing:0.15em;font-family:Georgia,serif;font-size:18px;margin-bottom:20px;">You found it.</p>
+    <h1 style="text-align:center;margin:0;">This is the shadow chapter.</h1>
   </div>
 </div>
 
-<!-- 1 -->
-<div class="story" id="s1">
+<!-- P1 -->
+<div class="story" id="p1">
+  <div class="story-inner center-page">
+    <h1 style="text-align:center;font-size:clamp(24px,4vw,42px);letter-spacing:0.12em;margin:0;">Lost places in my mind</h1>
+  </div>
+</div>
+
+<!-- P2: Falling into the rabbit hole -->
+<div class="story" id="p2">
   <div class="story-inner">
     <h1>Falling into the rabbit hole</h1>
-    <p>Und Alice rannte dem Hasen nach. Sie wollte das weiße Häschen nicht entwischen lassen. Sie hatte doch noch so viele Karotten, die sie ihm geben würde. Und noch so viele Kuschelstunden, die sie teilen würden. Also rannte Alice so schnell sie konnte.</p>
-    <p>Und, ups. Da plumpste Alice in das Loch, dem Hasen hinterher. Zuerst war es dunkel und sie hatte Angst, dann sah sie, dass es gar nicht dunkel war. Es glitzerte und Schlieren von Farben zogen sich wie Nordlichter über die Wände hinweg. Das Kaninchen und sie schwebten auf dem Regenbogen. Es machte Spaß zu fliegen. Das Kaninchen trippelte unentwegt mit dem Fuß, es wartete auf etwas. Es wurde wieder dunkler. Sie schienen am anderen Ende des Tunnels anzukommen.</p>
-    <p>Alice und der Hase schlugen auf dem Boden auf, Alice war bewusstlos. Der Hase stand über ihr. Mit einem letzten Knacken brach er ihr Genick und hielt sie mit seinen Vorderläufen, während er Alice in Stücke riss.</p>
+    <p>Und Alice rannte dem Hasen nach. Sie wollte das wei&szlig;e Haeischen nicht entwischen lassen. Sie hatte doch noch so viele Karotten, die sie ihm geben w&uuml;rde. Und noch so viele Kuschelstunden, die sie teilen w&uuml;rden. Also rannte Alice so schnell sie konnte.</p>
+    <p>Und, ups. Da plumpste Alice in das Loch, dem Hasen hinterher. Zuerst war es dunkel und sie hatte Angst, dann sah sie, dass es gar nicht dunkel war. Es glitzerte und Schlieren von Farben zogen sich wie Nordlichter ueber die W&auml;nde hinweg. Das Kaninchen und sie schwebten auf dem Regenbogen. Es machte Spa&szlig; zu fliegen. Das Kaninchen trippelte unentwegt mit dem Fu&szlig;, es wartete auf etwas. Es wurde wieder dunkler. Sie schienen am anderen Ende des Tunnels anzukommen.</p>
+    <p>Alice und der Hase schlugen auf dem Boden auf, Alice war bewusstlos. Der Hase stand ueber ihr. Mit einem letzten Knacken brach er ihr Genick und hielt sie mit seinen Vorderlaeufen, waehrend er Alice in Stuecke riss.</p>
   </div>
 </div>
 
-<!-- 2 -->
-<div class="story" id="s2">
+<!-- P3: Dear reader Vol. 2 -->
+<div class="story" id="p3">
   <div class="story-inner">
-    <h1>A short insanity</h1>
-    <p>Es ist, als würde ich in dieses Buch gesogen. Es macht mir Spaß und fühlt sich richtig an, aber irgendwie auch dunkel. Die schweren Themen, die Emotionen, die ich jeden Tag beim Verarbeiten neu durchlebe, das nicht mehr Rausgehen, das keine Pause machen.</p>
-    <p>Ich liebe das Schreiben so sehr, dass ich, wenn ich hungrig bin, nur schnell ein Brot esse, damit ich keine Zeit mit Kochen verschwende. Und dann plötzlich habe ich seit einer Woche nur noch Brot gegessen, ohne dass ich es bemerke.</p>
-    <p>Das Buch zieht mich nach unten, wie eine Droge. Ich kann nicht aufhören zu schreiben, ich kann nichts anderes tun, an nichts anderes denken, selbst wenn ich versuche nicht zu schreiben. Flüstere ich unter der Dusche unentwegt neue Einfälle, damit ich sie auf keinen Fall vergesse.</p>
-    <p>Und jetzt frage ich mich: Ist dieses Buch gut oder schlecht für mich?</p>
-    <p>Und bin ich vielleicht der Preis, den ich bezahle, damit dieses Buch existieren kann?</p>
-    <p>Wenn ich meinen Gedanken so zuhöre: Ich glaube, so fühlt sich verrückt werden an.</p>
-    <p>Langsam weiß ich nicht mehr, was Kunst ist und was nicht. Schreibe ich nur über die Grenzen, weil das spannender ist? Oder überschreite ich Grenzen?</p>
-    <p>Machen sich Horror-Autoren beim Schreiben manchmal selbst Angst?</p>
-    <p>Also ich mache mir gerade welche.</p>
-    <p>Haha.</p>
-    <p>Irgendwie lache ich gerade über mich. Schreibe ich jetzt wirklich schon so gut, dass ich Sorge habe, das alles wirklich zu glauben? Die zweite Hochzeitsnacht ist offensichtlich nicht real.</p>
-    <p>Ich weiß echt nicht ob ich <span class="dash-word">verrückt</span> bin, oder <span class="dash-word">genial</span> bin. Oder einfach <span class="dash-word">high</span>. Und die drei sprachen miteinander.</p>
-    <p>Die <span class="dash-word">Drei</span> sprachen miteinander, bis es wieder heißer wurde und der Verirrte dahingerafft wurde.</p>
-    <p>Und plötzlich sehe ich Verbindungen, wo keine sind.</p>
-    <p>I'm joking.</p>
-    <p>Am I?</p>
+    <h1>Dear reader, Vol. 2</h1>
+    <p>Und was waere, wenn ich dir sage, dass das hier alles nur fiktiv ist? Dass es keine Anna gibt, die versucht sich zu finden.</p>
+    <p>Was, wenn alles nur gelogen war?</p>
+    <p>Es gibt keine Anna. Es gibt keine kleine Schwester. Es gibt nur mich, die eine komplexe Geschichte erschaffen hat.</p>
+    <p>Bist du nun w&uuml;tend auf mich? F&uuml;hlst du dich verraten?</p>
+    <p>Just joking. I'm real.</p>
   </div>
 </div>
 
-<!-- 3 -->
-<div class="story" id="s3">
-  <div class="story-inner">
-    <h1>Zurück</h1>
-    <p>Sie sah den Widerhall des grellen Lichts vor ihren geschlossenen Lidern. Ihr Körper war angespannt und schwitzte. Irgendwo in der Ferne hörte sie Geräusche, gleichmäßige Geräusche, wahrscheinlich war es Musik. Das Atmen war anstrengend geworden und alles verschwamm. Sie öffnete die Augen und kam nach einer Pirouette zum Stehen. Sie verbeugte sich und das Publikum applaudierte. Ein Mann kam auf die Bühne und stand ihr bald genau gegenüber. Sie blickte zu ihm, in seine schwarzen Augen. Er sagte zu ihr, dass sie es gut gemacht hatte und er begeistert davon war, wie leicht es ihr fiel loszulassen und in den Moment überzugehen. Sie bedankte sich und ging mit ihm hinter die Bühne. Im Ankleidezimmer war es dunkel. Er fragte sie, wie sie heiße.</p>
-    <p class="dialogue">»Alice«, sagte sie und sah ihn erneut an. Sie wusste nicht genau, was er bei ihr wollte. Es kam ihr unhöflich vor, ihn zu fragen, deshalb schwieg sie.</p>
-    <p class="dialogue">»Das ist ein schöner Name.«, nach einer Weile fügte er hinzu:</p>
-    <p class="dialogue">»Wir müssen langsam los.«, Er schien nicht einmal zu blinzeln, was ihr befremdlich erschien.</p>
-    <p>Alice legte ihr Kostüm ab und machte sich bereit, dem Fremden zu folgen. Die beiden gingen nach draußen und stiegen die Treppe zum Theater hinab. Es war dunkel, es schien nicht mal mehr der Mond oder die Sterne. Doch die Laternen im Fluss spiegelten sich in der Wirklichkeit wider. Der fremde Mann duftete vertraut, doch sie konnte nicht ausmachen, wonach. Die Musik aus der Ferne hallte zwischen den Häusern hin und her, als würden diese miteinander sprechen. Sie starrte einen Augenblick lang in die Weite.</p>
-    <p class="dialogue">»Es ist wunderschön hier.«, sagte sie.</p>
-    <p class="dialogue">»Ich bin nie woanders gewesen.«, es lag eine leichte Traurigkeit in seiner Stimme.</p>
-    <p>Sie erzählte ihm von ihrer Heimat und wie sie als Kind mit ihrer Schwester auf der Wiese am See lag. Sie erzählte von ihrem ersten Mal in Paris und von Kirschbäumen in Japan. Er lauschte ihr gebannt und ließ sich nicht von den Fledermäusen, die über sie hinweglitten, beirren. Es klang nach Märchen, so weit entfernt waren diese Orte für ihn.</p>
-    <p>Es war warm und die Luft stand, so als würde sie nicht existieren. Man spürte keinen Hauch, nicht einmal, wenn man den eigenen Körper bewegte. Sie liefen den Fluss entlang, während die Musik in die andere Richtung schlenderte. Bald war es sehr still, man konnte nicht mal den Atem beider hören. Zwischen den Bäumen bewegte sich etwas knisternd im Geäst. Sie blieb stehen und sah sich neugierig um. Ihr blitzten zwei Augen entgegen, die ihr sonderbar bekannt vorkamen. Als hätten sie der Katze gehört, die sie als Kind gefunden und bei sich aufgenommen hatte. Während die Pfoten sich auf die Straße vortasteten, schien auch die Katze sie mit einem bekannten Gesicht zu verwechseln. Sie kam auf sie zu und schmiegte sich an ihre Beine, für einen kurzen Moment. Bis abermals etwas im Gebüsch raschelte und sie erneut etwas Totem hinterherjagte.</p>
-    <p>Es war eine schöne Begegnung gewesen, so wie auch die Begegnung mit dem fremden Mann, der mittlerweile nicht mehr so fremd war. Plötzlich fiel ihr ein, woher sie seinen Geruch kannte. Er roch nach Weihnachten zu Hause, holzig und leicht rauchig, wie eine gerade erst gelöschte Kerze am Tannenbaum. Sie lächelte.</p>
-    <p class="dialogue">»Woran denkst du?«, unterbrach er die Stille.</p>
-    <p class="dialogue">»Nichts. Du erinnerst mich an etwas.«, er stand wieder vor ihr, wie er es zuvor schon getan hatte. Sie sah erneut in seine schwarzen Augen und beide sahen zurück.</p>
-    <p>Sie fühlte sich wohl an diesem Ort und der Gedanke, für immer zu bleiben, ängstigte sie weniger als zuvor. Sie gingen weiter am Ufer entlang, bis sie irgendwann in eine Gasse einbogen. An ihr entlang reihten sich Häuser mit Vorgärten davor und Menschen darin.</p>
-    <p>Auf einmal wusste sie, dass sie angekommen waren. Denn sie sah das Haus ihrer Großmutter und es war keine Verwechselung, denn sie konnte ihre Oma durch das Küchenfenster sehen. Die Katze von vorhin saß auf dem Fensterbrett. Alice spürte Erleichterung. Sie freute sich darauf, durch die Tür zu treten und ihre Liebsten in die Arme zu schließen. Darauf, deren Wärme zu fühlen und ihren Geruch wieder einatmen zu können. Denn die Erinnerung daran war schon lange verblasst.</p>
-    <p>Alice stoppte. Plötzlich stieg Panik in ihr auf. Es drückte etwas auf ihren Brustkorb, sie konnte nicht atmen. Sie schreckte auf, öffnete die Augen und tat den ersten Atemzug dieses Lebens. Die Lichter waren grell. Irgendwo in der Ferne hörte sie Geräusche, gleichmäßige Geräusche, wahrscheinlich waren es Sirenen. Sie wurden immer lauter und dröhnten in ihrem Kopf, der währenddessen drohte zu zerbrechen. Das Atmen tat weh, alles tat weh. Die Menschen, die über ihr hantierten, murmelten Unverständliches und die Scherben um sie herum knisterten bei ihren Bewegungen. Als ihr bewusst wurde, was passiert war, lief ihr eine Träne über die Wange. Nicht aus Freude über den neuen Anfang, sondern aus Trauer um die verlorene Endgültigkeit des Endes.</p>
+<!-- P4: I keep shifting -->
+<div class="story" id="p4">
+  <div id="shift-page">
+    <div id="shift-text"></div>
   </div>
 </div>
 
-<!-- 4 -->
-<div class="story" id="s4">
+<!-- P5: Deathly orgasm -->
+<div class="story" id="p5">
   <div class="story-inner">
     <h1>Deathly orgasm</h1>
     <p>And then I wondered if the rabbit hole was a metaphor for dying throughout this book. Alice turns her last pirouette and stumbles into the rabbit hole. She falls into the glittery dark. There she meets an old friend, death.</p>
-    <p>Warum sagt man eigentlich zum Orgasmus „der kleine Tod"?</p>
+    <p>Warum sagt man eigentlich zum Orgasmus "der kleine Tod"?</p>
   </div>
 </div>
 
-<!-- 5 -->
-<div class="story" id="s5">
+<!-- P6: A short insanity -->
+<div class="story" id="p6">
+  <div class="story-inner" id="insanity-inner">
+    <h1>A short insanity</h1>
+    <p>Es ist, als w&uuml;rde ich in dieses Buch gesogen. Es macht mir Spa&szlig; und fuehlt sich richtig an, aber irgendwie auch dunkel. Die schweren Themen, die Emotionen, die ich jeden Tag beim Verarbeiten neu durchlebe, das nicht mehr Rausgehen, das keine Pause machen.</p>
+    <p>Ich liebe das Schreiben so sehr, dass ich, wenn ich hungrig bin, nur schnell ein Brot esse, damit ich keine Zeit mit Kochen verschwende. Und dann pl&ouml;tzlich habe ich seit einer Woche nur noch Brot gegessen, ohne dass ich es bemerke.</p>
+    <p>Das Buch zieht mich nach unten, wie eine Droge. Ich kann nicht aufh&ouml;ren zu schreiben, ich kann nichts anderes tun, an nichts anderes denken, selbst wenn ich versuche nicht zu schreiben. Fl&uuml;stere ich unter der Dusche unentwegt neue Einfaelle, damit ich sie auf keinen Fall vergesse.</p>
+    <p>Und jetzt frage ich mich: Ist dieses Buch gut oder schlecht fuer mich?</p>
+    <p>Und bin ich vielleicht der Preis, den ich bezahle, damit dieses Buch existieren kann?</p>
+    <p>Wenn ich meinen Gedanken so zuh&ouml;re: Ich glaube, so fuehlt sich verr&uuml;ckt werden an.</p>
+    <p>Langsam wei&szlig; ich nicht mehr, was Kunst ist und was nicht. Schreibe ich nur ueber die Grenzen, weil das spannender ist? Oder &uuml;berschreite ich Grenzen?</p>
+    <p>Machen sich Horror-Autoren beim Schreiben manchmal selbst Angst?</p>
+    <p>Also ich mache mir gerade welche.</p>
+    <p>Haha.</p>
+    <p id="insanity-trigger2">Irgendwie lache ich gerade ueber mich. Schreibe ich jetzt wirklich schon so gut, dass ich Sorge habe, das alles wirklich zu glauben? Die zweite Hochzeitsnacht ist offensichtlich nicht real.</p>
+    <p>Ich wei&szlig; echt nicht ob ich <span class="dash-word">verr&uuml;ckt</span> bin, oder <span class="dash-word">genial</span> bin. Oder einfach <span class="dash-word">high</span>. Und die drei sprachen miteinander.</p>
+    <p>Die <span class="dash-word">Drei</span> sprachen miteinander, bis es wieder hei&szlig;er wurde und der Verirrte dahingerafft wurde.</p>
+    <p>Und pl&ouml;tzlich sehe ich Verbindungen, wo keine sind.</p>
+    <p>I'm joking.</p>
+    <p id="insanity-trigger">Am I?</p>
+  </div>
+</div>
+
+<!-- P7: Zweite Hochzeitsnacht Vol. 2 -->
+<div class="story" id="p7">
+  <div class="story-inner">
+    <h1>Zweite Hochzeitsnacht, Vol. 2</h1>
+    <span class="look-again">Look again.</span>
+    <p>Er starrte sich selbst durch die Scheibe an und durch sie hindurch. Sie befand sich in der schwarzen Kutsche, die vor das Anwesen fuhr. Sein Herz klopfte schneller bei diesem Anblick und seine Fingerspitzen strichen das k&uuml;hle Glas entlang. Sehnsuchtserf&uuml;llt glitt er in die Vormittagsluft und den Duft nach nassem Gras und Tannen. Heute war ihr Tag, alle waren gekommen, um sie zu sehen. Auch er hatte sich in seinem feinsten Anzug zurechtgemacht. Der Bart war getrimmt, so wie sie es mochte, und alles war mit Blumen und Kerzen geschmueckt. Er war nerv&ouml;s und emotional, heute w&uuml;rde auch viel Aufmerksamkeit auf ihn gerichtet sein. Sie sah wundersch&ouml;n aus in ihrem prachtvollen wei&szlig;en Kleid. Den Atem hielt sie an und das Str&auml;u&szlig;chen in den Haenden.</p>
+    <p>Nachdem alle gegangen waren, hatte er endlich Zeit mit ihr allein zu sein. Als er sie ansah und ihre eisigen Haende ber&uuml;hrte, wurde ihm klar, wie kalt ihr sein m&uuml;sse. Er nahm sie in den Arm und strich ihr &uuml;bers Haar. Er nahm ihr behutsam das Str&auml;u&szlig;chen ab, waehrend er sie k&uuml;sste. Es war, als h&auml;tte sein Herz fuer einen Augenblick aufgeh&ouml;rt zu schlagen, endlich konnte er bei ihr sein. Sein Verlangen wuchs, als er mit einer Hand unter ihr Kleid fuhr. Sie hatte die Augen noch immer geschlossen, sie schien genussvoll abwesend zu sein. Er zog ihr Kleid hoch, das H&ouml;schen aus. Seine Finger wanderten ihren ganzen K&ouml;rper entlang und in ihn hinein. Seine Kuesse wurden heftiger und die Sehnsucht immer gr&ouml;&szlig;er. Waehrend er zustie&szlig;, hielt sie atemlos die Augen geschlossen. Sie wurde bei jeder Bewegung mitgerissen und ihr K&ouml;rper vibrierte als Echo seines St&ouml;hnens. Er war endlich wieder gl&uuml;cklich und konnte die letzten Wochen vergessen.</p>
+    <p>Als er fertig war, lagen die beiden Arm in Arm und blickten zu den Sternen hinauf, bis er irgendwann erkannte, was er getan hatte. Das Mondlicht schien auf ihn hinab, bis auch er endlich seine Augen schloss.</p>
+    <p>Als die Sonne langsam aufging, sah man die Erde, die neben dem Grabstein aufgeh&auml;uft war, und den Spaten, der wie eine Sonnenuhr warnend auf ihn zeigte. Die beiden Leichen fand man erst gegen Mittag, als die Sonne hei&szlig; ueber ihnen stand und seine S&uuml;nden mit dem Duft nach Verwesendem anklagte.</p>
+  </div>
+</div>
+
+<!-- P8: Anyone? -->
+<div class="story" id="p8">
   <div class="story-inner centered">
     <h1 style="text-align:center;">Anyone?</h1>
-    <p>Is there anyone else on this planet that feels relief thinking about that – when everything gets worse, they don't need to be here. They can just take their own life and the nothingness will let go of all the pressure.</p>
+    <p>Is there anyone else on this planet that feels relief thinking about that - when everything gets worse, they don't need to be here. They can just take their own life and the nothingness will let go of all the pressure.</p>
     <p>No one?</p>
     <p>Ok then.</p>
     <p>Me neither.</p>
   </div>
 </div>
 
-<!-- 6 -->
-<div class="story" id="s6">
-  <div class="story-inner">
-    <h1>Dear reader, Vol. 2</h1>
-    <p>Und was wäre, wenn ich dir sage, dass das hier alles nur fiktiv ist? Dass es keine Anna gibt, die versucht sich zu finden.</p>
-    <p>Was, wenn alles nur gelogen war?</p>
-    <p>Es gibt keine Anna. Es gibt keine kleine Schwester. Es gibt nur mich, die eine komplexe Geschichte erschaffen hat.</p>
-    <p>Bist du nun wütend auf mich? Fühlst du dich verraten?</p>
-    <p>Just joking. I'm real.</p>
+<!-- PMAD: We might be all mad here -->
+<div class="story" id="pmad">
+  <canvas id="mad-canvas" style="position:fixed;inset:0;width:100%;height:100%;display:block;cursor:none;"></canvas>
+  <div id="mad-found" style="display:none;position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;">
+    <p style="color:#888;font-style:italic;font-size:13px;letter-spacing:0.2em;font-family:Georgia,serif;">click to continue</p>
   </div>
 </div>
 
-<!-- 7 -->
-<div class="story" id="s7">
-  <div class="story-inner">
-    <h1>Zweite Hochzeitsnacht, Vol. 2</h1>
-    <span class="look-again">Look again.</span>
-    <p>Er starrte sich selbst durch die Scheibe an und durch sie hindurch. Sie befand sich in der schwarzen Kutsche, die vor das Anwesen fuhr. Sein Herz klopfte schneller bei diesem Anblick und seine Fingerspitzen strichen das kühle Glas entlang. Sehnsuchtserfüllt glitt er in die Vormittagsluft und den Duft nach nassem Gras und Tannen. Heute war ihr Tag, alle waren gekommen, um sie zu sehen. Auch er hatte sich in seinem feinsten Anzug zurechtgemacht. Der Bart war getrimmt, so wie sie es mochte, und alles war mit Blumen und Kerzen geschmückt. Er war nervös und emotional, heute würde auch viel Aufmerksamkeit auf ihn gerichtet sein. Sie sah wunderschön aus in ihrem prachtvollen weißen Kleid. Den Atem hielt sie an und das Sträußchen in den Händen.</p>
-    <p>Nachdem alle gegangen waren, hatte er endlich Zeit mit ihr allein zu sein. Als er sie ansah und ihre eisigen Hände berührte, wurde ihm klar, wie kalt ihr sein müsse. Er nahm sie in den Arm und strich ihr übers Haar. Er nahm ihr behutsam das Sträußchen ab, während er sie küsste. Es war, als hätte sein Herz für einen Augenblick aufgehört zu schlagen, endlich konnte er bei ihr sein. Sein Verlangen wuchs, als er mit einer Hand unter ihr Kleid fuhr. Sie hatte die Augen noch immer geschlossen, sie schien genussvoll abwesend zu sein. Er zog ihr Kleid hoch, das Höschen aus. Seine Finger wanderten ihren ganzen Körper entlang und in ihn hinein. Seine Küsse wurden heftiger und die Sehnsucht immer größer. Während er zustieß, hielt sie atemlos die Augen geschlossen. Sie wurde bei jeder Bewegung mitgerissen und ihr Körper vibrierte als Echo seines Stöhnens. Er war endlich wieder glücklich und konnte die letzten Wochen vergessen.</p>
-    <p>Als er fertig war, lagen die beiden Arm in Arm und blickten zu den Sternen hinauf, bis er irgendwann erkannte, was er getan hatte. Das Mondlicht schien auf ihn hinab, bis auch er endlich seine Augen schloss.</p>
-    <p>Als die Sonne langsam aufging, sah man die Erde, die neben dem Grabstein aufgehäuft war, und den Spaten, der wie eine Sonnenuhr warnend auf ihn zeigte. Die beiden Leichen fand man erst gegen Mittag, als die Sonne heiß über ihnen stand und seine Sünden mit dem Duft nach Verwesendem anklagte.</p>
-  </div>
-</div>
-
-<!-- 8 -->
-<div class="story" id="s8">
+<!-- P9: Oscar & Karl -->
+<div class="story" id="p9">
   <div class="story-inner">
     <h1>Oscar &amp; Karl assemble me</h1>
-    <div class="chat-prompt">Ich habe ein Buch geschrieben. Gib mir in 3 Sätzen aus, wie Anna Greyhem zusammengesetzt aussieht. Was ist in ihrem tiefsten Inneren? Wer ist sie? Ich frage Karl Lagerfeld und Oscar Wilde.</div>
+    <div class="chat-prompt">Ich habe ein Buch geschrieben. Gib mir in 3 S&auml;tzen aus, wie Anna Greyhem zusammengesetzt aussieht. Was ist in ihrem tiefsten Inneren? Wer ist sie? Ich frage Karl Lagerfeld und Oscar Wilde.</div>
     <div class="chat-label">Karl Lagerfeld:</div>
-    <div class="chat-bubble">„Sie ist die Unschärfe zwischen dem, was sie zeigt, und dem, was sie ist – präzise, wo andere sentimental wären, verletzlich, wo andere stark täten. In ihrem tiefsten Inneren ist jemand, der einen magnetischen Kühlschrank wollte und sich selbst einen kaufen musste. Sie schreibt, weil es das Einzige ist, das ihr gehört."</div>
+    <div class="chat-bubble">"Sie ist die Unsch&auml;rfe zwischen dem, was sie zeigt, und dem, was sie ist - pr&auml;zise, wo andere sentimental w&auml;ren, verletzlich, wo andere stark t&auml;ten. In ihrem tiefsten Inneren ist jemand, der einen magnetischen K&uuml;hlschrank wollte und sich selbst einen kaufen musste. Sie schreibt, weil es das Einzige ist, das ihr geh&ouml;rt."</div>
     <div class="chat-label">Oscar Wilde:</div>
-    <div class="chat-bubble">„Sie ist jemand, der nackt sein will ohne sich auszuziehen – der alles zeigen will ohne gesehen zu werden, der die Wahrheit sagt, indem er lügt, und lügt, indem er die Wahrheit sagt. In ihrem tiefsten Inneren ist ein Kind, das wartet, dass jemand fragt, ob es etwas zeigen darf. Sie schreibt, weil niemand gefragt hat – und weil sie hofft, dass das Buch die Frage stellt, die die Menschen in ihrem Leben nicht stellen."</div>
-    <div class="chat-fyi">FYI: Karl und Oscar haben das Buch gelesen. Sie sind nicht (mehr) real. Aber ihre Antworten sind so real, wie Antworten einer KI sein könnten.</div>
+    <div class="chat-bubble">"Sie ist jemand, der nackt sein will ohne sich auszuziehen - der alles zeigen will ohne gesehen zu werden, der die Wahrheit sagt, indem er luegt, und luegt, indem er die Wahrheit sagt. In ihrem tiefsten Inneren ist ein Kind, das wartet, dass jemand fragt, ob es etwas zeigen darf. Sie schreibt, weil niemand gefragt hat - und weil sie hofft, dass das Buch die Frage stellt, die die Menschen in ihrem Leben nicht stellen."</div>
+    <div class="chat-fyi">FYI: Karl und Oscar haben das Buch gelesen. Sie sind nicht (mehr) real. Aber ihre Antworten sind so real, wie Antworten einer KI sein k&ouml;nnten.</div>
   </div>
 </div>
 
-<!-- 9 -->
-<div class="story" id="s9">
-  <div class="story-inner">
-    <h1>I don't want to play hide and seek.</h1>
-    <p>Und dann wurde mir plötzlich klar, dass ich mit Anna all das machte, was ich gerne machen würde, wenn niemand hinschaut. All das, was ich wäre, wenn ich nur ich und niemand sonst wäre.</p>
-    <p>Ihr konntet nicht zusehen. Ihr saht alle hin, aber man sieht mich nicht.</p>
-    <p>Ich will nicht, dass ihr mich seht. Nicht, weil ich hässlich bin. Nein, ich glaube, das bin ich nicht. Sondern weil ich weiß, dass ich mich ändern könnte, ab dem Moment, wo ihr hinseht und erkennt.</p>
-    <p>I keep shifting.</p>
-    <p>Und dann kann ich nicht mehr die sein, die ich bin. Aber ich möchte gerne sein, wer ich war.</p>
-    <p>This is not a game. It is me. I don't want to play hide and seek. I am just the grey hem between reality and fiction, between death and love.</p>
-  </div>
-</div>
-
-<!-- 10 -->
-<div class="story" id="s10">
+<!-- P10: I guess I did it -->
+<div class="story" id="p10">
   <div class="story-inner">
     <h1>I guess, I did it.</h1>
-    <p>Das Publikum klatscht, Alice klatscht. Die Vorstellung ist vorbei. Der Vorhang schließt sich, doch Anna schlüpft noch ein letztes Mal zwischen dem schweren Samt hervor:</p>
+    <p>Das Publikum klatscht, Alice klatscht. Die Vorstellung ist vorbei. Der Vorhang schlie&szlig;t sich, doch Anna schl&uuml;pft noch ein letztes Mal zwischen dem schweren Samt hervor:</p>
     <p class="em">Just remember. What I write is not always real, but it is always true. You signed up for feeling everything at once. You just felt everything at once.</p>
     <p>Manches ist wahr, manches ist Kunst und beides bin ich.</p>
     <p>Ich werde es wieder tun.</p>
-    <p>…</p>
+    <p>...</p>
     <p>I think we are all done.</p>
     <p>Until next time, bitches.</p>
     <p>Kiss,<br>Anna</p>
+    <div class="rabbit-end" id="rabbit-end">
+      <svg style="width:72px;height:86px;animation:hop 0.6s ease-in-out infinite alternate;transform-origin:bottom center;" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
+        <ellipse cx="50" cy="55" rx="18" ry="16" fill="white"/>
+        <ellipse cx="38" cy="28" rx="6" ry="18" fill="white" transform="rotate(-8 38 42)"/>
+        <ellipse cx="38" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(-8 38 42)"/>
+        <ellipse cx="62" cy="28" rx="6" ry="18" fill="white" transform="rotate(8 62 42)"/>
+        <ellipse cx="62" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(8 62 42)"/>
+        <circle cx="43" cy="52" r="2.5" fill="#111"/>
+        <circle cx="43.8" cy="51.2" r="0.8" fill="white"/>
+        <circle cx="57" cy="52" r="2.5" fill="#111"/>
+        <circle cx="57.8" cy="51.2" r="0.8" fill="white"/>
+        <ellipse cx="50" cy="60" rx="2" ry="1.2" fill="#ffb6c1"/>
+        <line x1="18" y1="58" x2="40" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
+        <line x1="18" y1="62" x2="40" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
+        <line x1="82" y1="58" x2="60" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
+        <line x1="82" y1="62" x2="60" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
+        <circle cx="71" cy="90" r="7" fill="white"/>
+        <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
+        <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
+      </svg>
+    </div>
   </div>
 </div>
 
-<div id="end-screen"></div>
-
 <script>
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
+// cursor
+var cursorEl = document.getElementById('cursor');
+var cursorHideTimer = null;
+document.addEventListener('mousemove', function(e) {
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top = e.clientY + 'px';
+  cursorEl.style.opacity = '1';
+  clearTimeout(cursorHideTimer);
+  cursorHideTimer = setTimeout(function() { cursorEl.style.opacity = '0'; }, 2000);
 });
-document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
-document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
+document.addEventListener('mouseleave', function() { cursorEl.style.opacity = '0'; });
+document.addEventListener('mouseenter', function() { cursorEl.style.opacity = '1'; });
 
-const total = 10;
-let current = 0;
+// pages
+var PAGES = ['p0','p1','p2','p3','p5','p6','p7','p8','p4','p9','p10'];
+var TOTAL = PAGES.length - 1;
+var current = 0;
 
-function injectNav(storyEl) {
-  const old = storyEl.querySelector('.nav');
-  if (old) old.remove();
-  const nav = document.createElement('div');
-  nav.className = 'nav';
+function getEl(n) { return document.getElementById(PAGES[n]); }
 
-  if (current === 0) {
-    // click anywhere to enter
-    const overlay = document.createElement('div');
-    overlay.id = 'click-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:100;cursor:pointer;';
-    overlay.onclick = () => { overlay.remove(); hint.remove(); navigate(1); };
-    document.body.appendChild(overlay);
+// fixed nav
+var fixedNav = document.getElementById('fixed-nav');
+fixedNav.addEventListener('click', function() { navigate(1); });
 
-    // hint text fades in after 4s
-    const hint = document.createElement('div');
-    hint.style.cssText = 'position:fixed;bottom:48px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity 1.2s;font-family:"IM Fell English",serif;font-style:italic;font-size:14px;color:#444;letter-spacing:0.2em;white-space:nowrap;z-index:101;pointer-events:none;';
-    hint.textContent = 'click to enter';
-    document.body.appendChild(hint);
-    setTimeout(() => { hint.style.opacity = '1'; }, 4000);
-    return;
-  }
+// click overlay
+var overlay = document.getElementById('click-overlay');
+var hint = document.getElementById('click-hint');
 
-  const btn = document.createElement('div');
-  btn.className = 'nav-btn';
-  if (current === total) {
-    // Replace nav with hopping rabbit that leads to end
-    const rabbit = document.createElement('div');
-    rabbit.id = 'ending-rabbit';
-    rabbit.onclick = showEnd;
-    rabbit.style.cssText = 'cursor:pointer; margin-top:60px; margin-bottom:80px;';
-    rabbit.innerHTML = `<svg style="width:72px;height:86px;animation:hop 0.6s ease-in-out infinite alternate;transform-origin:bottom center;" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
-      <ellipse cx="50" cy="55" rx="18" ry="16" fill="white"/>
-      <ellipse cx="38" cy="28" rx="6" ry="18" fill="white" transform="rotate(-8 38 42)"/>
-      <ellipse cx="38" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(-8 38 42)"/>
-      <ellipse cx="62" cy="28" rx="6" ry="18" fill="white" transform="rotate(8 62 42)"/>
-      <ellipse cx="62" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(8 62 42)"/>
-      <circle cx="43" cy="52" r="2.5" fill="#111"/>
-      <circle cx="43.8" cy="51.2" r="0.8" fill="white"/>
-      <circle cx="57" cy="52" r="2.5" fill="#111"/>
-      <circle cx="57.8" cy="51.2" r="0.8" fill="white"/>
-      <ellipse cx="50" cy="60" rx="2" ry="1.2" fill="#ffb6c1"/>
-      <line x1="18" y1="58" x2="40" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-      <line x1="18" y1="62" x2="40" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
-      <line x1="82" y1="58" x2="60" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-      <line x1="82" y1="62" x2="60" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
-      <circle cx="71" cy="90" r="7" fill="white"/>
-      <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
-      <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
-    </svg>`;
-    nav.appendChild(rabbit);
-    storyEl.appendChild(nav);
-    return;
+// rabbit
+document.getElementById('rabbit-end').addEventListener('click', function() {
+  window.location.href = './rabbit-game.html';
+});
+
+function showPage(n) {
+  // hide fixed nav by default
+  fixedNav.style.display = 'none';
+  overlay.style.display = 'none';
+
+  if (n === 0) {
+    // click anywhere, hint after 4s
+    overlay.style.display = 'block';
+    hint.style.opacity = '0';
+    setTimeout(function() { hint.style.opacity = '1'; }, 4000);
+  } else if (n === 1) {
+    // click anywhere, no hint text visible
+    overlay.style.display = 'block';
+    hint.style.display = 'none';
+  } else if (n === TOTAL) {
+    // last page: rabbit handles navigation, no fixed nav
+    fixedNav.style.display = 'none';
   } else {
-    btn.innerHTML = '&#8964;';
-    btn.onclick = () => navigate(1);
+    // all other pages: show fixed arrow
+    fixedNav.style.display = 'block';
   }
-  nav.appendChild(btn);
-  storyEl.appendChild(nav);
+
+  // glitch effects
+  if (PAGES[n] === 'p4') startShiftGlitch();
+  else stopShiftGlitch();
+
+  if (PAGES[n] === 'p6') setTimeout(setupInsanityObserver, 600);
+  else if (insanityObserver) insanityObserver.disconnect();
+
+
+
 }
+
+overlay.addEventListener('click', function() {
+  hint.style.opacity = '0';
+  hint.style.display = 'none';
+  navigate(1);
+});
 
 function navigate(dir) {
-  const next = current + dir;
-  if (next < 0 || next > total) return;
-  document.getElementById('s' + current).classList.remove('active');
+  var next = current + dir;
+  if (next < 0 || next > TOTAL) return;
+  getEl(current).classList.remove('active');
   current = next;
-  const el = document.getElementById('s' + current);
-  el.classList.add('active');
+  getEl(current).classList.add('active');
   window.scrollTo(0, 0);
-  injectNav(el);
+  showPage(current);
 }
 
-function showEnd() {
-  document.getElementById('s' + current).classList.remove('active');
-  document.getElementById('end-screen').classList.add('active');
+// ---- I keep shifting glitch ----
+var shiftStr = 'I keep shifting.';
+var shiftContainer = document.getElementById('shift-text');
+var shiftLetters = [];
+var glitchChars = ['a','e','i','o','s','h','f','t','g','x','z','#','&','@','!'];
+var shiftTimer = null;
+
+for (var si = 0; si < shiftStr.length; si++) {
+  var sp = document.createElement('span');
+  sp.className = 'sletter';
+  sp.textContent = shiftStr[si] === ' ' ? '\u00a0' : shiftStr[si];
+  shiftContainer.appendChild(sp);
+  shiftLetters.push(sp);
 }
 
-injectNav(document.getElementById('s1'));
+function doShiftGlitch() {
+  var n = 2 + Math.floor(Math.random() * 4);
+  var saved = [];
+  for (var g = 0; g < n; g++) {
+    var idx = Math.floor(Math.random() * shiftLetters.length);
+    if (shiftStr[idx] === ' ') continue;
+    var s = shiftLetters[idx];
+    var tx = (Math.random() - 0.5) * 14;
+    var ty = (Math.random() - 0.5) * 10;
+    var rot = (Math.random() - 0.5) * 18;
+    var sc = 0.6 + Math.random() * 0.7;
+    s.style.transform = 'translate('+tx+'px,'+ty+'px) rotate('+rot+'deg) scale('+sc+')';
+    s.style.opacity = String(0.3 + Math.random() * 0.7);
+    if (Math.random() < 0.6) s.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+    saved.push({ el:s, orig: shiftStr[idx] === ' ' ? '\u00a0' : shiftStr[idx] });
+  }
+  shiftContainer.style.transform = 'translate('+((Math.random()-0.5)*8)+'px,'+((Math.random()-0.5)*5)+'px)';
+  setTimeout(function() {
+    for (var r = 0; r < saved.length; r++) {
+      saved[r].el.style.transform = '';
+      saved[r].el.style.opacity = '1';
+      saved[r].el.textContent = saved[r].orig;
+    }
+    shiftContainer.style.transform = '';
+  }, 60 + Math.random() * 90);
+}
+
+function shiftBurst() {
+  var b = 3 + Math.floor(Math.random() * 4);
+  for (var i = 0; i < b; i++) {
+    (function(d) { setTimeout(doShiftGlitch, d); })(i * (70 + Math.random() * 100));
+  }
+}
+
+function startShiftGlitch() {
+  stopShiftGlitch();
+  shiftTimer = setTimeout(function() {
+    shiftBurst();
+    function loop() { shiftBurst(); shiftTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
+    shiftTimer = setTimeout(loop, 1000);
+  }, 1500);
+}
+
+function stopShiftGlitch() {
+  if (shiftTimer) { clearTimeout(shiftTimer); shiftTimer = null; }
+}
+
+// ---- A short insanity screen glitch ----
+var insanityDone = false;
+var insanityObserver = null;
+
+function setupInsanityObserver() {
+  insanityDone = false;
+  var trigger = document.getElementById('insanity-trigger');
+  if (!trigger) return;
+  if (insanityObserver) insanityObserver.disconnect();
+  insanityObserver = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !insanityDone) {
+      insanityDone = true;
+      setTimeout(doInsanityGlitch, 400);
+    }
+  }, { threshold: 0.5 });
+  insanityObserver.observe(trigger);
+
+  // second trigger
+  var trigger2 = document.getElementById('insanity-trigger2');
+  if (!trigger2) return;
+  var obs2 = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      obs2.disconnect();
+      setTimeout(function() { runJolts(document.getElementById('insanity-inner'), 4, null); }, 300);
+    }
+  }, { threshold: 0.5 });
+  obs2.observe(trigger2);
+}
+
+function runJolts(inner, count, callback) {
+  var jolts = 0;
+  function jolt() {
+    if (jolts >= count) { inner.style.transform = ''; if (callback) callback(); return; }
+    inner.style.transform = 'translate('+((Math.random()-0.5)*20)+'px,'+((Math.random()-0.5)*12)+'px)';
+    jolts++;
+    setTimeout(jolt, 55 + Math.random() * 60);
+  }
+  jolt();
+}
+
+function doInsanityGlitch() {
+  var inner = document.getElementById('insanity-inner');
+  // first glitch
+  runJolts(inner, 5, function() {
+    // second glitch 4 seconds later
+    setTimeout(function() {
+      runJolts(inner, 4, null);
+    }, 4000);
+  });
+}
+
+// ---- We might be all mad here ----
+var madActive = false;
+var madRaf = null;
+var madMx = -999, madMy = -999;
+var madFound = false;
+var madText = 'We might be all mad here.';
+var _madHintTimeout = null;
+var _madRevealInterval = null;
+
+function setupMadPage() {
+  var canvas = document.getElementById('mad-canvas');
+  if (!canvas) return;
+  madActive = true;
+  madFound = false;
+  madMx = -999; madMy = -999;
+
+  var W = window.innerWidth;
+  var H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.display = 'block';
+  canvas.style.pointerEvents = 'auto';
+
+  var ctx = canvas.getContext('2d');
+  var textX = W * 0.3 + Math.random() * W * 0.2;
+  var textY = H * 0.35 + Math.random() * H * 0.25;
+  var TOUCH_OFFSET = 80;
+  var overlay = 1.0; // darkness level
+
+  // mouse
+  function onMouseMove(e) { madMx = e.clientX; madMy = e.clientY; }
+  canvas.addEventListener('mousemove', onMouseMove);
+
+  // touch
+  function onTouchMove(e) {
+    e.preventDefault();
+    madMx = e.touches[0].clientX;
+    madMy = e.touches[0].clientY - TOUCH_OFFSET;
+  }
+  function onTouchStart(e) {
+    madMx = e.touches[0].clientX;
+    madMy = e.touches[0].clientY - TOUCH_OFFSET;
+  }
+  canvas.addEventListener('touchmove', onTouchMove, {passive:false});
+  canvas.addEventListener('touchstart', onTouchStart, {passive:true});
+
+  // hint after 5s no movement
+  _madHintTimeout = setTimeout(function() {
+    if (!madActive || madFound) return;
+    var hintEl = document.createElement('div');
+    hintEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#999;font-style:italic;font-size:15px;letter-spacing:0.15em;font-family:Georgia,serif;z-index:20;pointer-events:none;white-space:nowrap;opacity:0;transition:opacity 1s;text-align:center;';
+    hintEl.textContent = 'something is hidden in the dark';
+    document.body.appendChild(hintEl);
+    setTimeout(function() { hintEl.style.opacity='1'; }, 50);
+    setTimeout(function() { hintEl.style.opacity='0'; }, 3000);
+    setTimeout(function() { if(hintEl.parentNode) hintEl.remove(); }, 4500);
+  }, 5000);
+
+  function draw() {
+    if (!madActive) return;
+    madRaf = requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W,H);
+
+    if (overlay > 0) {
+      // black bg
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,W,H);
+
+      // torch
+      var radius = 90;
+      var grd = ctx.createRadialGradient(madMx,madMy,0,madMx,madMy,radius);
+      grd.addColorStop(0,'rgba(220,190,140,0.95)');
+      grd.addColorStop(0.3,'rgba(180,150,100,0.6)');
+      grd.addColorStop(0.7,'rgba(100,80,50,0.15)');
+      grd.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(madMx,madMy,radius,0,Math.PI*2); ctx.fill();
+
+      // text in torch
+      ctx.save();
+      ctx.beginPath(); ctx.arc(madMx,madMy,radius*0.85,0,Math.PI*2); ctx.clip();
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0,0,W,H);
+      ctx.font = 'italic 22px Georgia,serif';
+      ctx.fillStyle = '#ccc';
+      ctx.textAlign = 'center';
+      ctx.fillText(madText, textX, textY);
+      ctx.restore();
+
+      // darken overlay on top
+      ctx.fillStyle = 'rgba(0,0,0,' + (overlay * 0.0) + ')';
+    }
+
+    // check proximity
+    var dist = Math.sqrt(Math.pow(madMx-textX,2)+Math.pow(madMy-textY,2));
+    if (dist < 70 && !madFound) {
+      madFound = true;
+      clearTimeout(_madHintTimeout);
+      // fade out darkness
+      _madRevealInterval = setInterval(function() {
+        overlay = Math.max(0, overlay - 0.02);
+        if (overlay <= 0) {
+          clearInterval(_madRevealInterval);
+          madActive = false;
+          cancelAnimationFrame(madRaf);
+          canvas.style.display = 'none';
+          // show arrow
+          var arrow = document.createElement('div');
+          arrow.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-size:36px;color:#888;cursor:pointer;z-index:600;padding:8px 40px;font-family:Georgia,serif;opacity:0;transition:opacity 1s;';
+          arrow.innerHTML = '&#8964;';
+          document.body.appendChild(arrow);
+          setTimeout(function() { arrow.style.opacity='1'; }, 50);
+          function goNext() { arrow.remove(); navigate(1); }
+          arrow.addEventListener('click', goNext);
+          arrow.addEventListener('touchend', function(e) { e.preventDefault(); goNext(); });
+          window._madArrow = arrow;
+        }
+      }, 16);
+    }
+  }
+  draw();
+}
+
+function teardownMadPage() {
+  madActive = false;
+  if (madRaf) { cancelAnimationFrame(madRaf); madRaf = null; }
+  if (_madHintTimeout) { clearTimeout(_madHintTimeout); _madHintTimeout = null; }
+  if (_madRevealInterval) { clearInterval(_madRevealInterval); _madRevealInterval = null; }
+  if (window._madArrow) { window._madArrow.remove(); window._madArrow = null; }
+  if (window._madTextDiv) { window._madTextDiv.remove(); window._madTextDiv = null; }
+  var canvas = document.getElementById('mad-canvas');
+  if (canvas) canvas.style.display = 'none';
+}
+
+// init
+showPage(0);
 </script>
 </body>
 </html>
