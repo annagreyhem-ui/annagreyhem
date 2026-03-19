@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none; }
+body { background:#000; width:100vw; height:100vh; overflow:hidden;  }
 
 .cursor {
   position:fixed; width:8px; height:8px; background:white;
@@ -129,6 +129,7 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none;
   background:radial-gradient(ellipse 50% 100% at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%);
   pointer-events:none; z-index:5;
 }
+@media (max-width: 768px) { body, p, h1, h2, div { font-size: clamp(18px, 4.5vw, 22px) !important; } }
 </style>
 </head>
 <body>
