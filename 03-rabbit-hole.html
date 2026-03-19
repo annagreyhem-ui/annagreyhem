@@ -3,280 +3,822 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anna Greyhem</title>
+<title>Anna Greyhem – Rabbit Run</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#000; width:100vw; height:100vh; overflow:hidden; cursor:none; }
+body { background:#0a0000; width:100vw; height:100vh; overflow:hidden; cursor:none; font-family:'Cormorant Garamond',serif; }
+.cursor { position:fixed; width:8px; height:8px; background:#8b0000; border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+canvas { display:block; position:fixed; top:0; left:0; }
 
-.cursor {
-  position:fixed; width:8px; height:8px; background:white;
-  border-radius:50%; pointer-events:none; z-index:9999;
-  transform:translate(-50%,-50%);
+#overlay {
+  position:fixed; inset:0; z-index:200;
+  display:flex; align-items:center; justify-content:center;
+  background:#0a0000; transition:opacity 0.8s;
 }
+#run-btn {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:clamp(22px,3vw,36px); color:#8b0000; background:none; border:none;
+  letter-spacing:0.3em; cursor:pointer; border-bottom:1px solid #3a0000;
+  padding:6px 0; transition:color 0.3s;
+}
+#run-btn:hover { color:#cc0000; }
 
-#scene1 {
-  position:fixed; inset:0;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:50px;
+#message {
+  position:fixed; inset:0; z-index:150;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; pointer-events:none; opacity:0; transition:opacity 0.6s;
+  background:rgba(0,0,0,0);
 }
+#msg-l1 { font-style:italic; letter-spacing:0.15em; color:#fff; font-size:clamp(30px,5vw,56px); }
+#msg-l2 { font-style:italic; letter-spacing:0.15em; color:#ccc; font-size:clamp(20px,3vw,36px); }
+#msg-restart {
+  display:none; font-style:italic; font-size:clamp(14px,1.8vw,18px);
+  color:#888; letter-spacing:0.2em; margin-top:24px;
+  cursor:pointer; border-bottom:1px solid #555; transition:color 0.3s;
+}
+#msg-restart:hover { color:#ccc; }
 
-#rabbit-svg {
-  width:144px; height:144px;
-  animation: hop 0.6s ease-in-out infinite alternate;
-  transform-origin: bottom center;
+#why-screen {
+  position:fixed; inset:0; z-index:160;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:28px; pointer-events:none; opacity:0;
 }
-@keyframes hop {
-  0%   { transform: translateY(0px)   scaleY(1)    scaleX(1); }
-  30%  { transform: translateY(0px)   scaleY(0.85) scaleX(1.1); }
-  60%  { transform: translateY(-18px) scaleY(1.1)  scaleX(0.95); }
-  100% { transform: translateY(-22px) scaleY(1.05) scaleX(0.97); }
+#why-text { font-weight:bold; letter-spacing:0.08em; color:#cc0000; font-size:clamp(32px,6vw,72px); font-style:normal; text-align:center; max-width:80%; }
+#why-restart { font-style:italic; font-size:clamp(16px,2vw,22px); color:#aaa; letter-spacing:0.2em; cursor:pointer; border-bottom:1px solid #777; transition:color 0.3s; opacity:0; }
+#why-restart:hover { color:#fff; }
+#end-screen {
+  position:fixed; inset:0; z-index:170;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px; pointer-events:none; opacity:0; transition:opacity 1.5s;
+  background:#000;
 }
-#ear-left  { animation: wiggle-l 1.2s ease-in-out infinite; transform-origin:bottom center; }
-#ear-right { animation: wiggle-r 1.2s ease-in-out infinite; transform-origin:bottom center; }
-@keyframes wiggle-l { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-4deg)} 75%{transform:rotate(2deg)} }
-@keyframes wiggle-r { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(4deg)} 75%{transform:rotate(-2deg)} }
-
-#hole-wrap { opacity:0; transition:opacity 0.8s; }
-#hole-wrap.visible { opacity:1; }
-
-#hole {
-  width:180px; height:55px;
-  background: radial-gradient(ellipse at 50% 60%, #1a1a1a 0%, #000 80%);
-  border-radius:50%;
-  border: 2px solid #222;
-  box-shadow: 0 0 30px rgba(0,0,0,1), inset 0 6px 18px rgba(0,0,0,0.95);
-  cursor:pointer;
-  transform:scaleX(0);
-  transition: transform 0.8s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
-}
-#hole.open { transform:scaleX(1); }
-#hole:hover {
-  box-shadow: 0 0 40px rgba(255,255,255,0.08), 0 0 0 3px #333,
-              inset 0 6px 18px rgba(0,0,0,0.95);
-}
-
-#tagline {
-  position:fixed; bottom:60px; left:50%;
-  transform:translateX(-50%);
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(17px,2.2vw,22px);
-  color:white; letter-spacing:0.15em;
-  font-style:italic; opacity:0;
-  white-space:nowrap; pointer-events:none;
-  z-index:50;
-}
-
-/* ── FALL SCREEN ── */
-#fall-screen {
-  position:fixed; inset:0; background:#000;
-  z-index:200; display:none; overflow:hidden;
-}
-#tunnel {
-  position:absolute; left:50%; top:0;
-  transform:translateX(-50%);
-  width:220px; height:100%; background:#000;
-}
-.tunnel-wall-l {
-  position:absolute; top:0; right:100%;
-  width:50vw; height:100%; background:#000;
-}
-.tunnel-wall-r {
-  position:absolute; top:0; left:100%;
-  width:50vw; height:100%; background:#000;
-}
-.ring {
-  position:absolute; left:50%;
-  transform:translateX(-50%);
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,0.08);
-  animation:ring-zoom linear infinite;
-}
-@keyframes ring-zoom {
-  0%  { opacity:0; width:40px;  height:14px; margin-top:0; }
-  20% { opacity:0.5; }
-  80% { opacity:0.2; }
-  100%{ opacity:0; width:600px; height:200px; margin-top:-93px; }
-}
-#falling-rabbit {
-  position:absolute; left:50%; top:-160px;
-  transform:translateX(-50%);
-  width:80px; height:96px;
-  animation:fall-rabbit 5s ease-in forwards;
-  z-index:10;
-}
-@keyframes fall-rabbit {
-  0%  { top:-160px; transform:translateX(-50%) rotate(0deg) scale(1); }
-  20% { transform:translateX(-58%) rotate(20deg) scale(0.95); }
-  40% { transform:translateX(-42%) rotate(-15deg) scale(0.9); }
-  60% { transform:translateX(-54%) rotate(10deg) scale(0.8); }
-  80% { transform:translateX(-46%) rotate(-8deg) scale(0.65); }
-  100%{ top:110%; transform:translateX(-50%) rotate(5deg) scale(0.4); }
-}
-.glitter {
-  position:absolute; border-radius:50%;
-  pointer-events:none;
-  animation:glitter-fall linear forwards;
-  z-index:10;
-}
-@keyframes glitter-fall {
-  0%  { opacity:1; transform:translateY(0) scale(1) rotate(0deg); }
-  40% { opacity:0.9; }
-  100%{ opacity:0; transform:translateY(100vh) scale(0.2) rotate(900deg); }
-}
-#fall-screen::after {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse 50% 100% at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%);
-  pointer-events:none; z-index:5;
-}
+#end-l1 { font-style:italic; color:#8b0000; font-size:clamp(24px,3.5vw,42px); letter-spacing:0.15em; opacity:0; }
+#end-l2 { font-style:italic; color:#fff; font-size:clamp(26px,4vw,52px); letter-spacing:0.12em; margin-top:40px; opacity:0; line-height:2; text-align:center; }
+#end-sig { font-style:italic; color:#fff; font-size:clamp(24px,3.5vw,44px); letter-spacing:0.1em; margin-top:8px; opacity:0; text-align:center; line-height:1.8; }
+#lipstick { font-size:clamp(32px,5vw,60px); opacity:0; margin-bottom:-8px; }
 </style>
 </head>
 <body>
-
 <div class="cursor" id="cursor"></div>
-
-<div id="scene1">
-  <svg id="rabbit-svg" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
-    <ellipse cx="50" cy="55" rx="18" ry="16" fill="white"/>
-    <g id="ear-left">
-      <ellipse cx="38" cy="28" rx="6" ry="18" fill="white" transform="rotate(-8 38 42)"/>
-      <ellipse cx="38" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(-8 38 42)"/>
-    </g>
-    <g id="ear-right">
-      <ellipse cx="62" cy="28" rx="6" ry="18" fill="white" transform="rotate(8 62 42)"/>
-      <ellipse cx="62" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(8 62 42)"/>
-    </g>
-    <circle cx="43" cy="52" r="2.5" fill="#111"/>
-    <circle cx="43.8" cy="51.2" r="0.8" fill="white"/>
-    <circle cx="57" cy="52" r="2.5" fill="#111"/>
-    <circle cx="57.8" cy="51.2" r="0.8" fill="white"/>
-    <ellipse cx="50" cy="60" rx="2" ry="1.2" fill="#ffb6c1"/>
-    <line x1="18" y1="58" x2="40" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-    <line x1="18" y1="62" x2="40" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
-    <line x1="82" y1="58" x2="60" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-    <line x1="82" y1="62" x2="60" y2="61" stroke="white" stroke-width="0.8" opacity="0.5"/>
-    <circle cx="71" cy="90" r="7" fill="white"/>
-    <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
-    <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
-  </svg>
-
-  <div id="hole-wrap">
-    <div id="hole" onclick="startFall()"></div>
-  </div>
+<canvas id="c"></canvas>
+<div id="overlay"><button id="run-btn" onclick="startGame()">Run.</button></div>
+<div id="message">
+  <div id="msg-l1"></div>
+  <div id="msg-l2"></div>
+  <div id="msg-restart" onclick="restartGame()">run again.</div>
+</div>
+<div id="why-screen">
+  <div id="why-text">Why did you kill the rabbit?</div>
+  <div id="why-restart" onclick="restartGame()">run again.</div>
 </div>
 
-<div id="tagline">Follow the white rabbit.</div>
+<div id="end-screen">
+  <!-- Screen 0: I guess we all die – alone, bold, warning -->
+  <div id="end-s0" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+    <div id="end-l1" style="opacity:0;font-style:italic;font-weight:bold;color:#cc0000;font-size:clamp(32px,6vw,80px);letter-spacing:0.08em;text-align:center;transition:opacity 1.5s;">oops. I guess we all die.</div>
+  </div>
+  <!-- Song credit – appears with music, stays on all end screens -->
+  <a id="song-credit" href="https://open.spotify.com/track/7bn5nXdatftk0CHSrd7NHQ" target="_blank"
+    style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity 1.5s;
+    font-style:italic;color:#444;font-size:clamp(12px,1.4vw,15px);letter-spacing:0.12em;white-space:nowrap;
+    text-decoration:none;pointer-events:none;">
+    Artemas – how could u love somebody like me?
+  </a>
 
-<div id="fall-screen">
-  <div id="tunnel">
-    <div class="tunnel-wall-l"></div>
-    <div class="tunnel-wall-r"></div>
+  <!-- Screen 1: Credits text -->
+  <div id="end-s1" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;text-align:center;max-width:700px;margin:auto;padding:0 40px;">
+    <div id="ec0" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,3vw,38px);letter-spacing:0.1em;transition:opacity 1.5s;">I guess, I did it.</div>
+    <div id="ec1" style="opacity:0;color:#888;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Das Publikum klatscht, Alice klatscht. Die Vorstellung ist vorbei. Der Vorhang schließt sich, doch Anna schlüpft noch ein letztes Mal zwischen dem schweren Samt hervor:</div>
+    <div id="ec2" style="opacity:0;font-style:italic;color:#ccc;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Just remember. What I write is not always real, but it is always true. You signed up for feeling everything at once. You just felt everything at once.</div>
+    <div id="ec3" style="opacity:0;color:#888;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;line-height:1.9;transition:opacity 1.5s;">Manches ist wahr, manches ist Kunst und beides bin ich.</div>
+    <div id="ec4" style="opacity:0;color:#888;font-size:clamp(14px,1.8vw,20px);letter-spacing:0.08em;transition:opacity 1.5s;">Ich werde es wieder tun.</div>
   </div>
 
-  <div id="falling-rabbit">
-    <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
-      <ellipse cx="50" cy="55" rx="18" ry="16" fill="white"/>
-      <ellipse cx="38" cy="28" rx="6" ry="18" fill="white" transform="rotate(-8 38 42)"/>
-      <ellipse cx="38" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(-8 38 42)"/>
-      <ellipse cx="62" cy="28" rx="6" ry="18" fill="white" transform="rotate(8 62 42)"/>
-      <ellipse cx="62" cy="28" rx="3" ry="13" fill="#ffb6c1" opacity="0.6" transform="rotate(8 62 42)"/>
-      <circle cx="43" cy="52" r="2.5" fill="#111"/>
-      <circle cx="57" cy="52" r="2.5" fill="#111"/>
-      <ellipse cx="50" cy="60" rx="2" ry="1.2" fill="#ffb6c1"/>
-      <line x1="18" y1="58" x2="40" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-      <line x1="82" y1="58" x2="60" y2="59" stroke="white" stroke-width="0.8" opacity="0.5"/>
-      <circle cx="71" cy="90" r="7" fill="white"/>
-      <ellipse cx="36" cy="105" rx="7" ry="5" fill="white"/>
-      <ellipse cx="64" cy="105" rx="7" ry="5" fill="white"/>
-    </svg>
+  <!-- Screen 2: Anna's closing words, Kiss Anna right-aligned, separate -->
+  <div id="end-s2" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;">
+    <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;">I think we are all done.</div>
+    <div id="ec6" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;transition:opacity 1.5s;">Until next time, bitches.</div>
+    <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;margin-top:24px;text-align:right;width:100%;max-width:600px;padding-right:40px;transition:opacity 1.5s;">Kiss,</div>
+    <div id="ec7b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.12em;text-align:right;width:100%;max-width:600px;padding-right:40px;transition:opacity 1.5s;">Anna</div>
   </div>
+
+  <!-- Screen 3: Just the kiss + big song credit -->
+  <div id="end-s3" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:40px;">
+    <div id="ec8" style="opacity:0;transition:opacity 2.5s;"><img src="./kiss.jpg" style="max-width:900px;max-height:900px;width:90vmin;height:auto;object-fit:contain;opacity:0.9;"></div>
+    <a id="song-credit-big" href="https://open.spotify.com/track/7bn5nXdatftk0CHSrd7NHQ" target="_blank"
+      style="opacity:0;transition:opacity 1.5s;font-style:italic;color:#666;font-size:clamp(16px,2.2vw,26px);letter-spacing:0.15em;text-decoration:none;">
+      Artemas – how could u love somebody like me?
+    </a>
+  </div>
+
+
 </div>
 
 <script>
-const cursor = document.getElementById('cursor');
-let cursorHideTimer = null;
+// --- Cursor ---
+const cursorEl = document.getElementById('cursor');
+let cursorTimer;
 document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-  cursor.style.opacity = '1';
-  clearTimeout(cursorHideTimer);
-  cursorHideTimer = setTimeout(() => cursor.style.opacity = '0', 2000);
+  cursorEl.style.left = e.clientX + 'px';
+  cursorEl.style.top = e.clientY + 'px';
+  cursorEl.style.opacity = '1';
+  clearTimeout(cursorTimer);
+  cursorTimer = setTimeout(() => cursorEl.style.opacity = '0', 2000);
 });
-document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
-document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
 
-const rabbitSvg = document.getElementById('rabbit-svg');
-const holeWrap  = document.getElementById('hole-wrap');
-const hole      = document.getElementById('hole');
-const tagline   = document.getElementById('tagline');
+// --- Canvas ---
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', () => { resize(); buildWorld(); });
 
-// 2s: hole opens
-setTimeout(() => {
-  holeWrap.classList.add('visible');
-  setTimeout(() => hole.classList.add('open'), 100);
-}, 2000);
+// --- Persistent state ---
+let totalDeaths = 0;
+let carrotEaten = false;
+let moonEyeAngle = 0;
+let moonEyesVisible = false; // only when why screen is shown
 
-// 4s: rabbit starts falling into hole
-setTimeout(() => {
-  rabbitSvg.style.animation = 'none';
-  rabbitSvg.style.transition = 'transform 1s ease-in, opacity 0.8s ease-in';
-  rabbitSvg.style.transform  = 'translateY(40px) scaleY(0.7) scaleX(1.15)';
+// Stars
+const stars = Array.from({length:120}, () => ({
+  x: Math.random() * 2800,
+  y: Math.random() * 500,
+  r: 0.4 + Math.random() * 1.1,
+  base: 0.25 + Math.random() * 0.55,
+  sp: 0.4 + Math.random() * 1.3,
+  off: Math.random() * Math.PI * 2,
+}));
 
+// --- Per-run state ---
+let running = false;
+let gameOver = false;
+let camX = 0;
+let glitchInterval = null;
+let rabbit = {};
+let platforms = [];
+let carrot = {};
+let coffin = {};
+let finalAbyssX = 6120;
+let bloodStains = [];
+let showXEyes = false;       // shown only after "You killed the rabbit" appears
+
+const GRAVITY = 0.52;
+const JUMP_FORCE = -13;
+const SPEED = 3.4;
+const WORLD_W = 6200;
+
+function initRun() {
+  gameOver = false;
+  camX = 0;
+  // X eyes persist if carrot was ever eaten
+  showXEyes = carrotEaten;
+  if (glitchInterval) { clearInterval(glitchInterval); glitchInterval = null; }
+
+  rabbit = {
+    x: 120, y: H - 200,
+    vx: 0, vy: 0,
+    w: 36, h: 48,
+    onGround: false, jumpCount: 0,
+    glitching: false,
+  };
+
+  buildWorld();
+
+  // Glitch only after carrot eaten
+  if (carrotEaten) {
+    glitchInterval = setInterval(() => {
+      if (!gameOver) {
+        rabbit.glitching = true;
+        setTimeout(() => { rabbit.glitching = false; }, 100 + Math.random() * 250);
+      }
+    }, 2800 + Math.random() * 4000);
+  }
+}
+
+function buildWorld() {
+  platforms = [];
+  const groundY = H - 80;
+
+  // Ground segments – gap ~160px each, requires jump
+  const segs = [
+    [0, 520],
+    [680, 200], [1040, 220], [1420, 200], [1780, 240],
+    [2180, 200], [2540, 220], [2920, 200], [3280, 240],
+    [3680, 200], [4040, 220], [4420, 200],
+    // Carrot platform
+    [4780, 240],
+    // Post-carrot platforms – player can keep going
+    [5180, 200], [5540, 180], [5880, 200],
+    // Final abyss – no more platforms after 6080
+  ];
+  segs.forEach(([x, w]) => platforms.push({x, y:groundY, w, h:80, type:'ground'}));
+
+  // Floating helpers – only on every other gap
+  const floaters = [
+    [560, H-195, 85],
+    [1220, H-255, 75],
+    [1680, H-215, 80],
+    [2440, H-235, 75],
+    [3160, H-205, 80],
+    [3860, H-225, 75],
+    [4660, H-195, 80],
+    // post-carrot floaters
+    [5020, H-210, 75],
+    [5380, H-230, 75],
+    [5740, H-200, 75],
+  ];
+  floaters.forEach(([x,y,w]) => platforms.push({x, y, w, h:12, type:'float'}));
+
+  // Carrot sits on carrot platform
+  carrot = {
+    x: 4780 + 95,
+    y: groundY - 52,
+    w: 26, h: 52,
+    eaten: false,
+  };
+
+  // Coffin at the end of the final platform
+  coffin = {
+    x: 6060,
+    y: groundY - 70,
+    w: 54, h: 70,
+  };
+
+  finalAbyssX = 6120; // after this x, no more ground
+}
+
+// --- Input ---
+document.addEventListener('keydown', e => {
+  if ((e.code==='Space'||e.code==='ArrowUp') && running && !gameOver) doJump();
+});
+canvas.addEventListener('click', () => { if (running && !gameOver) doJump(); });
+document.addEventListener('touchstart', () => { if (running && !gameOver) doJump(); });
+
+function doJump() {
+  if (rabbit.onGround || rabbit.jumpCount < 2) {
+    rabbit.vy = JUMP_FORCE;
+    rabbit.onGround = false;
+    rabbit.jumpCount++;
+  }
+}
+
+// --- Game control ---
+function startGame() {
+  const ov = document.getElementById('overlay');
+  ov.style.opacity = '0';
+  setTimeout(() => ov.style.display = 'none', 800);
+  initRun();
+  running = true;
+  requestAnimationFrame(loop);
+}
+
+function restartGame() {
+  hideMessage();
+  document.getElementById('why-screen').style.opacity = '0';
+  document.getElementById('why-screen').style.pointerEvents = 'none';
+  initRun();
+}
+
+// --- Messages ---
+function showMsg(l1, l2, showBtn) {
+  const m = document.getElementById('message');
+  document.getElementById('msg-l1').textContent = l1 || '';
+  document.getElementById('msg-l2').textContent = l2 || '';
+  const rb = document.getElementById('msg-restart');
+  rb.style.display = showBtn ? 'block' : 'none';
+  m.style.pointerEvents = showBtn ? 'auto' : 'none';
+  m.style.opacity = '0';
+  void m.offsetHeight;
+  m.style.opacity = '1';
+}
+
+function hideMessage() {
+  const m = document.getElementById('message');
+  m.style.opacity = '0';
+  m.style.pointerEvents = 'none';
+}
+
+function showWhyScreen() {
+  moonEyesVisible = true;
+  const ws = document.getElementById('why-screen');
+  const wt = document.getElementById('why-text');
+  const wr = document.getElementById('why-restart');
+  ws.style.opacity = '1';
+  ws.style.pointerEvents = 'auto';
+  wt.style.opacity = '0';
+  wr.style.opacity = '0';
+
+  // Slam in
   setTimeout(() => {
-    rabbitSvg.style.transform = 'translateY(130px) scaleY(0.1) scaleX(0.5)';
-    rabbitSvg.style.opacity   = '0';
-
-    // tagline fades in 2s after rabbit is gone
+    wt.style.transition = 'opacity 0.08s';
+    wt.style.opacity = '1';
     setTimeout(() => {
-      tagline.style.transition = 'opacity 1.2s ease';
-      tagline.style.opacity = '1';
-    }, 2000);
-  }, 800);
+      wr.style.transition = 'opacity 1s';
+      wr.style.opacity = '1';
+    }, 1500);
+  }, 100);
 
-}, 4000);
+  // Tap anywhere on screen restarts
+  ws.addEventListener('click', function onWsClick() {
+    ws.removeEventListener('click', onWsClick);
+    restartGame();
+  });
+}
 
+function showFinalDeath() {
+  const es = document.getElementById('end-screen');
+  es.style.opacity = '1';
 
+  // Start music immediately
+  const music = new Audio('./music.mp3');
+  music.loop = true;
+  music.play();
 
-
-function startFall() {
-  const fallScreen = document.getElementById('fall-screen');
-  fallScreen.style.display = 'block';
-
-  const tunnel = document.getElementById('tunnel');
-
-  for (let i = 0; i < 20; i++) {
-    const ring = document.createElement('div');
-    ring.className = 'ring';
-    ring.style.cssText = `
-      top:${20 + Math.random()*50}%;
-      animation-duration:${1.0 + Math.random()*0.9}s;
-      animation-delay:${i * 0.25}s;
-    `;
-    tunnel.appendChild(ring);
-  }
-
-  const colors = ['#fff','#ffd700','#ff69b4','#c8a2c8','#add8e6','#fffacd','#e0b0ff'];
-  for (let i = 0; i < 90; i++) {
-    const g = document.createElement('div');
-    g.className = 'glitter';
-    const size = 2 + Math.random() * 9;
-    g.style.cssText = `
-      left:${28 + Math.random()*44}%;
-      top:${-5 + Math.random()*15}%;
-      width:${size}px; height:${size}px;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      opacity:${0.6+Math.random()*0.4};
-      animation-duration:${2 + Math.random()*3}s;
-      animation-delay:${Math.random()*3.5}s;
-    `;
-    fallScreen.appendChild(g);
-  }
-
+  // Show song credit
   setTimeout(() => {
-    window.location.href = './04-shadow.html';
-  }, 5000);
+    const credit = document.getElementById('song-credit');
+    credit.style.opacity = '1';
+    credit.style.pointerEvents = 'auto';
+  }, 1000);
+
+  // Screen 0: I guess we all die – alone, bold
+  const s0 = document.getElementById('end-s0');
+  s0.style.display = 'flex';
+  setTimeout(() => { document.getElementById('end-l1').style.opacity = '1'; }, 500);
+
+  // Transition to screen 1 after 4s
+  setTimeout(() => {
+    s0.style.transition = 'opacity 1.2s';
+    s0.style.opacity = '0';
+    setTimeout(() => {
+      s0.style.display = 'none';
+      const s1 = document.getElementById('end-s1');
+      s1.style.display = 'flex';
+      setTimeout(() => { document.getElementById('ec0').style.opacity = '1'; }, 300);
+      setTimeout(() => { document.getElementById('ec1').style.opacity = '1'; }, 3500);
+      setTimeout(() => { document.getElementById('ec2').style.opacity = '1'; }, 8000);
+      setTimeout(() => { document.getElementById('ec3').style.opacity = '1'; }, 13000);
+      setTimeout(() => { document.getElementById('ec4').style.opacity = '1'; }, 16500);
+
+      // Transition to screen 2
+      setTimeout(() => {
+        s1.style.transition = 'opacity 1.2s';
+        s1.style.opacity = '0';
+        setTimeout(() => {
+          s1.style.display = 'none';
+          const s2 = document.getElementById('end-s2');
+          s2.style.display = 'flex';
+          setTimeout(() => { document.getElementById('ec5').style.opacity = '1'; }, 300);
+          setTimeout(() => { document.getElementById('ec6').style.opacity = '1'; }, 3800);
+          setTimeout(() => { document.getElementById('ec7a').style.opacity = '1'; }, 7000);
+          setTimeout(() => { document.getElementById('ec7b').style.opacity = '1'; }, 9000);
+
+          // Transition to screen 3 – just the kiss
+          setTimeout(() => {
+            s2.style.transition = 'opacity 1.2s';
+            s2.style.opacity = '0';
+            setTimeout(() => {
+              s2.style.display = 'none';
+              const s3 = document.getElementById('end-s3');
+              s3.style.display = 'flex';
+              setTimeout(() => { document.getElementById('ec8').style.opacity = '1'; }, 300);
+              setTimeout(() => { document.getElementById('song-credit-big').style.opacity = '1'; }, 2000);
+            }, 1300);
+          }, 13000);
+        }, 1300);
+      }, 20000);
+    }, 1300);
+  }, 4500);
+}
+function triggerDeath(byCarrot) {
+  gameOver = true;
+  totalDeaths++;
+
+  bloodStains.push({
+    wx: rabbit.x + rabbit.w/2,
+    wy: rabbit.y + rabbit.h,
+    r: 6 + Math.random()*5,
+  });
+
+  if (byCarrot) {
+    carrotEaten = true;
+    showMsg('Yummy.', '', false);
+    setTimeout(() => {
+      showXEyes = true; // X eyes appear now
+      showMsg('The carrot was poisoned.', '', false);
+      setTimeout(() => {
+        hideMessage();
+        setTimeout(() => {
+          const ws = document.getElementById('why-screen');
+          const wt = document.getElementById('why-text');
+          const wr = document.getElementById('why-restart');
+          ws.style.opacity = '1';
+          ws.style.pointerEvents = 'none';
+          wt.style.opacity = '0';
+          wr.style.opacity = '0';
+          setTimeout(() => {
+            wt.style.transition = 'opacity 0.08s';
+            wt.style.opacity = '1';
+            setTimeout(() => {
+              wr.style.transition = 'opacity 1s';
+              wr.style.opacity = '1';
+              ws.style.pointerEvents = 'auto';
+            }, 1500);
+          }, 100);
+        }, 400);
+      }, 3000);
+    }, 1600);
+  } else {
+    showMsg('Oh.', 'you died.', false);
+    // Tap anywhere to restart immediately
+    const restart = () => {
+      if (!gameOver) return;
+      document.removeEventListener('keydown', restart);
+      canvas.removeEventListener('click', restart);
+      document.removeEventListener('touchstart', restart);
+      restartGame();
+    };
+    setTimeout(() => {
+      document.addEventListener('keydown', restart, {once:true});
+      canvas.addEventListener('click', restart, {once:true});
+      document.addEventListener('touchstart', restart, {once:true});
+      // Also show run again button after delay
+      setTimeout(() => {
+        document.getElementById('msg-restart').style.display = 'block';
+        document.getElementById('message').style.pointerEvents = 'auto';
+      }, 800);
+    }, 600);
+  }
+}
+
+// --- Update ---
+function update() {
+  if (!running || gameOver) return;
+
+  rabbit.vy += GRAVITY;
+  rabbit.x += SPEED;
+  rabbit.y += rabbit.vy;
+
+  rabbit.onGround = false;
+  for (const p of platforms) {
+    if (
+      rabbit.x + rabbit.w > p.x &&
+      rabbit.x < p.x + p.w &&
+      rabbit.y + rabbit.h > p.y &&
+      rabbit.y + rabbit.h < p.y + p.h + 20 &&
+      rabbit.vy >= 0
+    ) {
+      rabbit.y = p.y - rabbit.h;
+      rabbit.vy = 0;
+      rabbit.onGround = true;
+      rabbit.jumpCount = 0;
+    }
+  }
+
+  camX = Math.max(0, rabbit.x - W * 0.32);
+
+  // Fall off world – regular death
+  if (rabbit.y > H + 80 && rabbit.x < finalAbyssX) {
+    triggerDeath(false);
+    return;
+  }
+
+  // Fall into final abyss – the end
+  if (rabbit.y > H + 80 && rabbit.x >= finalAbyssX) {
+    gameOver = true;
+    showFinalDeath();
+    return;
+  }
+
+  // Carrot collision
+  if (!carrot.eaten &&
+    rabbit.x + rabbit.w > carrot.x && rabbit.x < carrot.x + carrot.w &&
+    rabbit.y + rabbit.h > carrot.y && rabbit.y < carrot.y + carrot.h
+  ) {
+    carrot.eaten = true;
+    triggerDeath(true);
+  }
+}
+
+// --- Draw background ---
+function drawBg() {
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#000000');
+  bg.addColorStop(0.7,'#0a0000');
+  bg.addColorStop(1,'#130000');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+}
+
+// --- Stars ---
+function drawStars() {
+  const t = Date.now() * 0.001;
+  stars.forEach(s => {
+    const a = s.base + Math.sin(t*s.sp+s.off)*0.14 + Math.sin(t*s.sp*2.1+s.off)*0.05;
+    ctx.globalAlpha = Math.max(0, Math.min(1, a));
+    ctx.fillStyle = '#aaa';
+    ctx.beginPath();
+    ctx.arc(s.x % W, s.y, s.r, 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+// --- Moon ---
+function drawMoon() {
+  const mx = W * 0.78, my = H * 0.18, mr = 52;
+  const t = Date.now() * 0.001;
+
+  // Glow
+  const glow = ctx.createRadialGradient(mx,my,mr*0.4,mx,my,mr*2.2);
+  glow.addColorStop(0,'rgba(120,0,0,0.15)');
+  glow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(mx,my,mr*2.2,0,Math.PI*2); ctx.fill();
+
+  // Body
+  const mg = ctx.createRadialGradient(mx-10,my-10,5,mx,my,mr);
+  mg.addColorStop(0,'#7a0000');
+  mg.addColorStop(0.6,'#5a0000');
+  mg.addColorStop(1,'#3a0000');
+  ctx.fillStyle = mg;
+  ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.fill();
+
+  // Craters
+  const craters = [
+    {dx:-18,dy:-12,r:8},{dx:14,dy:-20,r:5},{dx:20,dy:10,r:6},
+    {dx:-8,dy:18,r:4},{dx:-28,dy:8,r:5},{dx:5,dy:-4,r:3},
+  ];
+  craters.forEach(c => {
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.arc(mx+c.dx,my+c.dy,c.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(100,0,0,0.12)';
+    ctx.beginPath(); ctx.arc(mx+c.dx-1,my+c.dy-1,c.r*0.55,0,Math.PI*2); ctx.fill();
+  });
+
+  // Eyes – only when why screen is showing
+  if (moonEyesVisible) {
+    const eyeR = 7;
+    const pupilR = 3.2;
+    const eyePositions = [{ex: mx-16, ey: my-8}, {ex: mx+16, ey: my-8}];
+
+    // Where is the rabbit on screen?
+    const rabbitScreenX = rabbit.x - camX + rabbit.w/2;
+    const rabbitScreenY = rabbit.y + rabbit.h/2;
+
+    eyePositions.forEach(({ex, ey}) => {
+      // White
+      ctx.fillStyle = '#eee';
+      ctx.beginPath(); ctx.arc(ex, ey, eyeR, 0, Math.PI*2); ctx.fill();
+
+      // Pupil looks toward rabbit
+      const dx = rabbitScreenX - ex;
+      const dy = rabbitScreenY - ey;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const maxMove = eyeR - pupilR - 0.5;
+      const norm = dist > 0 ? Math.min(1, maxMove/dist) : 0;
+      const px = ex + dx * norm;
+      const py = ey + dy * norm;
+
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.arc(px, py, pupilR, 0, Math.PI*2); ctx.fill();
+    });
+  }
+}
+
+// --- Platforms ---
+function drawPlatforms() {
+  platforms.forEach(p => {
+    const sx = p.x - camX;
+    if (sx + p.w < 0 || sx > W) return;
+    if (p.type === 'ground') {
+      ctx.fillStyle = '#3a0000';
+      ctx.fillRect(sx, p.y, p.w, p.h);
+      ctx.fillStyle = '#6b0000';
+      ctx.fillRect(sx, p.y, p.w, 4);
+      ctx.fillStyle = 'rgba(100,0,0,0.18)';
+      for (let i = 0; i < p.w; i += 20) ctx.fillRect(sx+i, p.y+8, 1, 14+Math.sin(i*0.4)*7);
+    } else {
+      ctx.fillStyle = '#3d0000';
+      ctx.fillRect(sx, p.y, p.w, p.h);
+      ctx.fillStyle = '#7a0000';
+      ctx.fillRect(sx, p.y, p.w, 3);
+    }
+  });
+}
+
+// --- Blood stains ---
+function drawBlood() {
+  bloodStains.forEach(s => {
+    const sx = s.wx - camX;
+    if (sx < -20 || sx > W+20) return;
+    ctx.fillStyle = 'rgba(100,0,0,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(sx, s.wy, s.r, s.r*0.33, 0, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+// --- Coffin ---
+function drawCoffin() {
+  const sx = coffin.x - camX;
+  if (sx > W + 60 || sx < -80) return;
+  const {w, h} = coffin;
+  const y = coffin.y;
+
+  // Dark wood body – hexagon coffin shape
+  ctx.fillStyle = '#1a0800';
+  ctx.beginPath();
+  ctx.moveTo(sx + w*0.2, y);
+  ctx.lineTo(sx + w*0.8, y);
+  ctx.lineTo(sx + w, y + h*0.25);
+  ctx.lineTo(sx + w, y + h*0.85);
+  ctx.lineTo(sx + w*0.8, y + h);
+  ctx.lineTo(sx + w*0.2, y + h);
+  ctx.lineTo(sx, y + h*0.85);
+  ctx.lineTo(sx, y + h*0.25);
+  ctx.closePath();
+  ctx.fill();
+
+  // Lid edge
+  ctx.strokeStyle = '#3a1500';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Cross
+  ctx.fillStyle = '#2a0e00';
+  ctx.fillRect(sx + w/2 - 2, y + h*0.15, 4, h*0.35);
+  ctx.fillRect(sx + w*0.2, y + h*0.22, w*0.6, 4);
+
+  // Darkness inside – subtle gradient
+  const cg = ctx.createLinearGradient(sx, y, sx, y+h);
+  cg.addColorStop(0, 'rgba(0,0,0,0)');
+  cg.addColorStop(1, 'rgba(0,0,0,0.4)');
+  ctx.fillStyle = cg;
+  ctx.beginPath();
+  ctx.moveTo(sx + w*0.2, y);
+  ctx.lineTo(sx + w*0.8, y);
+  ctx.lineTo(sx + w, y + h*0.25);
+  ctx.lineTo(sx + w, y + h*0.85);
+  ctx.lineTo(sx + w*0.8, y + h);
+  ctx.lineTo(sx + w*0.2, y + h);
+  ctx.lineTo(sx, y + h*0.85);
+  ctx.lineTo(sx, y + h*0.25);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// --- Final abyss darkness ---
+function drawAbyssDarkness() {
+  const abyssScreenX = finalAbyssX - camX;
+  if (abyssScreenX > W) return;
+  // Hard cut – pure black beyond the edge
+  ctx.fillStyle = '#000';
+  ctx.fillRect(abyssScreenX, 0, W - abyssScreenX, H);
+}
+function drawCarrot() {
+  if (carrot.eaten) return;
+  const sx = carrot.x - camX;
+  if (sx < -30 || sx > W+30) return;
+  const cy = carrot.y, cw = carrot.w, ch = carrot.h;
+
+  ctx.fillStyle = '#6b2200';
+  ctx.beginPath();
+  ctx.moveTo(sx+cw/2, cy+ch);
+  ctx.lineTo(sx, cy+10);
+  ctx.lineTo(sx+cw, cy+10);
+  ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  for (let i=0;i<3;i++) {
+    const ly=cy+16+i*12, lw=cw*(1-(ly-cy)/ch)*0.8;
+    ctx.fillRect(sx+cw/2-lw/2, ly, lw, 2);
+  }
+  ctx.fillStyle = '#1a2800';
+  ctx.beginPath();
+  ctx.moveTo(sx+cw/2,cy+10);
+  ctx.quadraticCurveTo(sx+4,cy-8,sx+6,cy);
+  ctx.quadraticCurveTo(sx+14,cy-14,sx+cw/2,cy+10);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(sx+cw/2,cy+10);
+  ctx.quadraticCurveTo(sx+cw-4,cy-6,sx+cw-6,cy);
+  ctx.fill();
+}
+
+// --- Rabbit ---
+function drawRabbit() {
+  if (!running) return;
+  const sx = rabbit.x - camX;
+  const sy = rabbit.y;
+
+  // Glitch effects – only if carrot was eaten
+  if (rabbit.glitching && carrotEaten) {
+    const g = Math.random();
+    if (g < 0.4) {
+      // Red X – the rabbit becomes an error
+      const cx = sx + rabbit.w/2;
+      const cy = sy + rabbit.h/2;
+      const size = 28;
+      ctx.save();
+      ctx.strokeStyle = '#0040ff';
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx - size, cy - size); ctx.lineTo(cx + size, cy + size);
+      ctx.moveTo(cx + size, cy - size); ctx.lineTo(cx - size, cy + size);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    } else if (g < 0.7) {
+      // Flicker – skip drawing
+      return;
+    } else {
+      // Chromatic shift
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = '#8b0000';
+      drawRabbitShape(sx+5, sy+2, 'silhouette');
+      ctx.fillStyle = '#00008b';
+      drawRabbitShape(sx-4, sy-1, 'silhouette');
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
+
+  drawRabbitShape(sx, sy, 'normal');
+}
+
+function drawRabbitShape(sx, sy, mode) {
+  if (mode === 'silhouette') {
+    ctx.beginPath();
+    ctx.ellipse(sx+18,sy+34,16,18,0,0,Math.PI*2);
+    ctx.ellipse(sx+18,sy+16,13,12,0,0,Math.PI*2);
+    ctx.fill();
+    return;
+  }
+
+  // Body
+  ctx.fillStyle = '#e8e8e8';
+  ctx.beginPath(); ctx.ellipse(sx+18,sy+34,16,18,0,0,Math.PI*2); ctx.fill();
+  // Head
+  ctx.beginPath(); ctx.ellipse(sx+18,sy+16,13,12,0,0,Math.PI*2); ctx.fill();
+  // Ears
+  ctx.beginPath(); ctx.ellipse(sx+10,sy-4,5,14,-0.15,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx+26,sy-4,5,14,0.15,0,Math.PI*2); ctx.fill();
+  // Ear pink
+  ctx.fillStyle = '#ffb6c1'; ctx.globalAlpha = 0.6;
+  ctx.beginPath(); ctx.ellipse(sx+10,sy-4,2.5,10,-0.15,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx+26,sy-4,2.5,10,0.15,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Eyes
+  if (showXEyes) {
+    ctx.strokeStyle = '#111'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(sx+11,sy+12); ctx.lineTo(sx+15,sy+16);
+    ctx.moveTo(sx+15,sy+12); ctx.lineTo(sx+11,sy+16);
+    ctx.moveTo(sx+21,sy+12); ctx.lineTo(sx+25,sy+16);
+    ctx.moveTo(sx+25,sy+12); ctx.lineTo(sx+21,sy+16);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(sx+13,sy+14,2,0,Math.PI*2); ctx.arc(sx+23,sy+14,2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(sx+13.6,sy+13.2,0.7,0,Math.PI*2); ctx.arc(sx+23.6,sy+13.2,0.7,0,Math.PI*2); ctx.fill();
+  }
+
+  // Nose
+  ctx.fillStyle = '#ffb6c1';
+  ctx.beginPath(); ctx.ellipse(sx+18,sy+20,2,1.2,0,0,Math.PI*2); ctx.fill();
+  // Tail
+  ctx.fillStyle = '#e8e8e8';
+  ctx.beginPath(); ctx.arc(sx+30,sy+34,5,0,Math.PI*2); ctx.fill();
+  // Paws
+  ctx.beginPath(); ctx.ellipse(sx+8,sy+46,6,4,0,0,Math.PI*2); ctx.ellipse(sx+28,sy+46,6,4,0,0,Math.PI*2); ctx.fill();
+}
+
+// --- Progress bar ---
+function drawProgress() {
+  ctx.fillStyle = 'rgba(60,0,0,0.45)';
+  ctx.fillRect(40, 22, (W-80) * Math.min(1, rabbit.x/WORLD_W), 1);
+}
+
+// --- Loop ---
+function loop() {
+  update();
+  drawBg();
+  drawStars();
+  drawMoon();
+  drawPlatforms();
+  drawBlood();
+  drawCarrot();
+  drawAbyssDarkness();
+  drawRabbit();
+  drawProgress();
+  requestAnimationFrame(loop);
 }
 </script>
 </body>
