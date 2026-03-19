@@ -7,17 +7,12 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
+body { 
   background:#000; width:100vw; height:100vh;
   overflow:hidden; 
   font-family:'Cormorant Garamond',serif;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:32px;
-}
-.cursor {
-  position:fixed; width:8px; height:8px; background:white;
-  border-radius:50%; pointer-events:none; z-index:9999;
-  transform:translate(-50%,-50%);
 }
 p {
   color:white; font-style:italic;
@@ -35,19 +30,7 @@ p.hint {
 </style>
 </head>
 <body>
-<div class="cursor" id="cursor"></div>
 <p>This is not the entrance to the rabbit hole.</p>
 <p>Look again.</p>
 <p class="hint">Hint: it gets dark in there.</p>
 <script>
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-});
-document.addEventListener('click', () => {
-  window.location.href = './02-questions.html';
-});
-</script>
-</body>
-</html>
