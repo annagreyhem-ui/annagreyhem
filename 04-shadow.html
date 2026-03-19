@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#000; color:#ccc; font-family:Georgia,serif; font-size:clamp(17px,2.2vw,22px); line-height:1.9; }
+body {  background:#000; color:#ccc; font-family:Georgia,serif; font-size:clamp(17px,2.2vw,22px); line-height:1.9; }
 .story { display:none; min-height:100vh; padding:80px 0 120px; animation:fadein 1.2s ease forwards; }
 .story.active { display:block; }
 @keyframes fadein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
@@ -32,13 +32,13 @@ p:last-of-type { margin-bottom:0; }
 #fixed-nav {
   position:fixed; bottom:40px; left:50%; transform:translateX(-50%);
   z-index:500; display:none;
-  font-size:36px; color:#888; cursor:pointer;
+  font-size:36px; color:#888; 
   padding:8px 40px; transition:color 0.3s; user-select:none;
 }
 #fixed-nav:hover { color:#fff; }
 
 /* Click overlay for p0/p1 */
-#click-overlay { position:fixed; inset:0; z-index:400; cursor:pointer; display:none; }
+#click-overlay { position:fixed; inset:0; z-index:400;  display:none; }
 #click-hint { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); opacity:0; transition:opacity 1.2s; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:#888; letter-spacing:0.2em; white-space:nowrap; z-index:401; pointer-events:none; }
 
 /* Shifting page */
@@ -51,7 +51,7 @@ p:last-of-type { margin-bottom:0; }
 
 /* Rabbit */
 @keyframes hop { 0%{transform:translateY(0) scaleY(1) scaleX(1)} 30%{transform:translateY(0) scaleY(0.85) scaleX(1.1)} 60%{transform:translateY(-10px) scaleY(1.1) scaleX(0.95)} 100%{transform:translateY(-14px) scaleY(1.05) scaleX(0.97)} }
-.rabbit-end { display:flex; justify-content:center; padding:60px 0 80px; cursor:pointer; }
+.rabbit-end { display:flex; justify-content:center; padding:60px 0 80px;  }
 
 /* Blood word */
 #blood-word {
@@ -213,7 +213,7 @@ p:last-of-type { margin-bottom:0; }
 <div class="story" id="p10">
   <div class="story-inner center-page">
     <h1 id="pet-title" style="text-align:center;margin-bottom:60px;">Pet the rabbit</h1>
-    <div id="rabbit-pet" style="cursor:pointer;display:inline-block;position:relative;" title="pet me">
+    <div id="rabbit-pet" style="display:inline-block;position:relative;" title="pet me">
       <div id="pet-hop" style="animation:hop 0.6s ease-in-out infinite alternate;transform-origin:bottom center;display:inline-block;">
         <svg id="pet-svg" style="width:120px;height:144px;display:block;" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="50" cy="85" rx="22" ry="26" fill="white"/>
@@ -587,7 +587,7 @@ function setupMadPage() {
           cancelAnimationFrame(madRaf);
           canvas.style.display = 'none';
           var arrow = document.createElement('div');
-          arrow.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-size:36px;color:#888;cursor:pointer;z-index:600;padding:8px 40px;font-family:Georgia,serif;opacity:0;transition:opacity 1s;';
+          arrow.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);font-size:36px;color:#888;z-index:600;padding:8px 40px;font-family:Georgia,serif;opacity:0;transition:opacity 1s;';
           arrow.innerHTML = '&#8964;';
           document.body.appendChild(arrow);
           setTimeout(function() { arrow.style.opacity='1'; }, 50);
