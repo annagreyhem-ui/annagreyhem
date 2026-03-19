@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anna Greyhem</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   background:#000; width:100vw; height:100vh;
   overflow:hidden; cursor:none;
-  font-family:'IM Fell English', serif;
+  font-family:'Cormorant Garamond', serif;
 }
 .cursor {
   position:fixed; width:8px; height:8px; background:white;
@@ -126,9 +126,13 @@ body {
 
 <script>
 const cursor = document.getElementById('cursor');
+let cursorHideTimer = null;
 document.addEventListener('mousemove', e => {
   cursor.style.left = e.clientX + 'px';
   cursor.style.top  = e.clientY + 'px';
+  cursor.style.opacity = '1';
+  clearTimeout(cursorHideTimer);
+  cursorHideTimer = setTimeout(() => cursor.style.opacity = '0', 2000);
 });
 document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
 document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
@@ -136,18 +140,18 @@ document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
 const questions = [
   {
     q: 'What did the blood moon wish for?',
-    a: 'Time with her sister',
+    a: 'To spend time with her sister',
     b: 'That more people would die'
   },
   {
-    q: 'Where is the line between art and madness?',
-    a: 'There is a clear distinction',
-    b: 'Madness can also be art'
+    q: 'The glitter fades. What is left?',
+    a: 'The person beneath',
+    b: 'The dark you were hiding'
   },
   {
-    q: 'The embers die out. What remains?',
-    a: 'The ashes',
-    b: 'Nothing'
+    q: 'What is madness?',
+    a: 'The opposite of art',
+    b: 'The price of it'
   }
 ];
 
