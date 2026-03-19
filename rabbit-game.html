@@ -357,20 +357,29 @@ function showWhyScreen() {
     }, 1500);
   }, 100);
 
-  // Tap anywhere or Space restarts
+  // Tap anywhere or Space or Touch restarts
   ws.addEventListener('click', function onWsClick() {
     ws.removeEventListener('click', onWsClick);
     document.removeEventListener('keydown', onWsKey);
+    document.removeEventListener('touchstart', onWsTouch);
     restartGame();
   });
   const onWsKey = (e) => {
     if (e.code === 'Space' || e.code === 'Enter') {
       ws.removeEventListener('click', onWsClick);
       document.removeEventListener('keydown', onWsKey);
+      document.removeEventListener('touchstart', onWsTouch);
       restartGame();
     }
   };
+  const onWsTouch = () => {
+    ws.removeEventListener('click', onWsClick);
+    document.removeEventListener('keydown', onWsKey);
+    document.removeEventListener('touchstart', onWsTouch);
+    restartGame();
+  };
   document.addEventListener('keydown', onWsKey);
+  document.addEventListener('touchstart', onWsTouch);
 }
 
 function showFinalDeath() {
@@ -504,23 +513,7 @@ function triggerDeath(byCarrot) {
 
     const goWhyScreen = () => {
       hideMessage();
-      setTimeout(() => {
-        const ws = document.getElementById('why-screen');
-        const wt = document.getElementById('why-text');
-        const wr = document.getElementById('why-restart');
-        ws.style.opacity = '1';
-        ws.style.pointerEvents = 'none';
-        wt.style.opacity = '0';
-        wr.style.opacity = '0';
-        setTimeout(() => {
-          wt.style.transition = 'opacity 0.08s';
-          wt.style.opacity = '1';
-          setTimeout(() => {
-            wr.style.transition = 'opacity 1s';
-            wr.style.opacity = '1';
-          }, 1500);
-        }, 100);
-      }, 400);
+      setTimeout(() => { showWhyScreen(); }, 400);
     };
   } else {
     // Skip utility – each click/space advances to next step
@@ -542,25 +535,31 @@ function triggerDeath(byCarrot) {
 
     // Step 1: Oh. / you died.
     showMsg('Oh.', 'you died.');
+    let restarting = false;
+
+    const doRestart = () => {
+      if (restarting) return;
+      restarting = true;
+      skipHandlers.forEach(h => {
+        document.removeEventListener('keydown', h);
+        document.removeEventListener('click', h);
+      });
+      clearTimeout(autoTimer);
+      hideMessage();
+      setTimeout(() => { restartGame(); }, 400);
+    };
+
+    let autoTimer;
     onSkip(() => showStep2());
 
     const showStep2 = () => {
       showMsg('Can you save the rabbit?', '');
       onSkip(() => doRestart());
-      // Auto-advance after 2.5s
-      const t = setTimeout(() => { doRestart(); }, 2500);
-      skipHandlers._autoTimer = t;
-    };
-
-    const doRestart = () => {
-      hideMessage();
-      setTimeout(() => { restartGame(); }, 400);
+      autoTimer = setTimeout(() => { doRestart(); }, 2500);
     };
 
     // Auto-advance step 1 after 1.2s
-    setTimeout(() => {
-      if (skipStep === 0) showStep2();
-    }, 1200);
+    setTimeout(() => { showStep2(); }, 1200);
   }
 }
 
