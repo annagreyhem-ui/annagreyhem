@@ -31,12 +31,6 @@ canvas { display:block; position:fixed; top:0; left:0; }
 }
 #msg-l1 { font-family:Georgia,serif; font-style:normal; letter-spacing:0.05em; color:#fff; font-size:clamp(30px,5vw,56px); }
 #msg-l2 { font-family:Georgia,serif; font-style:normal; letter-spacing:0.05em; color:#ccc; font-size:clamp(20px,3vw,36px); }
-#msg-restart {
-  display:none; font-style:italic; font-size:clamp(14px,1.8vw,18px);
-  color:#888; letter-spacing:0.2em; margin-top:24px;
-  cursor:pointer; border-bottom:1px solid #555; transition:color 0.3s;
-}
-#msg-restart:hover { color:#ccc; }
 
 #why-screen {
   position:fixed; inset:0; z-index:160;
@@ -69,7 +63,6 @@ canvas { display:block; position:fixed; top:0; left:0; }
 <div id="message">
   <div id="msg-l1"></div>
   <div id="msg-l2"></div>
-  <div id="msg-restart" onclick="restartGame()">run again.</div>
 </div>
 <div id="why-screen">
   <div id="why-text">Why did you kill the rabbit?</div>
@@ -97,7 +90,7 @@ canvas { display:block; position:fixed; top:0; left:0; }
   <!-- Screen 1: Credits – 5 separate pages, each centered -->
   <div id="end-s1" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:40px;">
     <div id="ec0" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.1em;transition:opacity 1.5s;max-width:500px;line-height:1.6;">I guess,<br>I did it.</div>
-    <div id="ec1" style="opacity:0;position:absolute;font-style:italic;color:#666;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.08em;line-height:1.7;transition:opacity 1.5s;max-width:500px;">Das Publikum klatscht,<br>Alice klatscht.<br>Die Vorstellung ist vorbei.<br><br>Der Vorhang schließt sich,<br>doch Anna schlüpft noch ein letztes Mal<br>zwischen dem schweren Samt hervor:</div>
+    <div id="ec1" style="opacity:0;position:absolute;font-style:italic;color:#666;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.08em;line-height:1.7;transition:opacity 1.5s;max-width:500px;">Das Publikum klatscht,<br>Alice klatscht.<br><br>Die Vorstellung ist vorbei.<br>Der Vorhang schließt sich,<br>doch Anna schlüpft noch ein letztes Mal<br>zwischen dem schweren Samt hervor:</div>
     <div id="ec2" style="opacity:0;position:absolute;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.08em;line-height:1.7;transition:opacity 1.5s;max-width:500px;">Just remember.<br>What I write is not always real,<br>but it is always true.<br><br>You signed up for feeling<br>everything at once.<br>You just felt everything at once.</div>
     <div id="ec3" style="opacity:0;position:absolute;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.08em;line-height:1.7;transition:opacity 1.5s;max-width:500px;">Manches ist wahr,<br>manches ist Kunst<br>und beides bin ich.</div>
     <div id="ec4" style="opacity:0;position:absolute;font-style:italic;color:#fff;font-size:clamp(22px,3.5vw,44px);letter-spacing:0.08em;transition:opacity 1.5s;max-width:500px;line-height:1.6;">Ich werde es<br>wieder tun.</div>
@@ -191,7 +184,7 @@ let speedBoost = 0; // extra speed from cookies
 const GRAVITY = 0.52;
 const JUMP_FORCE = -13;
 const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
-const SPEED = isMobile ? 2.2 : 3.4;
+const SPEED = isMobile ? 1.6 : 32.8;
 const WORLD_W = 6200;
 
 function initRun() {
@@ -277,11 +270,8 @@ function buildWorld() {
 
   // Cookies scattered on ground platforms
   cookies = [
-    {x: 280,  y: groundY - 22, w: 18, h: 18, eaten: false},
     {x: 850,  y: groundY - 22, w: 18, h: 18, eaten: false},
-    {x: 1300, y: groundY - 22, w: 18, h: 18, eaten: false},
     {x: 1950, y: groundY - 22, w: 18, h: 18, eaten: false},
-    {x: 2650, y: groundY - 22, w: 18, h: 18, eaten: false},
     {x: 3350, y: groundY - 22, w: 18, h: 18, eaten: false},
     {x: 4100, y: groundY - 22, w: 18, h: 18, eaten: false},
   ];
@@ -324,20 +314,22 @@ function startGame() {
 }
 
 function restartGame() {
-  hideMessage();
+  const m = document.getElementById('message');
+  m.style.opacity = '0';
+  m.style.pointerEvents = 'none';
+  document.getElementById('msg-l1').textContent = '';
+  document.getElementById('msg-l2').textContent = '';
   document.getElementById('why-screen').style.opacity = '0';
   document.getElementById('why-screen').style.pointerEvents = 'none';
   initRun();
 }
 
 // --- Messages ---
-function showMsg(l1, l2, showBtn) {
+function showMsg(l1, l2) {
   const m = document.getElementById('message');
   document.getElementById('msg-l1').textContent = l1 || '';
   document.getElementById('msg-l2').textContent = l2 || '';
-  const rb = document.getElementById('msg-restart');
-  rb.style.display = showBtn ? 'block' : 'none';
-  m.style.pointerEvents = showBtn ? 'auto' : 'none';
+  m.style.pointerEvents = 'none';
   m.style.opacity = '0';
   void m.offsetHeight;
   m.style.opacity = '1';
@@ -347,9 +339,7 @@ function hideMessage() {
   const m = document.getElementById('message');
   m.style.opacity = '0';
   m.style.pointerEvents = 'none';
-  // Reset for next run
   setTimeout(() => {
-    document.getElementById('msg-restart').style.display = 'none';
     document.getElementById('msg-l1').textContent = '';
     document.getElementById('msg-l2').textContent = '';
   }, 400);
@@ -492,57 +482,95 @@ function triggerDeath(byCarrot) {
 
   if (byCarrot) {
     carrotEaten = true;
-    showMsg('Yummy.', '', false);
-    setTimeout(() => {
-      showXEyes = true; // X eyes appear now
-      showMsg('The carrot was poisoned.', '', false);
-      setTimeout(() => {
-        hideMessage();
-        setTimeout(() => {
-          const ws = document.getElementById('why-screen');
-          const wt = document.getElementById('why-text');
-          const wr = document.getElementById('why-restart');
-          ws.style.opacity = '1';
-          ws.style.pointerEvents = 'none';
-          wt.style.opacity = '0';
-          wr.style.opacity = '0';
-          setTimeout(() => {
-            wt.style.transition = 'opacity 0.08s';
-            wt.style.opacity = '1';
-            setTimeout(() => {
-              wr.style.transition = 'opacity 1s';
-              wr.style.opacity = '1';
-              ws.style.pointerEvents = 'auto';
-            }, 1500);
-          }, 100);
-        }, 400);
-      }, 3000);
-    }, 1600);
-  } else {
-    showMsg('Oh.', 'you died.', false);
-    const restart = () => {
-      if (!gameOver) return;
-      document.removeEventListener('keydown', restart);
-      canvas.removeEventListener('click', restart);
-      document.removeEventListener('touchstart', restart);
-      restartGame();
+    showXEyes = false;
+
+    const skipHandlers = [];
+    const onSkip = (cb) => {
+      const handler = (e) => {
+        if (e.type === 'keydown' && e.code !== 'Space') return;
+        skipHandlers.forEach(h => {
+          document.removeEventListener('keydown', h);
+          document.removeEventListener('click', h);
+        });
+        cb();
+      };
+      skipHandlers.push(handler);
+      document.addEventListener('keydown', handler);
+      document.addEventListener('click', handler);
     };
-    setTimeout(() => {
-      // Tap anywhere restarts immediately
-      const doRestart = () => { restartGame(); };
-      document.addEventListener('keydown', doRestart, {once:true});
-      document.addEventListener('click', doRestart, {once:true});
-      document.addEventListener('touchstart', doRestart, {once:true});
-      // Show sequence
-      showMsg('Oh.', 'you died.', false);
+
+    // Step 1: Yummy.
+    showMsg('Yummy.', '');
+    onSkip(() => showPoisoned());
+    const t1 = setTimeout(() => showPoisoned(), 1600);
+
+    const showPoisoned = () => {
+      clearTimeout(t1);
+      showXEyes = true;
+      showMsg('The carrot was poisoned.', '');
+      onSkip(() => goWhyScreen());
+      setTimeout(() => goWhyScreen(), 3000);
+    };
+
+    const goWhyScreen = () => {
+      hideMessage();
       setTimeout(() => {
-        showMsg('can you save the rabbit?', '', false);
+        const ws = document.getElementById('why-screen');
+        const wt = document.getElementById('why-text');
+        const wr = document.getElementById('why-restart');
+        ws.style.opacity = '1';
+        ws.style.pointerEvents = 'none';
+        wt.style.opacity = '0';
+        wr.style.opacity = '0';
         setTimeout(() => {
-          document.getElementById('msg-restart').style.display = 'block';
-          document.getElementById('message').style.pointerEvents = 'auto';
-        }, 1200);
-      }, 1200);
-    }, 600);
+          wt.style.transition = 'opacity 0.08s';
+          wt.style.opacity = '1';
+          setTimeout(() => {
+            wr.style.transition = 'opacity 1s';
+            wr.style.opacity = '1';
+          }, 1500);
+        }, 100);
+      }, 400);
+    };
+  } else {
+    // Skip utility – each click/space advances to next step
+    let skipStep = 0;
+    const skipHandlers = [];
+    const onSkip = (cb) => {
+      const handler = (e) => {
+        if (e.type === 'keydown' && e.code !== 'Space') return;
+        skipHandlers.forEach(h => {
+          document.removeEventListener('keydown', h);
+          document.removeEventListener('click', h);
+        });
+        cb();
+      };
+      skipHandlers.push(handler);
+      document.addEventListener('keydown', handler);
+      document.addEventListener('click', handler);
+    };
+
+    // Step 1: Oh. / you died.
+    showMsg('Oh.', 'you died.');
+    onSkip(() => showStep2());
+
+    const showStep2 = () => {
+      showMsg('Can you save the rabbit?', '');
+      onSkip(() => doRestart());
+      // Auto-advance after 2.5s
+      const t = setTimeout(() => { doRestart(); }, 2500);
+      skipHandlers._autoTimer = t;
+    };
+
+    const doRestart = () => {
+      hideMessage();
+      setTimeout(() => { restartGame(); }, 400);
+    };
+
+    // Auto-advance step 1 after 1.2s
+    setTimeout(() => {
+      if (skipStep === 0) showStep2();
+    }, 1200);
   }
 }
 
