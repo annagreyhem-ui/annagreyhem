@@ -96,25 +96,22 @@ canvas { display:block; position:fixed; top:0; left:0; }
     <div id="ec4" style="opacity:0;position:absolute;font-style:italic;color:#fff;font-size:clamp(17px,2.2vw,22px);letter-spacing:0.06em;transition:opacity 1.5s;max-width:520px;line-height:1.9;">Ich werde es<br>wieder tun.</div>
   </div>
 
-  <!-- Screen 2: Anna's closing words, Kiss/Anna centered under "done" -->
+  <!-- Screen 2: Anna's closing words, Kiss/Anna centered -->
   <div id="end-s2" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;">
     <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">I think we are all done.</div>
     <div id="ec6a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Until next time,</div>
     <div id="ec6b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">bitches.</div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:16px;">
-      <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
-      <div id="ec7b" style="opacity:0;transition:opacity 1.5s;">
-        <img src="./Anna.png" style="height:clamp(150px,24vw,300px);width:auto;object-fit:contain;opacity:0.9;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:16px;">
+      <div id="ec7kiss" style="opacity:0;transition:opacity 1.5s;flex-shrink:0;">
+        <img src="./kiss.jpg" style="width:clamp(80px,14vw,160px);height:auto;object-fit:contain;opacity:0.9;">
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
+        <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
+        <div id="ec7b" style="opacity:0;transition:opacity 1.5s;">
+          <img src="./Anna.png" style="height:clamp(150px,24vw,300px);width:auto;object-fit:contain;opacity:0.9;">
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Screen 3: Big kiss zoomed in + no way text -->
-  <div id="end-s3" style="position:absolute;inset:0;display:none;background:transparent;">
-    <div id="ec8" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-62%) scale(0.15);opacity:0;transition:opacity 0.3s, transform 0.6s cubic-bezier(0.2,0,0.4,1);">
-      <img src="./kiss.jpg" style="width:min(50vw,50vh);height:auto;object-fit:contain;opacity:0.92;">
-    </div>
-    <div id="ec9" style="position:absolute;top:61.8%;left:50%;transform:translateX(-50%);opacity:0;font-style:italic;color:#fff;font-size:clamp(17px,2.2vw,22px);letter-spacing:0.06em;transition:opacity 1.5s;text-align:center;white-space:nowrap;">There is no way to save the rabbit.</div>
   </div>
 
 </div>
@@ -447,23 +444,8 @@ function showFinalDeath() {
               setTimeout(() => { document.getElementById('ec6a').style.opacity = '1'; }, 3800);
               setTimeout(() => { document.getElementById('ec6b').style.opacity = '1'; }, 5500);
               setTimeout(() => { document.getElementById('ec7a').style.opacity = '1'; }, 7500);
+              setTimeout(() => { document.getElementById('ec7kiss').style.opacity = '1'; }, 7500);
               setTimeout(() => { document.getElementById('ec7b').style.opacity = '1'; }, 9000);
-
-              // → Screen 3: big kiss
-              setTimeout(() => {
-                s2.style.transition = 'opacity 1.2s'; s2.style.opacity = '0';
-                setTimeout(() => {
-                  s2.style.display = 'none';
-                  const s3 = document.getElementById('end-s3');
-                  s3.style.display = 'flex';
-                  setTimeout(() => {
-                    const ec8 = document.getElementById('ec8');
-                    ec8.style.opacity = '1';
-                    setTimeout(() => { ec8.style.transform = 'translate(-50%,-62%) scale(1)'; }, 50);
-                  }, 300);
-                  setTimeout(() => { document.getElementById('ec9').style.opacity = '1'; }, 2800);
-                }, 1300);
-              }, 13000);
             }, 1300);
           }, 30500);
         }, 1300);
@@ -981,44 +963,67 @@ function drawAxe() {
   ctx.save();
   ctx.translate(ax, fy);
   ctx.rotate(axe.sway);
-  ctx.globalAlpha = 0.82;
+  ctx.globalAlpha = 0.92;
 
-  // Robe/cloak – wide flowing shape
-  ctx.fillStyle = '#0a0a0a';
+  // Robe/cloak – slightly lighter for visibility
+  ctx.fillStyle = '#1a1a2e';
   ctx.beginPath();
-  ctx.moveTo(10, figH);        // bottom right
-  ctx.lineTo(-10, figH);       // bottom left
-  ctx.lineTo(-22, figH - 20);  // hem left
-  ctx.lineTo(-18, 50);         // side left
-  ctx.lineTo(-12, 30);         // waist left
-  ctx.lineTo(-8, 18);          // chest left
-  ctx.lineTo(0, 10);           // neck
-  ctx.lineTo(8, 18);           // chest right
-  ctx.lineTo(12, 30);          // waist right
-  ctx.lineTo(18, 50);          // side right
-  ctx.lineTo(22, figH - 20);   // hem right
+  ctx.moveTo(10, figH);
+  ctx.lineTo(-10, figH);
+  ctx.lineTo(-22, figH - 20);
+  ctx.lineTo(-18, 50);
+  ctx.lineTo(-12, 30);
+  ctx.lineTo(-8, 18);
+  ctx.lineTo(0, 10);
+  ctx.lineTo(8, 18);
+  ctx.lineTo(12, 30);
+  ctx.lineTo(18, 50);
+  ctx.lineTo(22, figH - 20);
   ctx.closePath();
   ctx.fill();
 
-  // Hood – large, deep, slightly forward
-  ctx.fillStyle = '#080808';
+  // Hood
+  ctx.fillStyle = '#111122';
   ctx.beginPath();
   ctx.ellipse(2, 14, 22, 26, 0, 0, Math.PI*2);
   ctx.fill();
 
-  // Hood shadow inside – the dark void face
-  ctx.fillStyle = '#000';
+  // Hood outline for visibility
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(2, 14, 22, 26, 0, 0, Math.PI*2);
+  ctx.stroke();
+
+  // Robe outline
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(-22, figH - 20);
+  ctx.lineTo(-18, 50);
+  ctx.lineTo(-12, 30);
+  ctx.moveTo(22, figH - 20);
+  ctx.lineTo(18, 50);
+  ctx.lineTo(12, 30);
+  ctx.stroke();
+
+  // Hood shadow inside
+  ctx.fillStyle = '#05050f';
   ctx.beginPath();
   ctx.ellipse(4, 18, 13, 16, 0.1, 0, Math.PI*2);
   ctx.fill();
 
-  // Faint glowing eyes in the darkness
-  ctx.fillStyle = 'rgba(180,0,0,0.45)';
-  ctx.beginPath(); ctx.ellipse(0, 16, 3, 2, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(8, 16, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  // Glowing red eyes – brighter
+  ctx.fillStyle = 'rgba(200,0,0,0.75)';
+  ctx.beginPath(); ctx.ellipse(0, 16, 3.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(8, 16, 3.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+  // Eye glow
+  ctx.fillStyle = 'rgba(255,60,60,0.35)';
+  ctx.beginPath(); ctx.ellipse(0, 16, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(8, 16, 6, 4, 0, 0, Math.PI*2); ctx.fill();
 
-  // Sleeve left – arm hanging
-  ctx.fillStyle = '#0a0a0a';
+  // Sleeve
+  ctx.fillStyle = '#1a1a2e';
   ctx.beginPath();
   ctx.moveTo(-12, 40);
   ctx.bezierCurveTo(-20, 50, -28, 65, -24, 80);
@@ -1027,13 +1032,13 @@ function drawAxe() {
   ctx.closePath();
   ctx.fill();
 
-  // Bony hand hint
-  ctx.strokeStyle = 'rgba(200,200,180,0.3)';
-  ctx.lineWidth = 1;
+  // Bony fingers
+  ctx.strokeStyle = 'rgba(220,210,190,0.45)';
+  ctx.lineWidth = 1.2;
   ctx.beginPath();
-  ctx.moveTo(-22, 80); ctx.lineTo(-26, 88);
-  ctx.moveTo(-18, 82); ctx.lineTo(-20, 90);
-  ctx.moveTo(-14, 82); ctx.lineTo(-15, 90);
+  ctx.moveTo(-22, 80); ctx.lineTo(-26, 90);
+  ctx.moveTo(-18, 82); ctx.lineTo(-20, 92);
+  ctx.moveTo(-14, 82); ctx.lineTo(-15, 92);
   ctx.stroke();
 
   // Subtle dark aura/shadow behind
