@@ -108,7 +108,7 @@ canvas { display:block; position:fixed; top:0; left:0; }
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
         <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
         <div id="ec7b" style="opacity:0;transition:opacity 1.5s;">
-          <img src="./Anna.png" style="height:clamp(150px,24vw,300px);width:auto;object-fit:contain;opacity:0.9;">
+          <img src="./Anna.png" style="height:clamp(50px,8vw,100px);width:auto;object-fit:contain;opacity:0.9;">
         </div>
       </div>
     </div>
@@ -957,98 +957,132 @@ function drawAxe() {
   const ax = axe.screenX;
   const floatY = Math.sin(Date.now() / 900) * 5;
   const groundY = H - 80;
-  const figH = 110; // figure height
+  const figH = 110;
   const fy = groundY - figH + floatY;
 
   ctx.save();
   ctx.translate(ax, fy);
   ctx.rotate(axe.sway);
-  ctx.globalAlpha = 0.92;
 
-  // Robe/cloak – slightly lighter for visibility
-  ctx.fillStyle = '#1a1a2e';
+  // Helper: draw soft blurred shape by layering multiple semi-transparent versions
+  const drawSoft = (fn, color, alpha, blur) => {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    for (let b = blur; b >= 0; b -= 2) {
+      ctx.save();
+      if (b > 0) {
+        ctx.shadowBlur = b * 4;
+        ctx.shadowColor = color;
+      }
+      fn();
+      ctx.restore();
+    }
+    ctx.restore();
+  };
+
+  // Outer smoke aura
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = '#2a1045';
+  ctx.shadowBlur = 30; ctx.shadowColor = '#2a1045';
   ctx.beginPath();
-  ctx.moveTo(10, figH);
-  ctx.lineTo(-10, figH);
-  ctx.lineTo(-22, figH - 20);
-  ctx.lineTo(-18, 50);
-  ctx.lineTo(-12, 30);
-  ctx.lineTo(-8, 18);
-  ctx.lineTo(0, 10);
-  ctx.lineTo(8, 18);
-  ctx.lineTo(12, 30);
-  ctx.lineTo(18, 50);
-  ctx.lineTo(22, figH - 20);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(14, figH+8); ctx.lineTo(-14, figH+8);
+  ctx.lineTo(-28, figH-15); ctx.lineTo(-22, 45);
+  ctx.lineTo(-12, 22); ctx.lineTo(0, 8);
+  ctx.lineTo(12, 22); ctx.lineTo(22, 45);
+  ctx.lineTo(28, figH-15); ctx.closePath(); ctx.fill();
 
-  // Hood
-  ctx.fillStyle = '#111122';
+  // Robe body – soft
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = '#1c0e38';
+  ctx.shadowBlur = 18; ctx.shadowColor = '#1c0e38';
   ctx.beginPath();
-  ctx.ellipse(2, 14, 22, 26, 0, 0, Math.PI*2);
-  ctx.fill();
+  ctx.moveTo(10, figH); ctx.lineTo(-10, figH);
+  ctx.lineTo(-22, figH-18); ctx.lineTo(-18, 48);
+  ctx.lineTo(-10, 26); ctx.lineTo(0, 14);
+  ctx.lineTo(10, 26); ctx.lineTo(18, 48);
+  ctx.lineTo(22, figH-18); ctx.closePath(); ctx.fill();
 
-  // Hood outline for visibility
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = 1.5;
+  // Robe core
+  ctx.globalAlpha = 0.45;
+  ctx.fillStyle = '#261248';
+  ctx.shadowBlur = 8; ctx.shadowColor = '#261248';
   ctx.beginPath();
-  ctx.ellipse(2, 14, 22, 26, 0, 0, Math.PI*2);
-  ctx.stroke();
+  ctx.moveTo(7, figH); ctx.lineTo(-7, figH);
+  ctx.lineTo(-16, figH-16); ctx.lineTo(-13, 50);
+  ctx.lineTo(-7, 28); ctx.lineTo(0, 16);
+  ctx.lineTo(7, 28); ctx.lineTo(13, 50);
+  ctx.lineTo(16, figH-16); ctx.closePath(); ctx.fill();
 
-  // Robe outline
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(-22, figH - 20);
-  ctx.lineTo(-18, 50);
-  ctx.lineTo(-12, 30);
-  ctx.moveTo(22, figH - 20);
-  ctx.lineTo(18, 50);
-  ctx.lineTo(12, 30);
-  ctx.stroke();
+  // Hem smoke dissolving
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = '#180830';
+  ctx.shadowBlur = 22; ctx.shadowColor = '#180830';
+  ctx.beginPath(); ctx.ellipse(-16, figH-4, 14, 10, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(16, figH-6, 12, 9, 0, 0, Math.PI*2); ctx.fill();
 
-  // Hood shadow inside
-  ctx.fillStyle = '#05050f';
-  ctx.beginPath();
-  ctx.ellipse(4, 18, 13, 16, 0.1, 0, Math.PI*2);
-  ctx.fill();
+  // Hood outer glow
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = '#1e0c34';
+  ctx.shadowBlur = 24; ctx.shadowColor = '#1e0c34';
+  ctx.beginPath(); ctx.ellipse(2, -8, 28, 30, 0, 0, Math.PI*2); ctx.fill();
 
-  // Glowing red eyes – brighter
-  ctx.fillStyle = 'rgba(200,0,0,0.75)';
-  ctx.beginPath(); ctx.ellipse(0, 16, 3.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(8, 16, 3.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+  // Hood main
+  ctx.globalAlpha = 0.72;
+  ctx.fillStyle = '#1c0e36';
+  ctx.shadowBlur = 12; ctx.shadowColor = '#1c0e36';
+  ctx.beginPath(); ctx.ellipse(2, -8, 22, 24, 0, 0, Math.PI*2); ctx.fill();
+
+  // Hood top wisps
+  ctx.globalAlpha = 0.2;
+  ctx.fillStyle = '#160828';
+  ctx.shadowBlur = 20; ctx.shadowColor = '#160828';
+  ctx.beginPath(); ctx.ellipse(2, -32, 11, 16, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-5, -38, 7, 12, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(10, -36, 6, 10, 0, 0, Math.PI*2); ctx.fill();
+
+  // Hood void
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = '#04020c';
+  ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.ellipse(4, -4, 13, 15, 0.1, 0, Math.PI*2); ctx.fill();
+
+  // Eyes – sharp, no blur
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 0.95;
+  ctx.fillStyle = '#dd1111';
+  ctx.beginPath(); ctx.ellipse(-1, -6, 3.5, 2.2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(9, -6, 3.5, 2.2, 0, 0, Math.PI*2); ctx.fill();
   // Eye glow
-  ctx.fillStyle = 'rgba(255,60,60,0.35)';
-  ctx.beginPath(); ctx.ellipse(0, 16, 6, 4, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(8, 16, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = '#880000';
+  ctx.shadowBlur = 12; ctx.shadowColor = '#ff0000';
+  ctx.beginPath(); ctx.ellipse(-1, -6, 8, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(9, -6, 8, 5, 0, 0, Math.PI*2); ctx.fill();
 
-  // Sleeve
-  ctx.fillStyle = '#1a1a2e';
+  // Sleeve – soft
+  ctx.shadowBlur = 10; ctx.shadowColor = '#1c0e36';
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = '#1c0e36';
   ctx.beginPath();
-  ctx.moveTo(-12, 40);
-  ctx.bezierCurveTo(-20, 50, -28, 65, -24, 80);
-  ctx.bezierCurveTo(-22, 86, -14, 86, -12, 80);
-  ctx.bezierCurveTo(-10, 65, -6, 50, -8, 40);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(-10, 38); ctx.bezierCurveTo(-18, 52, -26, 68, -22, 80);
+  ctx.bezierCurveTo(-20, 86, -12, 86, -10, 80);
+  ctx.bezierCurveTo(-8, 68, -6, 52, -8, 38); ctx.closePath(); ctx.fill();
 
-  // Bony fingers
-  ctx.strokeStyle = 'rgba(220,210,190,0.45)';
-  ctx.lineWidth = 1.2;
+  // Fingers – black strokes on left
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 0.7;
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 1.4;
+  ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(-22, 80); ctx.lineTo(-26, 90);
-  ctx.moveTo(-18, 82); ctx.lineTo(-20, 92);
-  ctx.moveTo(-14, 82); ctx.lineTo(-15, 92);
+  ctx.moveTo(-20, 78); ctx.lineTo(-24, 88);
+  ctx.moveTo(-16, 80); ctx.lineTo(-18, 90);
+  ctx.moveTo(-12, 80); ctx.lineTo(-13, 90);
   ctx.stroke();
-
-  // Subtle dark aura/shadow behind
-  ctx.globalAlpha = 0.15;
-  ctx.fillStyle = '#000';
-  ctx.beginPath();
-  ctx.ellipse(4, figH, 28, 10, 0, 0, Math.PI*2);
-  ctx.fill();
 
   ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
   ctx.restore();
 }
 
