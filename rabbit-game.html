@@ -96,19 +96,19 @@ canvas { display:block; position:fixed; top:0; left:0; }
     <div id="ec4" style="opacity:0;position:absolute;font-style:italic;color:#fff;font-size:clamp(17px,2.2vw,22px);letter-spacing:0.06em;transition:opacity 1.5s;max-width:520px;line-height:1.9;">Ich werde es<br>wieder tun.</div>
   </div>
 
-  <!-- Screen 2: Anna's closing words, Kiss/Anna centered -->
+  <!-- Screen 2: Anna's closing words -->
   <div id="end-s2" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;">
     <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">I think we are all done.</div>
     <div id="ec6a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Until next time,</div>
     <div id="ec6b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">bitches.</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:24px;margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:20px;margin-top:24px;padding-right:8%;">
       <div id="ec7kiss" style="opacity:0;transition:opacity 1.5s;flex-shrink:0;">
-        <img src="./kiss.jpg" style="width:clamp(80px,14vw,160px);height:auto;object-fit:contain;opacity:0.9;">
+        <img src="./kiss.jpg" style="width:clamp(70px,11vw,130px);height:auto;object-fit:contain;opacity:0.9;">
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
         <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
         <div id="ec7b" style="opacity:0;transition:opacity 1.5s;">
-          <img src="./Anna.png" style="height:clamp(50px,8vw,100px);width:auto;object-fit:contain;opacity:0.9;">
+          <img src="./Anna.png" style="height:clamp(80px,14vw,180px);width:auto;object-fit:contain;opacity:0.9;">
         </div>
       </div>
     </div>
@@ -220,29 +220,25 @@ function buildWorld() {
     [680, 200], [1020, 220], [1390, 200], [1740, 240],
     [2120, 200], [2470, 220], [2840, 200], [3190, 240],
     [3600, 200], [3960, 220], [4330, 200],
-    // Carrot platform
-    [4700, 240],
+    // Carrot platform – wide and easy to reach
+    [4700, 280],
     // Post-carrot platforms
     [5090, 200], [5440, 180], [5770, 200],
-    // Final abyss
   ];
   segs.forEach(([x, w]) => platforms.push({x, y:groundY, w, h:80, type:'ground'}));
 
-  // Floaters in every gap now
+  // Floaters – removed from gaps 5-8 (harder mid-section), kept elsewhere
   const floaters = [
-    [556,  H-195, 85],
-    [880,  H-220, 70],
-    [1196, H-255, 75],
-    [1600, H-215, 80],
-    [1940, H-200, 70],
-    [2336, H-235, 75],
-    [2670, H-210, 70],
-    [3056, H-205, 80],
-    [3400, H-220, 70],
-    [3764, H-225, 75],
-    [4130, H-200, 70],
-    [4554, H-195, 80],
-    [4900, H-215, 75],
+    [556,  H-195, 85],   // gap 1
+    [880,  H-220, 70],   // gap 2
+    [1196, H-255, 75],   // gap 3
+    [1600, H-215, 80],   // gap 4
+    // gaps 5-8: no floaters – harder section
+    [3400, H-220, 70],   // gap 9
+    [3764, H-225, 75],   // gap 10
+    [4130, H-200, 70],   // gap 11 – easing into carrot
+    [4554, H-195, 80],   // gap before carrot – easy
+    [4900, H-215, 75],   // post-carrot
     [5294, H-230, 75],
     [5630, H-200, 75],
   ];
@@ -963,39 +959,10 @@ function drawAxe() {
   ctx.save();
   ctx.translate(ax, fy);
   ctx.rotate(axe.sway);
+  ctx.globalAlpha = 0.88;
 
-  // Helper: draw soft blurred shape by layering multiple semi-transparent versions
-  const drawSoft = (fn, color, alpha, blur) => {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = color;
-    for (let b = blur; b >= 0; b -= 2) {
-      ctx.save();
-      if (b > 0) {
-        ctx.shadowBlur = b * 4;
-        ctx.shadowColor = color;
-      }
-      fn();
-      ctx.restore();
-    }
-    ctx.restore();
-  };
-
-  // Outer smoke aura
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = '#2a1045';
-  ctx.shadowBlur = 30; ctx.shadowColor = '#2a1045';
-  ctx.beginPath();
-  ctx.moveTo(14, figH+8); ctx.lineTo(-14, figH+8);
-  ctx.lineTo(-28, figH-15); ctx.lineTo(-22, 45);
-  ctx.lineTo(-12, 22); ctx.lineTo(0, 8);
-  ctx.lineTo(12, 22); ctx.lineTo(22, 45);
-  ctx.lineTo(28, figH-15); ctx.closePath(); ctx.fill();
-
-  // Robe body – soft
-  ctx.globalAlpha = 0.55;
-  ctx.fillStyle = '#1c0e38';
-  ctx.shadowBlur = 18; ctx.shadowColor = '#1c0e38';
+  // Robe
+  ctx.fillStyle = '#1a1a2e';
   ctx.beginPath();
   ctx.moveTo(10, figH); ctx.lineTo(-10, figH);
   ctx.lineTo(-22, figH-18); ctx.lineTo(-18, 48);
@@ -1003,86 +970,39 @@ function drawAxe() {
   ctx.lineTo(10, 26); ctx.lineTo(18, 48);
   ctx.lineTo(22, figH-18); ctx.closePath(); ctx.fill();
 
-  // Robe core
-  ctx.globalAlpha = 0.45;
-  ctx.fillStyle = '#261248';
-  ctx.shadowBlur = 8; ctx.shadowColor = '#261248';
-  ctx.beginPath();
-  ctx.moveTo(7, figH); ctx.lineTo(-7, figH);
-  ctx.lineTo(-16, figH-16); ctx.lineTo(-13, 50);
-  ctx.lineTo(-7, 28); ctx.lineTo(0, 16);
-  ctx.lineTo(7, 28); ctx.lineTo(13, 50);
-  ctx.lineTo(16, figH-16); ctx.closePath(); ctx.fill();
-
-  // Hem smoke dissolving
-  ctx.globalAlpha = 0.3;
-  ctx.fillStyle = '#180830';
-  ctx.shadowBlur = 22; ctx.shadowColor = '#180830';
-  ctx.beginPath(); ctx.ellipse(-16, figH-4, 14, 10, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(16, figH-6, 12, 9, 0, 0, Math.PI*2); ctx.fill();
-
-  // Hood outer glow
-  ctx.globalAlpha = 0.3;
-  ctx.fillStyle = '#1e0c34';
-  ctx.shadowBlur = 24; ctx.shadowColor = '#1e0c34';
-  ctx.beginPath(); ctx.ellipse(2, -8, 28, 30, 0, 0, Math.PI*2); ctx.fill();
-
-  // Hood main
-  ctx.globalAlpha = 0.72;
-  ctx.fillStyle = '#1c0e36';
-  ctx.shadowBlur = 12; ctx.shadowColor = '#1c0e36';
-  ctx.beginPath(); ctx.ellipse(2, -8, 22, 24, 0, 0, Math.PI*2); ctx.fill();
-
-  // Hood top wisps
-  ctx.globalAlpha = 0.2;
-  ctx.fillStyle = '#160828';
-  ctx.shadowBlur = 20; ctx.shadowColor = '#160828';
-  ctx.beginPath(); ctx.ellipse(2, -32, 11, 16, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(-5, -38, 7, 12, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(10, -36, 6, 10, 0, 0, Math.PI*2); ctx.fill();
+  // Hood
+  ctx.fillStyle = '#111122';
+  ctx.beginPath(); ctx.ellipse(2, -8, 22, 26, 0, 0, Math.PI*2); ctx.fill();
 
   // Hood void
-  ctx.globalAlpha = 0.9;
-  ctx.fillStyle = '#04020c';
-  ctx.shadowBlur = 0;
-  ctx.beginPath(); ctx.ellipse(4, -4, 13, 15, 0.1, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#05050f';
+  ctx.beginPath(); ctx.ellipse(4, -4, 13, 16, 0.1, 0, Math.PI*2); ctx.fill();
 
-  // Eyes – sharp, no blur
-  ctx.shadowBlur = 0;
-  ctx.globalAlpha = 0.95;
-  ctx.fillStyle = '#dd1111';
-  ctx.beginPath(); ctx.ellipse(-1, -6, 3.5, 2.2, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(9, -6, 3.5, 2.2, 0, 0, Math.PI*2); ctx.fill();
-  // Eye glow
-  ctx.globalAlpha = 0.3;
-  ctx.fillStyle = '#880000';
-  ctx.shadowBlur = 12; ctx.shadowColor = '#ff0000';
-  ctx.beginPath(); ctx.ellipse(-1, -6, 8, 5, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(9, -6, 8, 5, 0, 0, Math.PI*2); ctx.fill();
+  // Eyes
+  ctx.fillStyle = 'rgba(200,0,0,0.8)';
+  ctx.beginPath(); ctx.ellipse(-1, -6, 3.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(9, -6, 3.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,60,60,0.3)';
+  ctx.beginPath(); ctx.ellipse(-1, -6, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(9, -6, 6, 4, 0, 0, Math.PI*2); ctx.fill();
 
-  // Sleeve – soft
-  ctx.shadowBlur = 10; ctx.shadowColor = '#1c0e36';
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = '#1c0e36';
+  // Sleeve
+  ctx.fillStyle = '#1a1a2e';
   ctx.beginPath();
   ctx.moveTo(-10, 38); ctx.bezierCurveTo(-18, 52, -26, 68, -22, 80);
   ctx.bezierCurveTo(-20, 86, -12, 86, -10, 80);
   ctx.bezierCurveTo(-8, 68, -6, 52, -8, 38); ctx.closePath(); ctx.fill();
 
-  // Fingers – black strokes on left
-  ctx.shadowBlur = 0;
-  ctx.globalAlpha = 0.7;
-  ctx.strokeStyle = '#111';
-  ctx.lineWidth = 1.4;
-  ctx.lineCap = 'round';
+  // Fingers – white like the original
+  ctx.strokeStyle = 'rgba(200,200,180,0.5)';
+  ctx.lineWidth = 1.2; ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(-20, 78); ctx.lineTo(-24, 88);
-  ctx.moveTo(-16, 80); ctx.lineTo(-18, 90);
-  ctx.moveTo(-12, 80); ctx.lineTo(-13, 90);
+  ctx.moveTo(-22, 80); ctx.lineTo(-26, 88);
+  ctx.moveTo(-18, 82); ctx.lineTo(-20, 90);
+  ctx.moveTo(-14, 82); ctx.lineTo(-15, 90);
   ctx.stroke();
 
   ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
   ctx.restore();
 }
 
