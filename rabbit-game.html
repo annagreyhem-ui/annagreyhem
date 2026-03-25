@@ -56,8 +56,8 @@ canvas { display:block; position:fixed; top:0; left:0; }
 <canvas id="c"></canvas>
 <div id="overlay" onclick="startGame()" style="">
   <div style="display:flex;flex-direction:column;align-items:center;gap:28px;pointer-events:none;">
-    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(22px,3vw,36px);color:#8b0000;letter-spacing:0.3em;border-bottom:1px solid #3a0000;padding:6px 0;">Run.</div>
-    <div style="font-style:italic;color:#444;font-size:clamp(15px,1.8vw,20px);letter-spacing:0.2em;">press enter or tap to play</div>
+    <div style="font-family:Georgia,serif;font-style:italic;font-size:clamp(28px,4vw,48px);color:#8b0000;letter-spacing:0.25em;border-bottom:1px solid #3a0000;padding:6px 0;">Run.</div>
+    <div style="font-family:Georgia,serif;font-style:italic;color:#888;font-size:clamp(14px,1.6vw,18px);letter-spacing:0.18em;">press enter or tap to play</div>
   </div>
 </div>
 <div id="message">
@@ -101,11 +101,11 @@ canvas { display:block; position:fixed; top:0; left:0; }
     <div id="ec5" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">I think we are all done.</div>
     <div id="ec6a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Until next time,</div>
     <div id="ec6b" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">bitches.</div>
-    <div style="display:flex;align-items:center;justify-content:flex-end;gap:20px;margin-top:24px;padding-right:8%;">
-      <div id="ec7kiss" style="opacity:0;transition:opacity 1.5s;flex-shrink:0;">
+    <div style="position:relative;display:flex;align-items:center;justify-content:center;margin-top:24px;width:100%;">
+      <div id="ec7kiss" style="opacity:0;transition:opacity 1.5s;position:absolute;left:calc(50% - clamp(160px,22vw,280px));">
         <img src="./kiss.jpg" style="width:clamp(70px,11vw,130px);height:auto;object-fit:contain;opacity:0.9;">
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
         <div id="ec7a" style="opacity:0;font-style:italic;color:#fff;font-size:clamp(20px,2.8vw,36px);letter-spacing:0.12em;transition:opacity 1.5s;">Kiss,</div>
         <div id="ec7b" style="opacity:0;transition:opacity 1.5s;">
           <img src="./Anna.png" style="height:clamp(80px,14vw,180px);width:auto;object-fit:contain;opacity:0.9;">
