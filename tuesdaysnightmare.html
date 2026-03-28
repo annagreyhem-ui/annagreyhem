@@ -11,18 +11,15 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
 #room {
   position:fixed; inset:0;
 }
-#room img {
+#room video {
   position:absolute; inset:0;
   width:100%; height:100%;
   object-fit:cover;
   object-position:center center;
   display:block;
 }
-#img-dark  { opacity:1; z-index:1; }
-#img-light { opacity:0; z-index:2; transition:opacity 0.6s ease; }
-body.on #img-light { opacity:1; }
 
-/* light switch hotspot */
+/* light switch – position will need tuning once images confirmed */
 #switch {
   position:fixed;
   left: 24%;
@@ -31,10 +28,6 @@ body.on #img-light { opacity:1; }
   z-index:50;
   cursor:none;
   -webkit-tap-highlight-color:transparent;
-}
-
-#sw-plate {
-  width:28px; height:52px;
 }
 
 #flash {
@@ -59,12 +52,11 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
 <div id="flash"></div>
 
 <div id="room">
-  <img id="img-dark"  src="./room-dark.png"  alt="">
-  <img id="img-light" src="./room-light.png" alt="">
+  <video id="vid" preload="auto" playsinline muted></video>
 </div>
 
 <div id="switch" onclick="toggle()">
-  <svg id="sw-plate" width="28" height="52" viewBox="0 0 28 52">
+  <svg width="28" height="52" viewBox="0 0 28 52">
     <rect x="1" y="1" width="26" height="50" rx="3"
       id="sw-bg" fill="#1e1a12" stroke="#3a3020" stroke-width="1"/>
     <rect x="7" y="6" width="14" height="20" rx="2"
@@ -73,42 +65,95 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
 </div>
 
 <script>
+// cursor
 var cur = document.getElementById('cursor');
 document.addEventListener('mousemove', function(e) {
   cur.style.left = e.clientX+'px';
   cur.style.top  = e.clientY+'px';
 });
 
-var isOn = false;
-var flash = document.getElementById('flash');
+var vid    = document.getElementById('vid');
+var flash  = document.getElementById('flash');
+var isOn   = false;
+var busy   = false;
+var DURATION = 2.894;
+
+vid.src = './room.mp4';
+vid.load();
+
+// park on first frame
+vid.addEventListener('loadeddata', function() {
+  vid.currentTime = 0;
+});
 
 function doFlash() {
   flash.style.transition = 'none';
-  flash.style.opacity = '0.5';
+  flash.style.opacity = '0.45';
   setTimeout(function() {
     flash.style.transition = 'opacity 0.25s ease';
     flash.style.opacity = '0';
   }, 40);
 }
 
-function toggle() {
-  doFlash();
-  isOn = !isOn;
-  document.body.classList.toggle('on', isOn);
-
+function updateSwitch() {
   var bg  = document.getElementById('sw-bg');
   var tog = document.getElementById('sw-tog');
   if (isOn) {
-    bg.setAttribute('fill','#cec0a4'); bg.setAttribute('stroke','#a09070');
-    tog.setAttribute('fill','#b0a080'); tog.setAttribute('y','26');
+    bg.setAttribute('fill','#cec0a4');
+    bg.setAttribute('stroke','#a09070');
+    tog.setAttribute('fill','#b0a080');
+    tog.setAttribute('y','26');
   } else {
-    bg.setAttribute('fill','#1e1a12'); bg.setAttribute('stroke','#3a3020');
-    tog.setAttribute('fill','#2e2818'); tog.setAttribute('y','6');
+    bg.setAttribute('fill','#1e1a12');
+    bg.setAttribute('stroke','#3a3020');
+    tog.setAttribute('fill','#2e2818');
+    tog.setAttribute('y','6');
   }
 }
 
-var sw = document.getElementById('switch');
-sw.addEventListener('touchend', function(e) { e.preventDefault(); toggle(); });
+var reverseInterval = null;
+
+function toggle() {
+  if (busy) return;
+  busy = true;
+  doFlash();
+
+  isOn = !isOn;
+  document.body.classList.toggle('on', isOn);
+  updateSwitch();
+
+  // clear any running reverse
+  if (reverseInterval) { clearInterval(reverseInterval); reverseInterval = null; }
+
+  if (isOn) {
+    // play forward: dark → light
+    vid.playbackRate = 1;
+    vid.play();
+    setTimeout(function() {
+      vid.pause();
+      busy = false;
+    }, DURATION * 1000);
+  } else {
+    // play backward: light → dark
+    var step = 1 / 30; // ~1 frame
+    reverseInterval = setInterval(function() {
+      vid.currentTime = Math.max(0, vid.currentTime - step);
+      if (vid.currentTime <= 0.01) {
+        clearInterval(reverseInterval);
+        reverseInterval = null;
+        vid.pause();
+        vid.currentTime = 0;
+        busy = false;
+      }
+    }, 33);
+  }
+}
+
+// touch support
+document.getElementById('switch').addEventListener('touchend', function(e) {
+  e.preventDefault();
+  toggle();
+});
 </script>
 </body>
 </html>
