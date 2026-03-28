@@ -112,6 +112,7 @@ function updateSwitch() {
 }
 
 var reverseInterval = null;
+var SPEED = 2.894; // play full video in ~1s
 
 function toggle() {
   if (busy) return;
@@ -122,26 +123,28 @@ function toggle() {
   document.body.classList.toggle('on', isOn);
   updateSwitch();
 
-  // clear any running reverse
   if (reverseInterval) { clearInterval(reverseInterval); reverseInterval = null; }
+  vid.pause();
 
   if (isOn) {
-    // play forward: dark → light
-    vid.playbackRate = 2.894;
+    // forward: start from beginning
+    vid.currentTime = 0;
+    vid.playbackRate = SPEED;
     vid.play();
     setTimeout(function() {
       vid.pause();
+      vid.currentTime = DURATION;
       busy = false;
-    }, 1000);
+    }, 1050);
   } else {
-    // play backward: light → dark
-    var step = 1 / 30 * 2.894;
+    // backward: start from end
+    vid.currentTime = DURATION;
+    var step = SPEED / 30;
     reverseInterval = setInterval(function() {
       vid.currentTime = Math.max(0, vid.currentTime - step);
       if (vid.currentTime <= 0.01) {
         clearInterval(reverseInterval);
         reverseInterval = null;
-        vid.pause();
         vid.currentTime = 0;
         busy = false;
       }
