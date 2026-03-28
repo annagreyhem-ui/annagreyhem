@@ -19,11 +19,11 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
   display:block;
 }
 
-/* light switch – position will need tuning once images confirmed */
+/* light switch – on the wall, left of bed */
 #switch {
   position:fixed;
-  left: 24%;
-  top: 52%;
+  left: 28%;
+  top: 42%;
   transform: translate(-50%, -50%);
   z-index:50;
   cursor:none;
@@ -112,7 +112,8 @@ function updateSwitch() {
 }
 
 var rafId = null;
-var SPEED = 2.894; // seconds per second (full video in 1s)
+var SPEED_ON  = 2.894;  // ~1s to turn on
+var SPEED_OFF = 8.0;    // ~0.35s to turn off – abrupt
 
 function toggle() {
   if (busy) return;
@@ -123,20 +124,20 @@ function toggle() {
   document.body.classList.toggle('on', isOn);
   updateSwitch();
 
-  // stop any running animation
   if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   vid.pause();
 
   var startTime = null;
   var startVidTime = isOn ? 0 : DURATION;
   var direction = isOn ? 1 : -1;
+  var speed = isOn ? SPEED_ON : SPEED_OFF;
 
   vid.currentTime = startVidTime;
 
   function step(ts) {
     if (!startTime) startTime = ts;
-    var elapsed = (ts - startTime) / 1000; // seconds
-    var newTime = startVidTime + direction * elapsed * SPEED;
+    var elapsed = (ts - startTime) / 1000;
+    var newTime = startVidTime + direction * elapsed * speed;
     newTime = Math.max(0, Math.min(DURATION, newTime));
     vid.currentTime = newTime;
 
