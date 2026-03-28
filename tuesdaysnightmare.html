@@ -45,18 +45,26 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
 }
 body.on #cursor { background:rgba(0,0,0,0.28); }
 
-/* graffiti – over the wall above bed */
+/* graffiti – constrained to left wall above bed */
 #graffiti {
   position:fixed;
-  left: 8%;
-  top: 22%;
-  width: 55%;
+  left: 5%;
+  top: 18%;
+  width: 48%;
   z-index:40;
   opacity:0;
   pointer-events:none;
   transition: opacity 0.3s ease;
+  transform: rotate(-2deg);
+  transform-origin: left center;
+  -webkit-mask-image: linear-gradient(to right, black 55%, transparent 92%),
+                      linear-gradient(to bottom, black 70%, transparent 100%);
+  -webkit-mask-composite: destination-in;
+  mask-image: linear-gradient(to right, black 55%, transparent 92%),
+              linear-gradient(to bottom, black 70%, transparent 100%);
+  mask-composite: intersect;
 }
-#graffiti.show { opacity:1; }
+#graffiti.show { opacity:0.88; }
 </style>
 </head>
 <body>
