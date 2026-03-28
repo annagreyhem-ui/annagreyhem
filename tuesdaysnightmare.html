@@ -28,11 +28,13 @@ body.on #img-light { opacity:1; }
   left: 24%;
   top: 52%;
   transform: translate(-50%, -50%);
-  width: 3.5%;
-  height: 6%;
   z-index:50;
   cursor:none;
   -webkit-tap-highlight-color:transparent;
+}
+
+#sw-plate {
+  width:28px; height:52px;
 }
 
 #flash {
@@ -61,7 +63,14 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
   <img id="img-light" src="./room-light.png" alt="">
 </div>
 
-<div id="switch"></div>
+<div id="switch" onclick="toggle()">
+  <svg id="sw-plate" width="28" height="52" viewBox="0 0 28 52">
+    <rect x="1" y="1" width="26" height="50" rx="3"
+      id="sw-bg" fill="#1e1a12" stroke="#3a3020" stroke-width="1"/>
+    <rect x="7" y="6" width="14" height="20" rx="2"
+      id="sw-tog" fill="#2e2818"/>
+  </svg>
+</div>
 
 <script>
 var cur = document.getElementById('cursor');
@@ -86,10 +95,19 @@ function toggle() {
   doFlash();
   isOn = !isOn;
   document.body.classList.toggle('on', isOn);
+
+  var bg  = document.getElementById('sw-bg');
+  var tog = document.getElementById('sw-tog');
+  if (isOn) {
+    bg.setAttribute('fill','#cec0a4'); bg.setAttribute('stroke','#a09070');
+    tog.setAttribute('fill','#b0a080'); tog.setAttribute('y','26');
+  } else {
+    bg.setAttribute('fill','#1e1a12'); bg.setAttribute('stroke','#3a3020');
+    tog.setAttribute('fill','#2e2818'); tog.setAttribute('y','6');
+  }
 }
 
 var sw = document.getElementById('switch');
-sw.addEventListener('click', toggle);
 sw.addEventListener('touchend', function(e) { e.preventDefault(); toggle(); });
 </script>
 </body>
