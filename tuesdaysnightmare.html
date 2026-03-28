@@ -111,8 +111,8 @@ function updateSwitch() {
   }
 }
 
-var reverseInterval = null;
-var SPEED = 2.894; // play full video in ~1s
+var rafId = null;
+var SPEED = 2.894; // seconds per second (full video in 1s)
 
 function toggle() {
   if (busy) return;
@@ -123,33 +123,33 @@ function toggle() {
   document.body.classList.toggle('on', isOn);
   updateSwitch();
 
-  if (reverseInterval) { clearInterval(reverseInterval); reverseInterval = null; }
+  // stop any running animation
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   vid.pause();
 
-  if (isOn) {
-    // forward: start from beginning
-    vid.currentTime = 0;
-    vid.playbackRate = SPEED;
-    vid.play();
-    setTimeout(function() {
-      vid.pause();
-      vid.currentTime = DURATION;
+  var startTime = null;
+  var startVidTime = isOn ? 0 : DURATION;
+  var direction = isOn ? 1 : -1;
+
+  vid.currentTime = startVidTime;
+
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var elapsed = (ts - startTime) / 1000; // seconds
+    var newTime = startVidTime + direction * elapsed * SPEED;
+    newTime = Math.max(0, Math.min(DURATION, newTime));
+    vid.currentTime = newTime;
+
+    if ((direction > 0 && newTime >= DURATION) || (direction < 0 && newTime <= 0)) {
+      vid.currentTime = direction > 0 ? DURATION : 0;
+      rafId = null;
       busy = false;
-    }, 1050);
-  } else {
-    // backward: start from end
-    vid.currentTime = DURATION;
-    var step = SPEED / 30;
-    reverseInterval = setInterval(function() {
-      vid.currentTime = Math.max(0, vid.currentTime - step);
-      if (vid.currentTime <= 0.01) {
-        clearInterval(reverseInterval);
-        reverseInterval = null;
-        vid.currentTime = 0;
-        busy = false;
-      }
-    }, 33);
+      return;
+    }
+    rafId = requestAnimationFrame(step);
   }
+
+  rafId = requestAnimationFrame(step);
 }
 
 // touch support
