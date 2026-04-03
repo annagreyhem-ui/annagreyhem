@@ -49,9 +49,9 @@ html, body {
   margin-bottom:4px; letter-spacing:0.05em;
 }
 .win-body .version-sub {
-  font-size:11px; color:#555; margin-bottom:18px;
+  font-size:11px; color:#888; margin-bottom:18px;
 }
-.win-body p { color:#999; font-size:12px; line-height:1.9; margin-bottom:14px; }
+.win-body p { color:#bbb; font-size:12px; line-height:1.9; margin-bottom:14px; }
 .release-box {
   background:#050505;
   border:1px solid #222;
@@ -105,11 +105,11 @@ html, body {
 #code-lines { line-height:1.75; }
 .line { display:block; white-space:pre-wrap; word-break:break-all; }
 .line.normal { color:#00cc00; }
-.line.dim    { color:#007700; }
-.line.error  { color:#ff3333; font-weight:bold; }
-.line.warn   { color:#ff9900; }
-.line.info   { color:#aaaaaa; }
-.line.rabbit { color:#009900; }
+.line.dim    { color:#009900; }
+.line.error  { color:#ff4444; font-weight:bold; }
+.line.warn   { color:#ffaa00; }
+.line.info   { color:#cccccc; }
+.line.rabbit { color:#00aa00; }
 .line.blank  { color:transparent; }
 
 #progress-wrap { margin:16px 0 8px; display:none; }
@@ -146,8 +146,8 @@ html, body {
 .popup .win-bar { background:#1a1a1a; border-bottom:1px solid #333; }
 .popup .win-bar-title { color:#ff4444; font-size:12px; }
 .popup .win-body { padding:16px 16px 12px; }
-.popup .popup-msg { color:#ff4444; font-size:12px; line-height:1.85; margin-bottom:14px; }
-.popup .popup-msg .lbl { color:#ff8888; }
+.popup .popup-msg { color:#ff6666; font-size:12px; line-height:1.85; margin-bottom:14px; }
+.popup .popup-msg .lbl { color:#ffaaaa; }
 .popup .win-footer { border-top:1px solid #1a1a1a; padding:8px 12px; justify-content:flex-end; }
 
 /* ── SUCCESS ────────────────────────────────────── */
@@ -190,17 +190,17 @@ html, body {
     </div>
     <div class="win-body">
       <h2 style="margin-bottom:16px;">Install Anna 3.0</h2>
-      <div style="color:#777;font-size:12px;line-height:2.2;margin-bottom:18px;">
+      <div style="color:#aaa;font-size:12px;line-height:2.2;margin-bottom:18px;">
         <div>Version 3.0</div>
         <div>13.3 MB</div>
       </div>
-      <p style="color:#555;font-size:11px;line-height:1.8;margin-bottom:14px;">By clicking Install you agree to replace anna_2.9 with this version. This action cannot be undone.</p>
+      <p style="color:#888;font-size:11px;line-height:1.8;margin-bottom:14px;">By clicking Install you agree to replace anna_2.9 with this version. This action cannot be undone.</p>
       <div style="margin-bottom:0px;">
-        <span id="notes-toggle" onclick="toggleNotes()" style="color:#007700;font-size:11px;cursor:pointer;text-decoration:underline;">Click here to read version 3.0 release notes.</span>
+        <span id="notes-toggle" onclick="toggleNotes()" style="color:#00aa00;font-size:11px;cursor:pointer;text-decoration:underline;">Click here to read version 3.0 release notes.</span>
       </div>
       <div id="release-notes" style="display:none;margin-top:14px;border-top:1px solid #1a1a1a;padding-top:12px;">
-        <div style="color:#555;font-size:11px;line-height:2;">
-          <div style="color:#666;margin-bottom:6px;">— It's not perfect, but it's patched!</div>
+        <div style="color:#aaa;font-size:11px;line-height:2;">
+          <div style="color:#888;margin-bottom:6px;">— It's not perfect, but it's patched!</div>
           <div>▸ Fashion sense enhanced by vintage shopping</div>
           <div>▸ Turbo mode in creativity fixed</div>
           <div>▸ More time with friends added</div>
@@ -515,7 +515,7 @@ async function finalInstall() {
     ['rabbit','             o_(")(")'],
     ['rabbit',''],
     ['rabbit','   installing anna_3.0...'],
-    ['rabbit','   please do not turn off your computer.'],
+    ['rabbit','   please do not turn off your device.'],
     ['rabbit',''],
     ['normal','Resuming from checkpoint 61%...'],
     ['dim',   '  [social_calendar.dll] .......... ok'],
