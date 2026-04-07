@@ -55,7 +55,12 @@
 
       { text: "Don’t act so surprised. I told you it burns. You didn’t wear the gloves." },
 
-      { text: "Oh, and...", replaceWith: "I will do this again.", thinkBeforeDelete: true },
+      { 
+        text: "Oh, and...", 
+        replaceWith: "I will do this again.", 
+        thinkBeforeDelete: true,
+        longThink: true 
+      },
 
       { text: "Kiss,\nAnna" }
     ];
@@ -70,6 +75,7 @@
       punctuationPause: 140,
       paragraphPause: 800,
       thinkingPause: 1000,
+      deepThinkingPause: 2200, // 👈 längerer Moment hier
       deleteSpeed: 35,
       replacePause: 250
     };
@@ -138,7 +144,7 @@
         if (block.replaceWith) {
           if (block.thinkBeforeDelete) {
             render();
-            await sleep(settings.thinkingPause);
+            await sleep(block.longThink ? settings.deepThinkingPause : settings.thinkingPause);
           }
 
           await sleep(settings.replacePause);
