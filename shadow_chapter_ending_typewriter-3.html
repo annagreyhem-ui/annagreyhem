@@ -55,9 +55,8 @@
 
       { text: "Don’t act so surprised. I told you it burns. You didn’t wear the gloves." },
 
-      { text: "Oh, and…", postPause: true },
-
-      { text: "I will do this again." },
+      // 👇 HIER geändert (zusammengelegt)
+      { text: "Oh, and...\nI will do this again.", postPause: true },
 
       { text: "Kiss,\nAnna" }
     ];
@@ -108,7 +107,6 @@
     }
 
     async function run() {
-      // initial pause (thinking before typing)
       render();
       await sleep(settings.thinkingPause);
 
@@ -134,7 +132,7 @@
         }
       }
 
-      render(); // final cursor stays blinking
+      render();
     }
 
     run();
