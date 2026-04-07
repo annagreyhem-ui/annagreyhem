@@ -64,11 +64,24 @@ body.lit { background:#0f0d0a; }
   pointer-events:none;
   z-index:99;
   animation:glow-pulse 2.6s ease-in-out infinite;
+  opacity:1;
   transition:opacity 1.2s ease;
 }
 
-body.lit #candle-glow { opacity:1; }
-body:not(.lit) #candle-glow { opacity:0; }
+body:not(.lit) #candle-glow { opacity:0; animation:none; }
+
+/* ── INSTRUCTION – in scrollable flow, above text ── */
+#candle-label {
+  font-style:italic;
+  font-size:clamp(12px,1.4vw,15px);
+  color:rgba(255,255,255,0.45);
+  letter-spacing:0.06em;
+  text-align:center;
+  line-height:1.8;
+  transition:opacity 1s ease;
+  max-width:280px;
+  display:inline-block;
+}
 
 @keyframes glow-pulse {
   0%,100% { opacity:1; }
@@ -99,25 +112,9 @@ body:not(.lit) #candle-glow { opacity:0; }
 }
 .smoke-puff { animation:smoke-rise 1.6s ease-out forwards; }
 
-#candle-label {
-  font-style:italic;
-  font-size:clamp(12px,1.4vw,15px);
-  color:rgba(255,255,255,0.45);
-  letter-spacing:0.06em;
-  text-align:center;
-  line-height:1.8;
-  transition:opacity 1s ease;
-  max-width:280px;
-  min-height:3.6em;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-
 /* ── TEXT ── */
 #screen-text {
-  padding:clamp(220px,32vh,300px) clamp(24px,8vw,72px) clamp(60px,10vh,100px);
+  padding:clamp(24px,4vh,48px) clamp(24px,8vw,72px) clamp(60px,10vh,100px);
   max-width:680px;
   margin:0 auto;
 }
@@ -170,7 +167,13 @@ body:not(.lit) #candle-glow { opacity:0; }
 <div id="cursor"></div>
 <div id="candle-glow"></div>
 
-<!-- Fixed candle top -->
+<!-- Scrollable top: instruction + candle -->
+<div id="top-area" style="text-align:center; padding:clamp(32px,6vh,56px) 24px clamp(16px,2vh,24px);">
+  <div id="candle-label" style="font-style:italic;font-size:clamp(12px,1.4vw,15px);color:rgba(255,255,255,0.45);letter-spacing:0.06em;line-height:1.8;transition:opacity 1s ease;margin-bottom:12px;min-height:3.4em;display:flex;flex-direction:column;align-items:center;justify-content:center;">Something is hiding in the dark.<br>Touch the candle to blow it out.</div>
+  <div id="candle-anchor"></div>
+</div>
+
+<!-- Fixed candle -->
 <div id="candle-wrap">
   <svg id="candle-svg" width="50" height="130" viewBox="0 0 60 150">
     <defs>
@@ -203,7 +206,6 @@ body:not(.lit) #candle-glow { opacity:0; }
     <path d="M20,118 Q17,126 18,134 Q19,137 20,118 Z" fill="#ece7dc" opacity="0.7"/>
     <line x1="30" y1="112" x2="30" y2="90" stroke="#666" stroke-width="1.5"/>
   </svg>
-  <div id="candle-label">Something is hiding in the dark.<br>Touch the candle to blow it out.</div>
 </div>
 
 <!-- Scrollable text -->
@@ -221,7 +223,7 @@ body:not(.lit) #candle-glow { opacity:0; }
     <li><span class="base-line">Seine Berührung</span><span class="ext-line" id="e8"></span></li>
     <li><span class="base-line">Meine Berührung</span><span class="ext-line" id="e9"></span></li>
   </ul>
-  <div id="look-again" onclick="window.scrollTo({top:0,behavior:'smooth'})">Look again.</div>
+  <div id="look-again" onclick="window.scrollTo(0,0)">Look again.</div>
 </div>
 
 <script>
@@ -264,8 +266,7 @@ var firstTime = true;
 
 var flameGroup  = document.getElementById('flame-group');
 var smokeGroup  = document.getElementById('smoke-group');
-var candleLabel = document.getElementById('candle-label');
-var titleExt    = document.getElementById('title-ext');
+var candleLabel = document.getElementById('candle-label');var titleExt    = document.getElementById('title-ext');
 var lookAgain   = document.getElementById('look-again');
 
 function clearLines() {
@@ -280,22 +281,14 @@ function clearLines() {
 }
 
 function showLines(texts, color) {
-  var glow = color === '#7BA7BC'
-    ? '0 0 16px rgba(123,167,188,0.6)'
-    : '0 0 16px rgba(232,130,74,0.6)';
   texts.forEach(function(text, i) {
     setTimeout(function() {
       var el = document.getElementById('e'+i);
       el.style.transition = 'none';
       el.textContent = text;
       el.style.color = color;
-      el.style.textShadow = glow;
+      el.style.textShadow = 'none';
       el.style.opacity = '1';
-      setTimeout(function() {
-        el.style.transition = 'color 3s ease, text-shadow 3s ease';
-        el.style.color = 'rgba(255,255,255,0.85)';
-        el.style.textShadow = 'none';
-      }, 3000);
     }, i * 140);
   });
 }
@@ -304,26 +297,15 @@ function setTitleExt(text, color) {
   titleExt.style.transition = 'none';
   titleExt.textContent = text ? ' ' + text : '';
   titleExt.style.color = color || '';
-  titleExt.style.textShadow = color === '#7BA7BC'
-    ? '0 0 18px rgba(123,167,188,0.6)'
-    : color === '#E8824A'
-    ? '0 0 18px rgba(232,130,74,0.6)'
-    : 'none';
+  titleExt.style.textShadow = 'none';
   titleExt.style.opacity = text ? '1' : '0';
-  if (text && color) {
-    setTimeout(function() {
-      titleExt.style.transition = 'color 3s ease, text-shadow 3s ease';
-      titleExt.style.color = 'rgba(255,255,255,0.85)';
-      titleExt.style.textShadow = 'none';
-    }, 3000);
-  }
 }
 
 function showLookAgain() {
   setTimeout(function() {
     lookAgain.style.display = 'block';
     setTimeout(function() { lookAgain.style.opacity = '1'; }, 50);
-  }, ext_orange.length * 140 + 3500);
+  }, ext_blue.length * 140 + 400);
 }
 
 function doStage0() {
@@ -340,6 +322,7 @@ function doStage1() {
   clearLines();
   setTitleExt('with her', '#7BA7BC');
   showLines(ext_blue, '#7BA7BC');
+  showLookAgain();
   if (firstTime) {
     setTimeout(function() {
       candleLabel.innerHTML = 'Maybe we don\'t see everything yet.<br>Touch the candle.';
@@ -353,7 +336,6 @@ function doStage2() {
   clearLines();
   setTitleExt('with her, yes her', '#E8824A');
   showLines(ext_orange, '#E8824A');
-  showLookAgain();
 }
 
 function doSmoke() {
