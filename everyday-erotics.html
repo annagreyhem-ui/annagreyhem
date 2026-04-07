@@ -16,8 +16,10 @@ html, body {
   font-size:clamp(17px,2vw,21px);
   line-height:1.9;
   cursor:none;
-  overflow-x:hidden;
+  transition:background 1.2s ease;
 }
+
+body.lit { background:#0f0d0a; }
 
 #cursor {
   position:fixed;
@@ -36,139 +38,41 @@ html, body {
   background:rgba(255,255,255,0.35);
 }
 
-/* ── INTRO SCREEN ── */
-#screen-intro {
-  position:fixed; inset:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  z-index:10;
-  background:#0a0a0a;
-  transition:opacity 1s ease;
-}
-
-/* ── TEXT SCREEN ── */
-#screen-text {
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 1s ease;
-  padding:clamp(48px,8vh,80px) clamp(24px,8vw,72px) clamp(160px,25vh,220px);
-  max-width:680px;
-  margin:0 auto;
-}
-
-#screen-text.visible {
-  opacity:1;
-  pointer-events:auto;
-}
-
-/* ── TITLE ── */
-#title {
-  font-size:clamp(19px,2.4vw,26px);
-  font-style:italic;
-  font-weight:300;
-  letter-spacing:0.18em;
-  margin-bottom:clamp(36px,6vh,60px);
-  line-height:1.5;
-}
-
-#title-ext {
-  opacity:0;
-  transition:opacity 0.8s ease, color 3s ease, text-shadow 3s ease;
-}
-
-/* ── POEM ── */
-#poem { list-style:none; }
-
-#poem li {
-  /* fixed height to reserve space for extension line */
-  margin-bottom:clamp(18px,2.5vh,28px);
-}
-
-.base-line {
-  display:block;
-}
-
-.ext-line {
-  display:block;
-  padding-left:1.4em;
-  font-style:italic;
-  opacity:0;
-  transition:opacity 0.6s ease, color 3s ease, text-shadow 3s ease;
-  /* always reserve the height so text never shifts */
-  min-height:1.9em;
-  color:rgba(255,255,255,0.85);
-}
-
-.ext-line.visible { opacity:1; }
-
-/* ── CANDLE ── */
+/* ── FIXED CANDLE TOP ── */
 #candle-wrap {
   position:fixed;
-  bottom:clamp(24px,4vh,44px);
+  top:clamp(20px,4vh,40px);
   left:50%;
   transform:translateX(-50%);
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:8px;
+  gap:10px;
   z-index:100;
   cursor:none;
   user-select:none;
   -webkit-tap-highlight-color:transparent;
 }
 
-#candle-instruction {
-  font-style:italic;
-  font-size:clamp(13px,1.5vw,16px);
-  color:rgba(255,255,255,0.55);
-  letter-spacing:0.06em;
-  text-align:center;
-  line-height:1.8;
-  transition:opacity 1s ease;
-  max-width:300px;
-  /* fixed height so candle never moves */
-  min-height:3.8em;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-
-#bottom-instruction {
-  font-style:italic;
-  font-size:clamp(13px,1.5vw,16px);
-  color:rgba(255,255,255,0.55);
-  letter-spacing:0.06em;
-  text-align:center;
-  line-height:1.8;
-  transition:opacity 1.2s ease;
-  max-width:300px;
-  /* same fixed height as candle-instruction */
-  min-height:3.8em;
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
-
 #candle-glow {
   position:fixed;
-  bottom:0; left:50%;
+  top:0; left:50%;
   transform:translateX(-50%);
-  width:280px; height:280px;
+  width:340px; height:340px;
   border-radius:50%;
-  background:radial-gradient(ellipse at center bottom, rgba(255,150,30,0.2) 0%, rgba(255,100,10,0.06) 55%, transparent 75%);
+  background:radial-gradient(ellipse at center top, rgba(255,150,30,0.18) 0%, rgba(255,100,10,0.05) 55%, transparent 75%);
   pointer-events:none;
   z-index:99;
   animation:glow-pulse 2.6s ease-in-out infinite;
-  transition:opacity 1s ease;
+  transition:opacity 1.2s ease;
 }
+
+body.lit #candle-glow { opacity:1; }
+body:not(.lit) #candle-glow { opacity:0; }
 
 @keyframes glow-pulse {
   0%,100% { opacity:1; }
-  50%      { opacity:0.6; }
+  50%      { opacity:0.65; }
 }
 
 #flame-group {
@@ -195,113 +99,129 @@ html, body {
 }
 .smoke-puff { animation:smoke-rise 1.6s ease-out forwards; }
 
-/* bottom instruction – inside candle wrap, below candle text */
-#bottom-instruction {
+#candle-label {
   font-style:italic;
-  font-size:clamp(13px,1.5vw,16px);
-  color:rgba(255,255,255,0.55);
+  font-size:clamp(12px,1.4vw,15px);
+  color:rgba(255,255,255,0.45);
   letter-spacing:0.06em;
   text-align:center;
   line-height:1.8;
-  transition:opacity 1.2s ease;
-  max-width:300px;
+  transition:opacity 1s ease;
+  max-width:280px;
+  min-height:3.6em;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ── TEXT ── */
+#screen-text {
+  padding:clamp(220px,32vh,300px) clamp(24px,8vw,72px) clamp(60px,10vh,100px);
+  max-width:680px;
+  margin:0 auto;
+}
+
+#title {
+  font-size:clamp(19px,2.4vw,26px);
+  font-style:italic;
+  font-weight:300;
+  letter-spacing:0.18em;
+  margin-bottom:clamp(36px,6vh,60px);
+  line-height:1.5;
+}
+
+#title-ext {
+  opacity:0;
+  transition:opacity 0.8s ease, color 3s ease, text-shadow 3s ease;
+}
+
+#poem { list-style:none; }
+
+#poem li { margin-bottom:clamp(18px,2.5vh,28px); }
+
+.base-line { display:block; }
+
+.ext-line {
+  display:block;
+  padding-left:1.4em;
+  font-style:italic;
+  opacity:0;
+  transition:opacity 0.6s ease, color 3s ease, text-shadow 3s ease;
+  min-height:1.9em;
+  color:rgba(255,255,255,0.85);
+}
+
+#look-again {
+  display:none;
+  margin-top:clamp(36px,5vh,56px);
+  font-style:italic;
+  font-size:clamp(17px,2vw,21px);
+  color:#E8824A;
+  letter-spacing:0.08em;
+  cursor:none;
+  opacity:0;
+  transition:opacity 1s ease;
 }
 </style>
 </head>
-<body>
+<body class="lit">
 
 <div id="cursor"></div>
 <div id="candle-glow"></div>
 
-<!-- Text (visible from start) -->
-<div id="screen-text" class="visible">
-  <div id="title">Everyday erotics<span id="title-ext"></span></div>
-  <ul id="poem">
-    <li>
-      <span class="base-line">Flüstern im Dunklen</span>
-      <span class="ext-line" id="e0"></span>
-    </li>
-    <li>
-      <span class="base-line">Ein Kuss in einem Traum</span>
-      <span class="ext-line" id="e1"></span>
-    </li>
-    <li>
-      <span class="base-line">Ein Schaumbad bei Kerzenschein</span>
-      <span class="ext-line" id="e2"></span>
-    </li>
-    <li>
-      <span class="base-line">Eiskaltes Wasser auf dem Gesicht am Morgen</span>
-      <span class="ext-line" id="e3"></span>
-    </li>
-    <li>
-      <span class="base-line">Eine Flasche Merlot</span>
-      <span class="ext-line" id="e4"></span>
-    </li>
-    <li>
-      <span class="base-line">Ein Parfum, das nach Vanille und Dunkelheit duftet</span>
-      <span class="ext-line" id="e5"></span>
-    </li>
-    <li>
-      <span class="base-line">Sein Geruch</span>
-      <span class="ext-line" id="e6"></span>
-    </li>
-    <li>
-      <span class="base-line">Sein Blick auf mir</span>
-      <span class="ext-line" id="e7"></span>
-    </li>
-    <li>
-      <span class="base-line">Seine Berührung</span>
-      <span class="ext-line" id="e8"></span>
-    </li>
-    <li>
-      <span class="base-line">Meine Berührung</span>
-      <span class="ext-line" id="e9"></span>
-    </li>
-  </ul>
-</div>
-
-<!-- Bottom instruction (relight hint) - inside candle wrap -->
-
-<!-- Candle -->
+<!-- Fixed candle top -->
 <div id="candle-wrap">
-  <svg id="candle-svg" width="60" height="150" viewBox="0 0 60 150">
+  <svg id="candle-svg" width="50" height="130" viewBox="0 0 60 150">
     <defs>
       <radialGradient id="flameGrad" cx="50%" cy="80%" r="50%">
-        <stop offset="0%"   stop-color="#fff8e0"/>
-        <stop offset="35%"  stop-color="#ffcc44"/>
+        <stop offset="0%" stop-color="#fff8e0"/>
+        <stop offset="35%" stop-color="#ffcc44"/>
         <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="innerGrad" cx="50%" cy="65%" r="40%">
-        <stop offset="0%"   stop-color="#ffffff"/>
+        <stop offset="0%" stop-color="#ffffff"/>
         <stop offset="100%" stop-color="#ffe066" stop-opacity="0.3"/>
       </radialGradient>
       <radialGradient id="glowRad" cx="50%" cy="100%" r="60%">
-        <stop offset="0%"   stop-color="#ff9900" stop-opacity="0.28"/>
+        <stop offset="0%" stop-color="#ff9900" stop-opacity="0.28"/>
         <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
       </radialGradient>
     </defs>
-
     <g id="smoke-group">
       <ellipse class="smoke-puff" cx="30" cy="92" rx="4" ry="7" fill="rgba(180,180,180,0.45)"/>
       <ellipse class="smoke-puff" cx="28" cy="88" rx="3" ry="5" fill="rgba(180,180,180,0.3)" style="animation-delay:0.2s"/>
     </g>
-
     <g id="flame-group">
       <ellipse cx="30" cy="100" rx="22" ry="14" fill="url(#glowRad)"/>
-      <path d="M30,88 C21,93 18,103 21,110 C24,117 36,117 39,110 C42,103 39,93 30,88 Z"
-            fill="url(#flameGrad)" opacity="0.95"/>
-      <path d="M30,92 C25,96 24,103 26,108 C27,112 33,112 34,108 C36,103 35,96 30,92 Z"
-            fill="url(#innerGrad)"/>
+      <path d="M30,88 C21,93 18,103 21,110 C24,117 36,117 39,110 C42,103 39,93 30,88 Z" fill="url(#flameGrad)" opacity="0.95"/>
+      <path d="M30,92 C25,96 24,103 26,108 C27,112 33,112 34,108 C36,103 35,96 30,92 Z" fill="url(#innerGrad)"/>
       <circle cx="30" cy="90" r="2.5" fill="#fff5cc"/>
     </g>
-
     <rect x="20" y="112" width="20" height="34" rx="2" fill="#f2ede3" opacity="0.92"/>
-    <rect x="22" y="112" width="5"  height="34" rx="1" fill="rgba(255,255,255,0.28)"/>
+    <rect x="22" y="112" width="5" height="34" rx="1" fill="rgba(255,255,255,0.28)"/>
     <path d="M20,118 Q17,126 18,134 Q19,137 20,118 Z" fill="#ece7dc" opacity="0.7"/>
     <line x1="30" y1="112" x2="30" y2="90" stroke="#666" stroke-width="1.5"/>
   </svg>
-  <div id="candle-instruction">Something is hiding in the dark.<br>Touch the candle to blow it out.</div>
-  <div id="bottom-instruction" style="display:none;">Maybe we don't see everything yet.<br>Light the candle.</div>
+  <div id="candle-label">Something is hiding in the dark.<br>Touch the candle to blow it out.</div>
+</div>
+
+<!-- Scrollable text -->
+<div id="screen-text">
+  <div id="title">Everyday erotics<span id="title-ext"></span></div>
+  <ul id="poem">
+    <li><span class="base-line">Flüstern im Dunklen</span><span class="ext-line" id="e0"></span></li>
+    <li><span class="base-line">Ein Kuss in einem Traum</span><span class="ext-line" id="e1"></span></li>
+    <li><span class="base-line">Ein Schaumbad bei Kerzenschein</span><span class="ext-line" id="e2"></span></li>
+    <li><span class="base-line">Eiskaltes Wasser auf dem Gesicht am Morgen</span><span class="ext-line" id="e3"></span></li>
+    <li><span class="base-line">Eine Flasche Merlot</span><span class="ext-line" id="e4"></span></li>
+    <li><span class="base-line">Ein Parfum, das nach Vanille und Dunkelheit duftet</span><span class="ext-line" id="e5"></span></li>
+    <li><span class="base-line">Sein Geruch</span><span class="ext-line" id="e6"></span></li>
+    <li><span class="base-line">Sein Blick auf mir</span><span class="ext-line" id="e7"></span></li>
+    <li><span class="base-line">Seine Berührung</span><span class="ext-line" id="e8"></span></li>
+    <li><span class="base-line">Meine Berührung</span><span class="ext-line" id="e9"></span></li>
+  </ul>
+  <div id="look-again" onclick="window.scrollTo({top:0,behavior:'smooth'})">Look again.</div>
 </div>
 
 <script>
@@ -309,8 +229,6 @@ var cur = document.getElementById('cursor');
 document.addEventListener('mousemove', function(e) {
   cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
 });
-
-// ── DATA ─────────────────────────────────────────────────────────────────────
 
 var ext_blue = [
   'das mich nicht schlafen lässt',
@@ -338,71 +256,33 @@ var ext_orange = [
   'bringt sie zum stöhnen',
 ];
 
-var titles = [
-  'Everyday erotics',
-  'Everyday erotics // with her',
-  'Everyday erotics // with her, yes her',
-];
-
-var title_colors = ['', '#7BA7BC', '#E8824A'];
-
-// ── STATE ─────────────────────────────────────────────────────────────────────
-
-var stage = 0; // 0=base text shown, 1=blue, 2=orange
+var stage = 0;
 var isLit = true;
 var holdTimer = null;
+var justBlew = false;
+var firstTime = true;
 
-var flameGroup      = document.getElementById('flame-group');
-var smokeGroup      = document.getElementById('smoke-group');
-var candleGlow      = document.getElementById('candle-glow');
-var screenText      = document.getElementById('screen-text');
-var candleInstr     = document.getElementById('candle-instruction');
-var bottomInstr     = document.getElementById('bottom-instruction');
-var titleEl         = document.getElementById('title');
-var titleExt        = document.getElementById('title-ext');
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-
-function setTitle(stageN) {
-  if (stageN === 0) {
-    titleExt.style.opacity = '0';
-    titleExt.textContent = '';
-    return;
-  }
-  var ext = stageN === 1 ? ' with her' : ' with her, yes her';
-  var col = title_colors[stageN];
-  var dimCol = stageN === 1 ? 'rgba(123,167,188,0.45)' : 'rgba(232,130,74,0.45)';
-  titleExt.style.transition = 'none';
-  titleExt.textContent = ext;
-  titleExt.style.color = col;
-  titleExt.style.textShadow = col === '#7BA7BC'
-    ? '0 0 18px rgba(123,167,188,0.6)'
-    : '0 0 18px rgba(232,130,74,0.6)';
-  titleExt.style.opacity = '1';
-  setTimeout(function() {
-    titleExt.style.transition = 'color 0.8s ease, text-shadow 0.8s ease';
-    titleExt.style.color = dimCol;
-    titleExt.style.textShadow = 'none';
-  }, 600);
-}
+var flameGroup  = document.getElementById('flame-group');
+var smokeGroup  = document.getElementById('smoke-group');
+var candleLabel = document.getElementById('candle-label');
+var titleExt    = document.getElementById('title-ext');
+var lookAgain   = document.getElementById('look-again');
 
 function clearLines() {
   for (var i = 0; i < 10; i++) {
     var el = document.getElementById('e'+i);
     el.style.transition = 'none';
     el.style.opacity = '0';
-    el.textContent = '\u00a0'; // non-breaking space keeps height reserved
+    el.textContent = '\u00a0';
   }
+  lookAgain.style.opacity = '0';
+  setTimeout(function() { lookAgain.style.display = 'none'; }, 1000);
 }
 
 function showLines(texts, color) {
   var glow = color === '#7BA7BC'
     ? '0 0 16px rgba(123,167,188,0.6)'
     : '0 0 16px rgba(232,130,74,0.6)';
-  var dimCol = color === '#7BA7BC'
-    ? 'rgba(123,167,188,0.45)'
-    : 'rgba(232,130,74,0.45)';
-
   texts.forEach(function(text, i) {
     setTimeout(function() {
       var el = document.getElementById('e'+i);
@@ -412,51 +292,106 @@ function showLines(texts, color) {
       el.style.textShadow = glow;
       el.style.opacity = '1';
       setTimeout(function() {
-        el.style.transition = 'color 0.8s ease, text-shadow 0.8s ease';
-        el.style.color = dimCol;
+        el.style.transition = 'color 3s ease, text-shadow 3s ease';
+        el.style.color = 'rgba(255,255,255,0.85)';
         el.style.textShadow = 'none';
-      }, 600);
+      }, 3000);
     }, i * 140);
   });
 }
 
-// ── STAGES ───────────────────────────────────────────────────────────────────
-
-function doStage1() {
-  // fade out first instruction
-  candleInstr.style.opacity = '0';
-  setTimeout(function() {
-    candleInstr.style.display = 'none';
-    // show relight hint after lines settle
+function setTitleExt(text, color) {
+  titleExt.style.transition = 'none';
+  titleExt.textContent = text ? ' ' + text : '';
+  titleExt.style.color = color || '';
+  titleExt.style.textShadow = color === '#7BA7BC'
+    ? '0 0 18px rgba(123,167,188,0.6)'
+    : color === '#E8824A'
+    ? '0 0 18px rgba(232,130,74,0.6)'
+    : 'none';
+  titleExt.style.opacity = text ? '1' : '0';
+  if (text && color) {
     setTimeout(function() {
-      bottomInstr.style.display = 'flex';
-      bottomInstr.style.opacity = '0';
-      setTimeout(function() { bottomInstr.style.opacity = '1'; }, 50);
-    }, 5000);
-  }, 1000);
-  clearLines();
-  setTitle(1);
-  showLines(ext_blue, '#7BA7BC');
+      titleExt.style.transition = 'color 3s ease, text-shadow 3s ease';
+      titleExt.style.color = 'rgba(255,255,255,0.85)';
+      titleExt.style.textShadow = 'none';
+    }, 3000);
+  }
 }
 
-function doStage2() {
-  bottomInstr.style.opacity = '0';
-  setTimeout(function() { bottomInstr.style.display = 'none'; }, 1200);
-  clearLines();
-  setTitle(2);
-  showLines(ext_orange, '#E8824A');
+function showLookAgain() {
+  setTimeout(function() {
+    lookAgain.style.display = 'block';
+    setTimeout(function() { lookAgain.style.opacity = '1'; }, 50);
+  }, ext_orange.length * 140 + 3500);
 }
 
 function doStage0() {
-  // loop – no instruction shown at all
   clearLines();
-  titleExt.style.transition = 'none';
-  titleExt.style.opacity = '0';
-  titleExt.textContent = '';
-  titleEl.childNodes[0].nodeValue = titles[0];
+  setTitleExt('', '');
+  if (!firstTime) return;
+  setTimeout(function() {
+    candleLabel.innerHTML = 'Something is hiding in the dark.<br>Touch the candle to blow it out.';
+    candleLabel.style.opacity = '1';
+  }, 600);
 }
 
-// ── CANDLE ───────────────────────────────────────────────────────────────────
+function doStage1() {
+  clearLines();
+  setTitleExt('with her', '#7BA7BC');
+  showLines(ext_blue, '#7BA7BC');
+  if (firstTime) {
+    setTimeout(function() {
+      candleLabel.innerHTML = 'Maybe we don\'t see everything yet.<br>Touch the candle.';
+      candleLabel.style.opacity = '1';
+    }, 5000);
+  }
+}
+
+function doStage2() {
+  firstTime = false;
+  clearLines();
+  setTitleExt('with her, yes her', '#E8824A');
+  showLines(ext_orange, '#E8824A');
+  showLookAgain();
+}
+
+function doSmoke() {
+  smokeGroup.style.opacity = '1';
+  smokeGroup.querySelectorAll('.smoke-puff').forEach(function(p) {
+    p.style.animation = 'none';
+    void p.offsetWidth;
+    p.style.animation = '';
+  });
+  setTimeout(function() { smokeGroup.style.opacity = '0'; }, 1800);
+}
+
+function advance() {
+  candleLabel.style.opacity = '0';
+  stage = (stage + 1) % 3;
+  if (stage === 0) doStage0();
+  else if (stage === 1) doStage1();
+  else doStage2();
+}
+
+function extinguish() {
+  if (!isLit) return;
+  isLit = false;
+  justBlew = true;
+  setTimeout(function() { justBlew = false; }, 700);
+  flameGroup.style.opacity = '0';
+  document.body.classList.remove('lit');
+  doSmoke();
+  advance();
+}
+
+function relight() {
+  if (isLit) return;
+  isLit = true;
+  flameGroup.style.opacity = '1';
+  document.body.classList.add('lit');
+  advance();
+}
 
 function startHold() {
   if (!isLit) return;
@@ -467,61 +402,12 @@ function endHold() {
   if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
 }
 
-var cooldown = false;
-var justBlew = false;
-
-function triggerRelight() {
-  if (isLit || cooldown || justBlew) return;
-  cooldown = true;
-  relight();
-  setTimeout(function() { cooldown = false; }, 800);
-}
-
-function extinguish() {
-  if (!isLit) return;
-  isLit = false;
-  justBlew = true;
-  setTimeout(function() { justBlew = false; }, 600);
-
-  flameGroup.style.opacity = '0';
-  candleGlow.style.opacity = '0';
-
-  smokeGroup.style.opacity = '1';
-  smokeGroup.querySelectorAll('.smoke-puff').forEach(function(p) {
-    p.style.animation = 'none';
-    void p.offsetWidth;
-    p.style.animation = '';
-  });
-  setTimeout(function() { smokeGroup.style.opacity = '0'; }, 1800);
-
-  // candle out: 0→1 (Text2), 2→0 (Text1)
-  if (stage === 0) { stage = 1; doStage1(); }
-  else if (stage === 2) { stage = 0; doStage0(); }
-}
-
-function relight() {
-  if (isLit) return;
-  isLit = true;
-  flameGroup.style.opacity = '1';
-  candleGlow.style.opacity = '1';
-
-  // candle on: 1→2 (Text3)
-  if (stage === 1) {
-    bottomInstr.style.opacity = '0';
-    setTimeout(function() { bottomInstr.style.display = 'none'; }, 1200);
-    stage = 2;
-    doStage2();
-  }
-}
-
 var cw = document.getElementById('candle-wrap');
 cw.addEventListener('mousedown', startHold);
-cw.addEventListener('mouseup', function() {
-  endHold();
-});
+cw.addEventListener('mouseup', endHold);
 cw.addEventListener('mouseleave', endHold);
 cw.addEventListener('click', function() {
-  if (!isLit) triggerRelight();
+  if (!isLit && !justBlew) relight();
 });
 
 var touchMoved = false;
@@ -529,20 +415,13 @@ cw.addEventListener('touchstart', function(e) {
   e.preventDefault();
   touchMoved = false;
   if (!isLit) return;
-  holdTimer = setTimeout(function() {
-    extinguish();
-    cooldown = true;
-    setTimeout(function() { cooldown = false; }, 800);
-  }, 500);
+  holdTimer = setTimeout(extinguish, 500);
 }, {passive:false});
-cw.addEventListener('touchmove', function() {
-  touchMoved = true;
-  endHold();
-}, {passive:true});
+cw.addEventListener('touchmove', function() { touchMoved = true; endHold(); }, {passive:true});
 cw.addEventListener('touchend', function(e) {
   e.preventDefault();
   endHold();
-  if (!isLit && !touchMoved) triggerRelight();
+  if (!isLit && !touchMoved && !justBlew) relight();
 }, {passive:false});
 
 clearLines();
