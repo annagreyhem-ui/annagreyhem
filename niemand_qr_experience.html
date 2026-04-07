@@ -52,10 +52,11 @@
       letter-spacing: 0.01em;
       opacity: 0;
       transform: translateY(10px);
-      transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+      transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease, font-size 240ms ease;
       max-width: 26ch;
       user-select: none;
       filter: blur(0px);
+      white-space: nowrap;
     }
 
     .text.visible {
@@ -76,27 +77,6 @@
 
     .instruction.visible {
       opacity: 1;
-    }
-
-    .progress {
-      width: 120px;
-      height: 2px;
-      background: rgba(255,255,255,0.08);
-      margin-top: 0.85rem;
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 300ms ease;
-    }
-
-    .progress.visible {
-      opacity: 1;
-    }
-
-    .progress-bar {
-      width: 0%;
-      height: 100%;
-      background: rgba(255,255,255,0.8);
-      transition: width 60ms linear;
     }
 
     .tap-area {
@@ -129,9 +109,27 @@
       opacity: 0.72;
     }
 
-    .final .instruction,
-    .final .progress {
+    .final .instruction {
       display: none;
+    }
+
+    .hold-circle {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: 36px;
+      height: 36px;
+      transform: translate(-50%, -50%);
+      border: 1.4px solid rgba(255,255,255,0.6);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.02);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 250ms ease;
+    }
+
+    .hold-circle.visible {
+      opacity: 1;
     }
   </style>
 </head>
@@ -139,9 +137,9 @@
   <div class="wrap" id="wrap" aria-live="polite">
     <div class="text" id="text"></div>
     <div class="instruction" id="instruction"></div>
-    <div class="progress" id="progress">
-      <div class="progress-bar" id="progressBar"></div>
     </div>
+
+  <div class="hold-circle" id="holdCircle" aria-hidden="true"></div>
   </div>
 
   <button class="tap-area" id="tapArea" aria-label="Weiter"></button>
@@ -181,8 +179,7 @@
 
     const textEl = document.getElementById('text');
     const instructionEl = document.getElementById('instruction');
-    const progressEl = document.getElementById('progress');
-    const progressBarEl = document.getElementById('progressBar');
+    const holdCircle = document.getElementById('holdCircle');
     const tapArea = document.getElementById('tapArea');
     const holdArea = document.getElementById('holdArea');
     const wrap = document.getElementById('wrap');
@@ -207,9 +204,12 @@
       instructionEl.classList.toggle('visible', visible && !!text);
     }
 
-    function showProgress(show) {
-      progressEl.classList.toggle('visible', show);
-      if (!show) progressBarEl.style.width = '0%';
+    function showCircle(show) {
+      holdCircle.classList.toggle('visible', show);
+      if (!show) {
+        holdCircle.style.width = '36px';
+        holdCircle.style.height = '36px';
+      }
     }
 
     function nextTapSection() {
@@ -223,7 +223,7 @@
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
       setInstruction('hold', true);
-      showProgress(true);
+      showCircle(true);
       wrap.classList.add('dimmed');
     }
 
@@ -238,7 +238,7 @@
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
       setInstruction('keep holding', true);
-      showProgress(true);
+      showCircle(true);
       wrap.classList.add('dimmed');
     }
 
@@ -247,8 +247,8 @@
         showText(finalSection[index], index === 0 ? 220 : 120);
         index += 1;
         if (index === finalSection.length) {
-          tapArea.classList.add('hidden');
           wrap.classList.add('final');
+          textEl.dataset.finalQuestion = 'true';
         }
       }
     }
@@ -266,7 +266,11 @@
       const tick = (now) => {
         const elapsed = now - holdStart;
         const progress = Math.min(elapsed / 2200, 1);
-        progressBarEl.style.width = `${progress * 100}%`;
+        const minSize = 36;
+        const maxSize = Math.min(window.innerWidth, window.innerHeight) * 0.82;
+        const size = minSize + (maxSize - minSize) * progress;
+        holdCircle.style.width = `${size}px`;
+        holdCircle.style.height = `${size}px`;
         document.body.style.backgroundColor = `rgba(0,0,0,${1 + progress * 0.02})`;
         if (progress < 1) {
           holdRAF = requestAnimationFrame(tick);
@@ -280,16 +284,16 @@
 
     function cancelHold() {
       cancelAnimationFrame(holdRAF);
-      progressBarEl.style.width = '0%';
+      holdCircle.style.width = '36px';
+      holdCircle.style.height = '36px';
       document.body.style.backgroundColor = '#000';
     }
 
     function finishHold() {
       cancelAnimationFrame(holdRAF);
-      progressBarEl.style.width = '100%';
       holdArea.classList.remove('active');
       wrap.classList.remove('dimmed');
-      showProgress(false);
+      showCircle(false);
       setInstruction('', false);
       document.body.style.backgroundColor = '#000';
 
@@ -304,11 +308,34 @@
         index = 0;
         tapArea.classList.remove('hidden');
         showText(finalSection[index], 180);
+        textEl.style.fontSize = '';
         index += 1;
       }
     }
 
-    tapArea.addEventListener('click', advance);
+    tapArea.addEventListener('click', () => {
+      if (textEl.dataset.finalQuestion === 'true') {
+        const text = textEl.textContent;
+        const wrapWidth = wrap.clientWidth * 0.94;
+        const currentSize = parseFloat(getComputedStyle(textEl).fontSize);
+        const test = document.createElement('span');
+        test.style.position = 'absolute';
+        test.style.visibility = 'hidden';
+        test.style.whiteSpace = 'nowrap';
+        test.style.fontFamily = getComputedStyle(textEl).fontFamily;
+        test.style.fontSize = `${currentSize + 2}px`;
+        test.style.letterSpacing = getComputedStyle(textEl).letterSpacing;
+        test.textContent = text;
+        document.body.appendChild(test);
+        const fits = test.getBoundingClientRect().width <= wrapWidth;
+        document.body.removeChild(test);
+        if (fits) {
+          textEl.style.fontSize = `${currentSize + 2}px`;
+        }
+        return;
+      }
+      advance();
+    });
 
     const holdStartEvents = ['mousedown', 'touchstart', 'pointerdown'];
     const holdEndEvents = ['mouseup', 'mouseleave', 'touchend', 'touchcancel', 'pointerup', 'pointercancel'];
