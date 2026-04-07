@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Niemand — QR Experience</title>
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #f3f3f3;
+      --muted: #9a9a9a;
+      --line-height: 1.45;
+      --hold-duration: 2200ms;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Georgia, "Times New Roman", serif;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 700ms ease;
+    }
+
+    .wrap {
+      width: min(680px, 88vw);
+      min-height: 42vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+
+    .text {
+      font-size: clamp(1.15rem, 2.8vw, 1.55rem);
+      line-height: var(--line-height);
+      letter-spacing: 0.01em;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+      max-width: 26ch;
+      user-select: none;
+      filter: blur(0px);
+    }
+
+    .text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .instruction {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: lowercase;
+      opacity: 0;
+      transition: opacity 500ms ease;
+      user-select: none;
+    }
+
+    .instruction.visible {
+      opacity: 1;
+    }
+
+    .progress {
+      width: 120px;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      margin-top: 0.85rem;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+
+    .progress.visible {
+      opacity: 1;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: rgba(255,255,255,0.8);
+      transition: width 60ms linear;
+    }
+
+    .tap-area {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .tap-area.hidden {
+      display: none;
+    }
+
+    .hold-area {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      border: 0;
+      display: none;
+      cursor: pointer;
+    }
+
+    .hold-area.active {
+      display: block;
+    }
+
+    .dimmed .text {
+      filter: blur(0.35px);
+      opacity: 0.72;
+    }
+
+    .final .instruction,
+    .final .progress {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="wrap" aria-live="polite">
+    <div class="text" id="text"></div>
+    <div class="instruction" id="instruction"></div>
+    <div class="progress" id="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <button class="tap-area" id="tapArea" aria-label="Weiter"></button>
+  <button class="hold-area" id="holdArea" aria-label="Gedrückt halten, um weiterzugehen"></button>
+
+  <script>
+    const firstSection = [
+      'She was different',
+      'colder.',
+      'They said things',
+      'I didn’t listen.',
+      'I followed her',
+      'into the dark',
+      'She asked me to come.',
+      'I knew something was wrong.',
+      'I went anyway.',
+      'I think I saw it.',
+      'I could have left.'
+    ];
+
+    const secondSection = [
+      'I didn’t.',
+      'Es ist dunkel.',
+      'Ich kann nichts sehen.',
+      'Ich spüre etwas auf meiner Haut.',
+      'Ameisen auf meinen Armen.',
+      'Schmetterlinge im Bauch.',
+      'Ich bewege mich nicht.',
+      'Ich kann mich nicht bewegen.'
+    ];
+
+    const finalSection = [
+      'Ich bin immer noch da.',
+      'Warum bin ich immer noch da?',
+      'Warum bist du immer noch da?'
+    ];
+
+    const textEl = document.getElementById('text');
+    const instructionEl = document.getElementById('instruction');
+    const progressEl = document.getElementById('progress');
+    const progressBarEl = document.getElementById('progressBar');
+    const tapArea = document.getElementById('tapArea');
+    const holdArea = document.getElementById('holdArea');
+    const wrap = document.getElementById('wrap');
+
+    let phase = 'tap-1';
+    let index = 0;
+    let holdTimer = null;
+    let holdStart = 0;
+    let holdRAF = null;
+    let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function showText(value, delay = 40) {
+      textEl.classList.remove('visible');
+      window.setTimeout(() => {
+        textEl.textContent = value;
+        textEl.classList.add('visible');
+      }, reducedMotion ? 0 : delay);
+    }
+
+    function setInstruction(text = '', visible = false) {
+      instructionEl.textContent = text;
+      instructionEl.classList.toggle('visible', visible && !!text);
+    }
+
+    function showProgress(show) {
+      progressEl.classList.toggle('visible', show);
+      if (!show) progressBarEl.style.width = '0%';
+    }
+
+    function nextTapSection() {
+      if (index < firstSection.length) {
+        showText(firstSection[index]);
+        index += 1;
+        return;
+      }
+
+      phase = 'hold-1';
+      tapArea.classList.add('hidden');
+      holdArea.classList.add('active');
+      setInstruction('hold', true);
+      showProgress(true);
+      wrap.classList.add('dimmed');
+    }
+
+    function nextSecondSection() {
+      if (index < secondSection.length) {
+        showText(secondSection[index]);
+        index += 1;
+        return;
+      }
+
+      phase = 'hold-2';
+      tapArea.classList.add('hidden');
+      holdArea.classList.add('active');
+      setInstruction('keep holding', true);
+      showProgress(true);
+      wrap.classList.add('dimmed');
+    }
+
+    function nextFinalSection() {
+      if (index < finalSection.length) {
+        showText(finalSection[index], index === 0 ? 220 : 120);
+        index += 1;
+        if (index === finalSection.length) {
+          tapArea.classList.add('hidden');
+          wrap.classList.add('final');
+        }
+      }
+    }
+
+    function advance() {
+      if (phase === 'tap-1') return nextTapSection();
+      if (phase === 'tap-2') return nextSecondSection();
+      if (phase === 'tap-3') return nextFinalSection();
+    }
+
+    function startHold() {
+      holdStart = performance.now();
+      cancelAnimationFrame(holdRAF);
+
+      const tick = (now) => {
+        const elapsed = now - holdStart;
+        const progress = Math.min(elapsed / 2200, 1);
+        progressBarEl.style.width = `${progress * 100}%`;
+        document.body.style.backgroundColor = `rgba(0,0,0,${1 + progress * 0.02})`;
+        if (progress < 1) {
+          holdRAF = requestAnimationFrame(tick);
+        } else {
+          finishHold();
+        }
+      };
+
+      holdRAF = requestAnimationFrame(tick);
+    }
+
+    function cancelHold() {
+      cancelAnimationFrame(holdRAF);
+      progressBarEl.style.width = '0%';
+      document.body.style.backgroundColor = '#000';
+    }
+
+    function finishHold() {
+      cancelAnimationFrame(holdRAF);
+      progressBarEl.style.width = '100%';
+      holdArea.classList.remove('active');
+      wrap.classList.remove('dimmed');
+      showProgress(false);
+      setInstruction('', false);
+      document.body.style.backgroundColor = '#000';
+
+      if (phase === 'hold-1') {
+        phase = 'tap-2';
+        index = 0;
+        tapArea.classList.remove('hidden');
+        showText(secondSection[index], 80);
+        index += 1;
+      } else if (phase === 'hold-2') {
+        phase = 'tap-3';
+        index = 0;
+        tapArea.classList.remove('hidden');
+        showText(finalSection[index], 180);
+        index += 1;
+      }
+    }
+
+    tapArea.addEventListener('click', advance);
+
+    const holdStartEvents = ['mousedown', 'touchstart', 'pointerdown'];
+    const holdEndEvents = ['mouseup', 'mouseleave', 'touchend', 'touchcancel', 'pointerup', 'pointercancel'];
+
+    holdStartEvents.forEach(eventName => {
+      holdArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        startHold();
+      }, { passive: false });
+    });
+
+    holdEndEvents.forEach(eventName => {
+      holdArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        if (phase === 'hold-1' || phase === 'hold-2') cancelHold();
+      }, { passive: false });
+    });
+
+    // Initial state
+    showText(firstSection[index], 150);
+    index += 1;
+  </script>
+</body>
+</html>
