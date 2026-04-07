@@ -65,7 +65,10 @@
     }
 
     .instruction {
-      margin-top: 2rem;
+      position: fixed;
+      bottom: 12vh;
+      left: 50%;
+      transform: translateX(-50%);
       font-size: 0.9rem;
       color: var(--muted);
       letter-spacing: 0.08em;
@@ -73,6 +76,7 @@
       opacity: 0;
       transition: opacity 500ms ease;
       user-select: none;
+      text-align: center;
     }
 
     .instruction.visible {
@@ -115,8 +119,6 @@
 
     .hold-circle {
       position: fixed;
-      left: 50%;
-      top: 50%;
       width: 36px;
       height: 36px;
       transform: translate(-50%, -50%);
@@ -125,10 +127,28 @@
       background: rgba(255,255,255,0.02);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 250ms ease;
+      transition: opacity 120ms ease;
     }
 
     .hold-circle.visible {
+      opacity: 1;
+    }
+
+    .hold-target {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: min(82vw, 82vh);
+      height: min(82vw, 82vh);
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .hold-target.visible {
       opacity: 1;
     }
   </style>
@@ -139,6 +159,7 @@
     <div class="instruction" id="instruction"></div>
     </div>
 
+  <div class="hold-target" id="holdTarget" aria-hidden="true"></div>
   <div class="hold-circle" id="holdCircle" aria-hidden="true"></div>
   </div>
 
@@ -180,6 +201,7 @@
     const textEl = document.getElementById('text');
     const instructionEl = document.getElementById('instruction');
     const holdCircle = document.getElementById('holdCircle');
+    const holdTarget = document.getElementById('holdTarget');
     const tapArea = document.getElementById('tapArea');
     const holdArea = document.getElementById('holdArea');
     const wrap = document.getElementById('wrap');
@@ -206,6 +228,7 @@
 
     function showCircle(show) {
       holdCircle.classList.toggle('visible', show);
+      holdTarget.classList.toggle('visible', show);
       if (!show) {
         holdCircle.style.width = '36px';
         holdCircle.style.height = '36px';
@@ -223,7 +246,6 @@
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
       setInstruction('hold', true);
-      showCircle(true);
       wrap.classList.add('dimmed');
     }
 
@@ -238,7 +260,6 @@
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
       setInstruction('keep holding', true);
-      showCircle(true);
       wrap.classList.add('dimmed');
     }
 
@@ -259,7 +280,13 @@
       if (phase === 'tap-3') return nextFinalSection();
     }
 
-    function startHold() {
+    function startHold(e) {
+      showCircle(true);
+
+      const point = e.touches ? e.touches[0] : e;
+      holdCircle.style.left = point.clientX + 'px';
+      holdCircle.style.top = point.clientY + 'px';
+
       holdStart = performance.now();
       cancelAnimationFrame(holdRAF);
 
@@ -343,7 +370,7 @@
     holdStartEvents.forEach(eventName => {
       holdArea.addEventListener(eventName, (e) => {
         e.preventDefault();
-        startHold();
+        startHold(e);
       }, { passive: false });
     });
 
