@@ -257,11 +257,31 @@
     }
 
     function nextSecondSection() {
+      // After "I didn’t." insert a pause before German part
       if (index < secondSection.length) {
+        // if current is first German line and previous was 'I didn’t.' -> pause
+        if (secondSection[index] === 'Es ist dunkel.' && !nextSecondSection._paused1) {
+          nextSecondSection._paused1 = true;
+          textEl.classList.remove('visible');
+          setInstruction('', false);
+          setTimeout(() => {
+            setText(secondSection[index]);
+            index += 1;
+          }, 800);
+          return;
+        }
+
         setText(secondSection[index]);
         index += 1;
         return;
       }
+
+      phase = 'hold-2';
+      tapArea.classList.add('hidden');
+      holdArea.classList.add('active');
+      setInstruction('hold', true);
+      wrap.classList.add('dimmed');
+    }
 
       phase = 'hold-2';
       tapArea.classList.add('hidden');
@@ -341,6 +361,19 @@
         setText(secondSection[index], 80);
         index += 1;
       } else if (phase === 'hold-2') {
+        phase = 'tap-3';
+        index = 0;
+        tapArea.classList.remove('hidden');
+        textEl.style.fontSize = '';
+
+        // pause before final section
+        textEl.classList.remove('visible');
+        setTimeout(() => {
+          setText(finalSection[index], 180, false);
+          index += 1;
+        }, 900);
+      }
+    } else if (phase === 'hold-2') {
         phase = 'tap-3';
         index = 0;
         tapArea.classList.remove('hidden');
