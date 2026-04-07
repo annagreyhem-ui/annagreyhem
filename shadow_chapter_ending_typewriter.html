@@ -95,7 +95,8 @@
       maxTypeDelay: 62,
       punctuationPause: 140,
       paragraphPause: 900,
-      finalPause: 0
+      finalPause: 0,
+      initialPause: 900
     };
 
     let typed = '';
@@ -138,13 +139,25 @@
     }
 
     async function startTyping() {
+      // show blinking cursor before typing starts
       render();
+      await sleep(settings.initialPause);
 
       for (let i = 0; i < paragraphs.length; i += 1) {
         if (i > 0) {
-          typed += '\n\n';
+          typed += '
+
+';
           render();
         }
+        await typeParagraph(paragraphs[i], i === 0);
+      }
+
+      if (settings.finalPause > 0) {
+        await sleep(settings.finalPause);
+      }
+      render();
+    }
         await typeParagraph(paragraphs[i], i === 0);
       }
 
