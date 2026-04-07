@@ -61,6 +61,17 @@ canvas { display:block; touch-action:none; }
   transition:opacity 1.5s ease;
   white-space:nowrap;
 }
+
+#cursor-dot {
+  position:fixed;
+  width:8px; height:8px;
+  border:1px solid rgba(255,255,255,0.45);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  display:none;
+}
 </style>
 </head>
 <body>
@@ -68,54 +79,73 @@ canvas { display:block; touch-action:none; }
 <div id="text-wrap"><div id="text-line"></div></div>
 <div id="scene"><canvas id="c"></canvas></div>
 <div id="hint">touch a petal</div>
+<div id="cursor-dot"></div>
 
 <script>
 var canvas = document.getElementById('c');
 var ctx = canvas.getContext('2d');
 var textLine = document.getElementById('text-line');
 var hint = document.getElementById('hint');
+var cursorDot = document.getElementById('cursor-dot');
 
 var W, H, CX, CY;
+var isTouch = false;
+
+// ── CURSOR (PC only) ──────────────────────────────────────────────────────────
+
+document.addEventListener('mousemove', function(e) {
+  if (isTouch) return;
+  cursorDot.style.display = 'block';
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top  = e.clientY + 'px';
+});
+
+document.addEventListener('touchstart', function() {
+  isTouch = true;
+  cursorDot.style.display = 'none';
+}, {once: true, passive: true});
 
 // ── TEXT SEQUENCE ─────────────────────────────────────────────────────────────
 
 var lines = [
-  { text: "You love me",           duration: 1800, pause: 400 },
-  { text: "You love me not",       duration: 1800, pause: 400 },
-  { text: "You love me",           duration: 1800, pause: 400 },
-  { text: "You love me not",       duration: 1800, pause: 500 },
-  { text: "I love you",            duration: 2000, pause: 600 },
-  { text: "You love me",           duration: 1800, pause: 500 },
-  { text: "You love me not",       duration: 2000, pause: 700 },
-  { text: "You love me",           duration: 2000, pause: 600 },
-  { text: "You love me not right now", duration: 2400, pause: 800 },
-  { text: "I have always loved you",   duration: 2600, pause: 900 },
-  { text: "But I love you",         duration: 2400, pause: 900 },
-  { text: "I want you to love me",  duration: 2600, pause: 1000 },
-  { text: "You loved me?",          duration: 2800, pause: 1100 },
-  { text: "Did you?",               duration: 3000, pause: 1200 },
-  { text: "Not enough?",            duration: 3200, pause: 1400 },
-  { text: "I will make you love me",duration: 3400, pause: 1600 },
-  { text: "There is nothing left to lose", duration: 99999, pause: 0 },
+  { text: "You love me",                    duration: 1800, pause: 400  },
+  { text: "You love me not",                duration: 1800, pause: 400  },
+  { text: "You love me",                    duration: 1800, pause: 400  },
+  { text: "You love me not",                duration: 1800, pause: 500  },
+  { text: "I love you",                     duration: 2000, pause: 600  },
+  { text: "You love me",                    duration: 1800, pause: 500  },
+  { text: "You love me not",                duration: 2000, pause: 700  },
+  { text: "You love me",                    duration: 2000, pause: 600  },
+  { text: "You love me not right now",      duration: 2400, pause: 800  },
+  { text: "I have always loved you",        duration: 2600, pause: 900  },
+  { text: "But I love you",                 duration: 2400, pause: 900  },
+  { text: "I want you to love me",          duration: 2600, pause: 1000 },
+  { text: "You loved me?",                  duration: 2800, pause: 1100 },
+  { text: "Did you?",                       duration: 3000, pause: 1200 },
+  { text: "Not enough?",                    duration: 3200, pause: 1400 },
+  { text: "I will make you love me",        duration: 3400, pause: 1600 },
+  { text: "There is nothing left to lose",  duration: 99999, pause: 0   },
 ];
 
-var N_PETALS = lines.length; // 17 petals
+var N_PETALS = lines.length;
 
-// ── PETAL GEOMETRY ────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────────
 
 var petals = [];
 var fallingPetals = [];
 var step = 0;
-var busy = false;
 var done = false;
+var textTimer = null;
+
+// ── PETAL GEOMETRY ────────────────────────────────────────────────────────────
 
 function buildPetals() {
   petals = [];
-  var r = Math.min(W, H) * 0.30;
+  var r      = Math.min(W, H) * 0.30;
   var innerR = r * 0.20;
-  var dist = (innerR + r) / 2;
-  var hw = r * 0.115;
-  var len = (r - innerR) * 0.58;
+  var dist   = (innerR + r) / 2;
+  var hw     = r * 0.115;
+  var len    = (r - innerR) * 0.58;
 
   for (var i = 0; i < N_PETALS; i++) {
     var angle = (i / N_PETALS) * Math.PI * 2 - Math.PI / 2;
@@ -124,17 +154,11 @@ function buildPetals() {
     petals.push({
       index: i,
       angle: angle,
-      // center of ellipse petal
-      cx: px,
-      cy: py,
-      // tip for falling start
+      cx: px, cy: py,
       tipX: CX + Math.cos(angle) * r,
       tipY: CY + Math.sin(angle) * r,
-      hw: hw,
-      len: len,
-      dist: dist,
-      r: r,
-      innerR: innerR,
+      hw: hw, len: len,
+      dist: dist, r: r, innerR: innerR,
       layerOpacity: i % 2 === 0 ? 0.72 : 0.45,
       alive: true,
       opacity: 1,
@@ -147,24 +171,16 @@ function buildPetals() {
 function drawScene() {
   ctx.clearRect(0, 0, W, H);
 
-  var r = petals.length > 0 ? petals[0].r : Math.min(W,H)*0.30;
+  var r      = petals.length > 0 ? petals[0].r      : Math.min(W,H)*0.30;
   var innerR = petals.length > 0 ? petals[0].innerR : r * 0.20;
 
-  // Draw alive petals
-  petals.forEach(function(p) {
-    if (!p.alive) return;
-    drawPetal(p, p.opacity, false);
-  });
-
-  // Draw falling petals
-  fallingPetals.forEach(function(p) {
-    drawPetal(p, p.opacity, true);
-  });
+  petals.forEach(function(p) { if (p.alive) drawPetal(p, p.opacity, false); });
+  fallingPetals.forEach(function(p) { drawPetal(p, p.opacity, true); });
 
   // Stem
-  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
-  ctx.lineWidth = r * 0.025;
-  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(100,160,60,0.75)';
+  ctx.lineWidth   = r * 0.038;
+  ctx.lineCap     = 'round';
   ctx.beginPath();
   ctx.moveTo(CX, CY + innerR);
   ctx.bezierCurveTo(CX + r*0.06, CY + r*0.55, CX - r*0.04, CY + r*0.95, CX + r*0.02, CY + r*1.45);
@@ -173,17 +189,16 @@ function drawScene() {
   // Center
   var yellowR = innerR * 0.98;
   var grd = ctx.createRadialGradient(CX - yellowR*0.15, CY - yellowR*0.15, 0, CX, CY, yellowR + 2);
-  grd.addColorStop(0, 'rgba(255,220,60,0.75)');
+  grd.addColorStop(0,    'rgba(255,220,60,0.75)');
   grd.addColorStop(0.55, 'rgba(210,155,15,0.6)');
-  grd.addColorStop(1, 'rgba(140,90,0,0.4)');
+  grd.addColorStop(1,    'rgba(140,90,0,0.4)');
   ctx.fillStyle = grd;
   ctx.beginPath();
   ctx.arc(CX, CY, yellowR, 0, Math.PI * 2);
   ctx.fill();
 
-  // Inner ring
   ctx.strokeStyle = 'rgba(100,60,0,0.28)';
-  ctx.lineWidth = 1;
+  ctx.lineWidth   = 1;
   ctx.beginPath();
   ctx.arc(CX, CY, yellowR * 0.58, 0, Math.PI * 2);
   ctx.stroke();
@@ -191,7 +206,6 @@ function drawScene() {
 
 function drawPetal(p, opacity, falling) {
   ctx.save();
-
   var layerOp = (p.layerOpacity || 0.72) * opacity;
 
   if (falling) {
@@ -202,38 +216,29 @@ function drawPetal(p, opacity, falling) {
     ctx.rotate(p.angle + Math.PI / 2);
   }
 
-  var len = p.len;
-  var hw  = p.hw;
-
   ctx.beginPath();
-  ctx.ellipse(0, 0, hw, len, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, p.hw, p.len, 0, 0, Math.PI * 2);
 
-  var g = ctx.createLinearGradient(0, -len, 0, len);
-  g.addColorStop(0, 'rgba(255,255,255,' + Math.min(1, layerOp + 0.15) + ')');
+  var g = ctx.createLinearGradient(0, -p.len, 0, p.len);
+  g.addColorStop(0,   'rgba(255,255,255,' + Math.min(1, layerOp + 0.15) + ')');
   g.addColorStop(0.4, 'rgba(255,255,255,' + layerOp + ')');
-  g.addColorStop(1, 'rgba(255,255,255,0.03)');
+  g.addColorStop(1,   'rgba(255,255,255,0.03)');
   ctx.fillStyle = g;
   ctx.fill();
-
   ctx.restore();
 }
 
 // ── ANIMATION LOOP ────────────────────────────────────────────────────────────
 
-var raf;
 function loop() {
-  raf = requestAnimationFrame(loop);
+  requestAnimationFrame(loop);
 
-  // Animate falling petals
-  var anyFalling = false;
   fallingPetals.forEach(function(p) {
     p.fallVY = (p.fallVY || 0) + 0.18;
-    p.fallVX = p.fallVX || 0;
     p.fallY += p.fallVY;
     p.fallX += p.fallVX;
     p.fallRot += p.fallDRot || 0.04;
     p.opacity = Math.max(0, p.opacity - 0.022);
-    if (p.opacity > 0) anyFalling = true;
   });
   fallingPetals = fallingPetals.filter(function(p) { return p.opacity > 0; });
 
@@ -242,22 +247,20 @@ function loop() {
 
 // ── TEXT ──────────────────────────────────────────────────────────────────────
 
-var textTimer = null;
-
 function showText(index) {
+  if (textTimer) { clearTimeout(textTimer); textTimer = null; }
+
   var line = lines[index];
   var isFinal = index === lines.length - 1;
+  var progress = index / (lines.length - 1);
 
   textLine.style.transition = 'none';
   textLine.style.opacity = '0';
-
-  // Slightly larger and less italic as tone darkens
-  var progress = index / (lines.length - 1);
-  textLine.style.fontStyle = progress > 0.6 ? 'normal' : 'italic';
-  textLine.style.letterSpacing = progress > 0.7 ? '0.08em' : '0.04em';
-
   void textLine.offsetWidth;
+
   textLine.textContent = line.text;
+  textLine.style.fontStyle    = progress > 0.6 ? 'normal' : 'italic';
+  textLine.style.letterSpacing = progress > 0.7 ? '0.08em' : '0.04em';
 
   var fadeIn = 400 + progress * 200;
   textLine.style.transition = 'opacity ' + fadeIn + 'ms ease';
@@ -278,96 +281,72 @@ function petalAt(x, y) {
   for (var i = petals.length - 1; i >= 0; i--) {
     var p = petals[i];
     if (!p.alive) continue;
-    var dx = x - p.cx;
-    var dy = y - p.cy;
-    // rotate point into petal local space
+    var dx  = x - p.cx;
+    var dy  = y - p.cy;
     var cos = Math.cos(-(p.angle + Math.PI/2));
     var sin = Math.sin(-(p.angle + Math.PI/2));
-    var lx = dx*cos - dy*sin;
-    var ly = dx*sin + dy*cos;
-    // ellipse hit test with padding
-    var hw2 = (p.hw * 1.5);
-    var lh2 = (p.len * 1.3);
+    var lx  = dx*cos - dy*sin;
+    var ly  = dx*sin + dy*cos;
+    var hw2 = p.hw * 1.5;
+    var lh2 = p.len * 1.3;
     if ((lx*lx)/(hw2*hw2) + (ly*ly)/(lh2*lh2) < 1) return p;
   }
   return null;
 }
 
-function pluck(petal) {
-  if (busy || done) return;
-  if (step >= lines.length) return;
+// ── PLUCK ────────────────────────────────────────────────────────────────────
 
-  busy = true;
+function pluck(petal) {
+  if (done) return;
+
   hint.style.opacity = '0';
 
-  // Remove petal visually
   petal.alive = false;
   var fp = Object.assign({}, petal);
-  fp.fallX = petal.cx;
-  fp.fallY = petal.cy;
-  fp.fallVX = (Math.random() - 0.5) * 2.0;
-  fp.fallVY = -0.8 + Math.random() * 0.5;
-  fp.fallRot = petal.angle + Math.PI/2;
+  fp.fallX    = petal.cx;
+  fp.fallY    = petal.cy;
+  fp.fallVX   = (Math.random() - 0.5) * 2.0;
+  fp.fallVY   = -0.8 + Math.random() * 0.5;
+  fp.fallRot  = petal.angle + Math.PI / 2;
   fp.fallDRot = (Math.random() - 0.5) * 0.1;
-  fp.opacity = petal.layerOpacity;
+  fp.opacity  = petal.layerOpacity;
   fallingPetals.push(fp);
 
-  // Show text
   showText(step);
   step++;
 
-  if (step >= lines.length) {
-    done = true;
-    busy = false;
-    return;
-  }
-
-  // Unlock after text fades
-  var line = lines[step - 1];
-  var unlockDelay = line.duration + line.pause;
-  setTimeout(function() { busy = false; }, unlockDelay);
+  if (step >= lines.length) done = true;
 }
 
-// ── EVENTS ────────────────────────────────────────────────────────────────────
-
-function getPos(e) {
-  if (e.touches && e.touches.length > 0) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-  return { x: e.clientX, y: e.clientY };
-}
+// ── EVENTS ───────────────────────────────────────────────────────────────────
 
 canvas.addEventListener('click', function(e) {
-  var pos = getPos(e);
-  var p = petalAt(pos.x, pos.y);
+  var p = petalAt(e.clientX, e.clientY);
   if (p) pluck(p);
 });
 
 canvas.addEventListener('touchend', function(e) {
   e.preventDefault();
-  var touch = e.changedTouches[0];
-  var p = petalAt(touch.clientX, touch.clientY);
+  var t = e.changedTouches[0];
+  var p = petalAt(t.clientX, t.clientY);
   if (p) pluck(p);
-}, {passive:false});
+}, {passive: false});
 
 // ── RESIZE & INIT ─────────────────────────────────────────────────────────────
 
 function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+  W  = canvas.width  = window.innerWidth;
+  H  = canvas.height = window.innerHeight;
   CX = W / 2;
-  CY = H / 2 + H * 0.04; // slightly below center
+  CY = H / 2 + H * 0.04;
   buildPetals();
 }
 
-window.addEventListener('resize', function() { resize(); drawScene(); });
+window.addEventListener('resize', function() { resize(); });
 resize();
 loop();
 
-// Fade in hint after a moment
-setTimeout(function() {
-  hint.style.opacity = '1';
-}, 1200);
+setTimeout(function() { hint.style.opacity = '1'; }, 1200);
 </script>
 </body>
 </html>
