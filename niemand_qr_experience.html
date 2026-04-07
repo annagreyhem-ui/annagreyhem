@@ -147,6 +147,41 @@
     .hold-circle.visible {
       opacity: 1;
     }
+
+    .spark-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 6;
+      overflow: hidden;
+    }
+
+    .spark {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 0 10px rgba(255,255,255,0.9);
+      pointer-events: none;
+      will-change: transform, opacity;
+      animation: sparkle-burst 900ms ease-out forwards;
+    }
+    }
+
+    @keyframes sparkle-burst {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      70% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0.2);
+      }
+    }
   </style>
 </head>
 <body>
@@ -157,6 +192,7 @@
   <div class="instruction" id="instruction"></div>
   <div class="hold-target" id="holdTarget" aria-hidden="true"></div>
   <div class="hold-circle" id="holdCircle" aria-hidden="true"></div>
+  <div class="spark-layer" id="sparkLayer" aria-hidden="true"></div>
 
   <button class="tap-area" id="tapArea" aria-label="Weiter"></button>
   <button class="hold-area" id="holdArea" aria-label="Gedrückt halten"></button>
@@ -200,11 +236,14 @@
     const holdArea = document.getElementById('holdArea');
     const holdCircle = document.getElementById('holdCircle');
     const holdTarget = document.getElementById('holdTarget');
+    const sparkLayer = document.getElementById('sparkLayer');
 
     let i = 0;
     let holdRaf = null;
     let holdStart = 0;
     let canGrowFinal = false;
+    let finalAtMax = false;
+    let exploded = false;
     let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function currentItem() {
@@ -283,6 +322,7 @@
 
       if (isFinalLast) {
         canGrowFinal = true;
+        finalAtMax = false;
       }
     }
 
@@ -329,6 +369,8 @@
     }
 
     tapArea.addEventListener('click', () => {
+      if (exploded) return;
+
       if (canGrowFinal) {
         const currentSize = parseFloat(getComputedStyle(textEl).fontSize);
         const wrapWidth = Math.min(680, window.innerWidth * 0.88) * 0.94;
@@ -343,11 +385,18 @@
         document.body.appendChild(probe);
         const fits = probe.getBoundingClientRect().width <= wrapWidth;
         document.body.removeChild(probe);
+
         if (fits) {
           textEl.style.fontSize = `${currentSize + 2}px`;
+          finalAtMax = false;
+        } else if (!finalAtMax) {
+          finalAtMax = true;
+        } else {
+          explodeFinalText();
         }
         return;
       }
+
       advance();
     });
 
@@ -364,6 +413,43 @@
         if (currentItem() === 'HOLD') cancelHold();
       }, { passive: false });
     });
+
+    function explodeFinalText() {
+      exploded = true;
+      const rect = textEl.getBoundingClientRect();
+      const count = 60;
+
+      for (let n = 0; n < count; n += 1) {
+        const spark = document.createElement('div');
+        spark.className = 'spark';
+        const x = rect.left + Math.random() * rect.width;
+        const y = rect.top + Math.random() * rect.height;
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.max(window.innerWidth, window.innerHeight) * 1.2;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+        const size = 2 + Math.random() * 3.5;
+        spark.style.left = `${x}px`;
+        spark.style.top = `${y}px`;
+        spark.style.width = `${size}px`;
+        spark.style.height = `${size}px`;
+        spark.style.setProperty('--dx', `${dx}px`);
+        spark.style.setProperty('--dy', `${dy}px`);
+        spark.style.animationDelay = `${Math.random() * 60}ms`;
+        sparkLayer.appendChild(spark);
+        setTimeout(() => spark.remove(), 900);
+      }
+
+      textEl.classList.remove('visible');
+      setTimeout(() => {
+        textEl.innerHTML = '';
+      }, 120);
+
+      setTimeout(() => {
+        sparkLayer.innerHTML = '';
+        document.body.style.background = '#000';
+      }, 950);
+    }
 
     advance();
   </script>
