@@ -110,7 +110,7 @@ html, body {
   left:50%;
   transform:translateX(-50%);
   display:flex;
-  flex-direction:column-reverse; /* SVG at bottom, text above */
+  flex-direction:column;
   align-items:center;
   gap:8px;
   z-index:100;
@@ -365,15 +365,13 @@ var titleExt        = document.getElementById('title-ext');
 
 function setTitle(stageN) {
   if (stageN === 0) {
-    titleEl.childNodes[0].nodeValue = titles[0];
     titleExt.style.opacity = '0';
     titleExt.textContent = '';
     return;
   }
-  var base = 'Everyday erotics';
-  var ext  = stageN === 1 ? ' // with her' : ' // with her, yes her';
-  var col  = title_colors[stageN];
-  titleEl.childNodes[0].nodeValue = base;
+  var ext = stageN === 1 ? ' with her' : ' with her, yes her';
+  var col = title_colors[stageN];
+  var dimCol = stageN === 1 ? 'rgba(123,167,188,0.45)' : 'rgba(232,130,74,0.45)';
   titleExt.style.transition = 'none';
   titleExt.textContent = ext;
   titleExt.style.color = col;
@@ -382,10 +380,10 @@ function setTitle(stageN) {
     : '0 0 18px rgba(232,130,74,0.6)';
   titleExt.style.opacity = '1';
   setTimeout(function() {
-    titleExt.style.transition = 'color 3s ease, text-shadow 3s ease';
-    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.style.transition = 'color 0.8s ease, text-shadow 0.8s ease';
+    titleExt.style.color = dimCol;
     titleExt.style.textShadow = 'none';
-  }, 3000);
+  }, 600);
 }
 
 function clearLines() {
@@ -401,6 +399,9 @@ function showLines(texts, color) {
   var glow = color === '#7BA7BC'
     ? '0 0 16px rgba(123,167,188,0.6)'
     : '0 0 16px rgba(232,130,74,0.6)';
+  var dimCol = color === '#7BA7BC'
+    ? 'rgba(123,167,188,0.45)'
+    : 'rgba(232,130,74,0.45)';
 
   texts.forEach(function(text, i) {
     setTimeout(function() {
@@ -411,10 +412,10 @@ function showLines(texts, color) {
       el.style.textShadow = glow;
       el.style.opacity = '1';
       setTimeout(function() {
-        el.style.transition = 'color 3s ease, text-shadow 3s ease';
-        el.style.color = 'rgba(255,255,255,0.85)';
+        el.style.transition = 'color 0.8s ease, text-shadow 0.8s ease';
+        el.style.color = dimCol;
         el.style.textShadow = 'none';
-      }, 3000);
+      }, 600);
     }, i * 140);
   });
 }
@@ -480,7 +481,7 @@ function extinguish() {
   if (!isLit) return;
   isLit = false;
   justBlew = true;
-  setTimeout(function() { justBlew = false; }, 600); // block click for 600ms after blow
+  setTimeout(function() { justBlew = false; }, 600);
 
   flameGroup.style.opacity = '0';
   candleGlow.style.opacity = '0';
@@ -493,6 +494,7 @@ function extinguish() {
   });
   setTimeout(function() { smokeGroup.style.opacity = '0'; }, 1800);
 
+  // candle out: 0→1 (Text2), 2→0 (Text1)
   if (stage === 0) { stage = 1; doStage1(); }
   else if (stage === 2) { stage = 0; doStage0(); }
 }
@@ -502,6 +504,8 @@ function relight() {
   isLit = true;
   flameGroup.style.opacity = '1';
   candleGlow.style.opacity = '1';
+
+  // candle on: 1→2 (Text3)
   if (stage === 1) {
     bottomInstr.style.opacity = '0';
     setTimeout(function() { bottomInstr.style.display = 'none'; }, 1200);
