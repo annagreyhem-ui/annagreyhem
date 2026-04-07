@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Everyday erotics – Anna Greyhem</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  min-height:100%;
+  background:#0a0a0a;
+  color:rgba(255,255,255,0.85);
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:clamp(17px,2vw,22px);
+  line-height:2;
+  cursor:none;
+}
+
+#cursor {
+  position:fixed;
+  width:1px; height:24px;
+  background:rgba(255,255,255,0.4);
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:opacity 0.3s;
+}
+#cursor::after {
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:24px; height:1px;
+  background:rgba(255,255,255,0.4);
+}
+
+#page {
+  max-width:640px;
+  margin:0 auto;
+  padding:clamp(60px,10vh,100px) clamp(24px,5vw,48px) 180px;
+}
+
+#title {
+  font-size:clamp(20px,2.5vw,28px);
+  font-style:italic;
+  font-weight:300;
+  letter-spacing:0.18em;
+  margin-bottom:clamp(40px,6vh,64px);
+  line-height:1.4;
+}
+
+#title .title-extra {
+  opacity:0;
+  transition:opacity 0.8s ease;
+  white-space:nowrap;
+}
+
+#poem { list-style:none; }
+
+#poem li {
+  margin-bottom:0.2em;
+  position:relative;
+}
+
+#poem li .base { color:rgba(255,255,255,0.85); }
+
+#poem li .ext {
+  display:inline;
+  opacity:0;
+  transition:color 3s ease, opacity 0.6s ease;
+}
+
+#poem li .ext.visible {
+  opacity:1;
+}
+
+/* candle area */
+#candle-wrap {
+  position:fixed;
+  bottom:clamp(28px,5vh,48px);
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  z-index:100;
+  cursor:none;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+#candle-hint {
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:12px;
+  color:rgba(255,255,255,0.18);
+  letter-spacing:0.2em;
+  transition:opacity 0.8s;
+}
+
+#candle-svg { display:block; }
+
+/* flame parts */
+#flame-group { transition:opacity 0.3s; }
+
+#smoke-group { opacity:0; }
+
+@keyframes flicker {
+  0%   { transform:scaleX(1) scaleY(1) translateY(0); }
+  20%  { transform:scaleX(0.92) scaleY(1.06) translateY(-1px); }
+  40%  { transform:scaleX(1.06) scaleY(0.96) translateY(1px); }
+  60%  { transform:scaleX(0.95) scaleY(1.04) translateY(-0.5px); }
+  80%  { transform:scaleX(1.04) scaleY(0.98) translateY(0.5px); }
+  100% { transform:scaleX(1) scaleY(1) translateY(0); }
+}
+
+#flame-group {
+  animation:flicker 2.2s ease-in-out infinite;
+  transform-origin:50% 100%;
+}
+
+@keyframes smoke-rise {
+  0%   { transform:translateY(0) scaleX(1); opacity:0.5; }
+  50%  { transform:translateY(-12px) scaleX(1.4); opacity:0.25; }
+  100% { transform:translateY(-24px) scaleX(0.8); opacity:0; }
+}
+
+.smoke-puff {
+  animation:smoke-rise 1.4s ease-out forwards;
+  transform-origin:50% 100%;
+}
+
+/* dark overlay when blown */
+#dark-overlay {
+  position:fixed; inset:0;
+  background:#000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 1.2s ease;
+  z-index:0;
+}
+
+/* glow effect on new words */
+.glow-orange { text-shadow:0 0 18px rgba(232,130,74,0.7); }
+.glow-blue   { text-shadow:0 0 18px rgba(123,167,188,0.7); }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="dark-overlay"></div>
+
+<div id="page">
+  <div id="title">Everyday erotics<span class="title-extra" id="title-ext"></span></div>
+
+  <ul id="poem">
+    <li><span class="base">Flüstern im Dunklen</span><span class="ext" id="e0"></span></li>
+    <li><span class="base">Ein Kuss in einem Traum</span><span class="ext" id="e1"></span></li>
+    <li><span class="base">Ein Schaumbad bei Kerzenschein</span><span class="ext" id="e2"></span></li>
+    <li><span class="base">Eiskaltes Wasser auf dem Gesicht am Morgen</span><span class="ext" id="e3"></span></li>
+    <li><span class="base">Eine Flasche Merlot</span><span class="ext" id="e4"></span></li>
+    <li><span class="base">Ein Parfum, das nach Vanille und Dunkelheit duftet</span><span class="ext" id="e5"></span></li>
+    <li><span class="base">Sein Geruch</span><span class="ext" id="e6"></span></li>
+    <li><span class="base">Sein Blick auf mir</span><span class="ext" id="e7"></span></li>
+    <li><span class="base">Seine Berührung</span><span class="ext" id="e8"></span></li>
+    <li><span class="base">Meine Berührung</span><span class="ext" id="e9"></span></li>
+  </ul>
+</div>
+
+<!-- Candle -->
+<div id="candle-wrap">
+  <div id="candle-hint">hold to blow out</div>
+  <svg id="candle-svg" width="40" height="100" viewBox="0 0 40 100">
+    <defs>
+      <radialGradient id="flameGrad" cx="50%" cy="80%" r="50%">
+        <stop offset="0%" stop-color="#fff7e0"/>
+        <stop offset="40%" stop-color="#ffcc44"/>
+        <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="innerGrad" cx="50%" cy="70%" r="40%">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="100%" stop-color="#ffe066" stop-opacity="0.4"/>
+      </radialGradient>
+    </defs>
+
+    <!-- smoke -->
+    <g id="smoke-group">
+      <ellipse class="smoke-puff" cx="20" cy="62" rx="3" ry="5" fill="rgba(200,200,200,0.4)"/>
+    </g>
+
+    <!-- flame -->
+    <g id="flame-group">
+      <!-- glow -->
+      <ellipse cx="20" cy="72" rx="14" ry="10" fill="#ff8800" opacity="0.12"/>
+      <!-- outer flame -->
+      <path d="M20,62 C14,65 12,72 14,76 C16,80 24,80 26,76 C28,72 26,65 20,62 Z"
+            fill="url(#flameGrad)" opacity="0.9"/>
+      <!-- inner flame -->
+      <path d="M20,65 C17,67 16,72 18,75 C19,77 21,77 22,75 C24,72 23,67 20,65 Z"
+            fill="url(#innerGrad)"/>
+      <!-- wick top -->
+      <circle cx="20" cy="63" r="1.5" fill="#ffeeaa"/>
+    </g>
+
+    <!-- wax body -->
+    <rect x="14" y="78" width="12" height="20" rx="1" fill="#f5f0e8" opacity="0.9"/>
+    <!-- wax highlight -->
+    <rect x="15" y="78" width="3" height="20" rx="1" fill="rgba(255,255,255,0.3)"/>
+    <!-- wick -->
+    <line x1="20" y1="78" x2="20" y2="63" stroke="#555" stroke-width="1.2"/>
+
+    <!-- drip -->
+    <path d="M14,82 Q12,86 13,90 Q14,92 14,82 Z" fill="#f0ebe0" opacity="0.6"/>
+  </svg>
+</div>
+
+<script>
+// cursor crosshair
+var cur = document.getElementById('cursor');
+document.addEventListener('mousemove', function(e) {
+  cur.style.left = e.clientX+'px';
+  cur.style.top = e.clientY+'px';
+  cur.style.opacity = '1';
+});
+
+// ── TEXT DATA ────────────────────────────────────────────────────────────────
+
+var ext1 = [
+  ' // das mich nicht schlafen lässt',
+  ' // von dem er mir nichts erzählt',
+  ' // mit ihr',
+  ' // um zu mir zu kommen',
+  ' // steht noch da',
+  ' // gehört mir nicht',
+  ' // bleibt an ihr',
+  ' // nackt',
+  ' // ist kälter als sonst',
+  ' // hält mich fest',
+];
+
+var ext2 = [
+  ' // das mich nicht schlafen lässt',
+  ' // von dem ich ihm nichts erzähle',
+  ' // mit ihr',
+  ' // um zu mir zu kommen',
+  ' // steht noch da',
+  ' // lässt mich sie nicht vergessen',
+  ' // macht mir ein schlechtes Gewissen',
+  ' // nackt',
+  ' // spüre ich nicht mehr',
+  ' // bringt sie zum stöhnen',
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+
+var stage = 0; // 0=initial, 1=after blow1, 2=after blow2
+var isLit = true;
+var holdTimer = null;
+var overlay = document.getElementById('dark-overlay');
+var candleWrap = document.getElementById('candle-wrap');
+var flameGroup = document.getElementById('flame-group');
+var smokeGroup = document.getElementById('smoke-group');
+var hint = document.getElementById('candle-hint');
+var titleExt = document.getElementById('title-ext');
+
+// ── BLOW OUT ─────────────────────────────────────────────────────────────────
+
+function blowOut() {
+  if (!isLit) return;
+  isLit = false;
+
+  // extinguish flame
+  flameGroup.style.opacity = '0';
+
+  // smoke
+  smokeGroup.style.opacity = '1';
+  var puff = smokeGroup.querySelector('.smoke-puff');
+  puff.style.animation = 'none';
+  void puff.offsetWidth;
+  puff.style.animation = 'smoke-rise 1.4s ease-out forwards';
+  setTimeout(function() { smokeGroup.style.opacity = '0'; }, 1500);
+
+  // darken slightly
+  overlay.style.opacity = '0.25';
+
+  stage++;
+  if (stage === 1) revealLayer1();
+  else if (stage === 2) revealLayer2();
+
+  hint.style.opacity = '0';
+  setTimeout(function() {
+    hint.textContent = stage < 2 ? 'click to relight' : '';
+    hint.style.opacity = '0.18';
+  }, 800);
+}
+
+function relight() {
+  if (isLit) return;
+  isLit = true;
+  flameGroup.style.opacity = '1';
+  overlay.style.opacity = '0';
+  hint.style.opacity = '0';
+  setTimeout(function() {
+    hint.textContent = 'hold to blow out';
+    hint.style.opacity = '0.18';
+  }, 400);
+}
+
+// ── REVEAL LAYERS ────────────────────────────────────────────────────────────
+
+function revealLayer1() {
+  // title ext
+  titleExt.textContent = ' // with her';
+  titleExt.style.color = '#E8824A';
+  titleExt.style.textShadow = '0 0 20px rgba(232,130,74,0.6)';
+  titleExt.style.opacity = '1';
+  setTimeout(function() {
+    titleExt.style.transition = 'color 3s ease, text-shadow 3s ease';
+    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.style.textShadow = 'none';
+  }, 3000);
+
+  ext1.forEach(function(text, i) {
+    setTimeout(function() {
+      var el = document.getElementById('e'+i);
+      el.textContent = text;
+      el.style.color = '#E8824A';
+      el.style.textShadow = '0 0 16px rgba(232,130,74,0.55)';
+      el.classList.add('visible');
+      setTimeout(function() {
+        el.style.transition = 'color 3s ease, text-shadow 3s ease';
+        el.style.color = 'rgba(255,255,255,0.85)';
+        el.style.textShadow = 'none';
+      }, 3000);
+    }, i * 180);
+  });
+}
+
+function revealLayer2() {
+  // title stays same text, changes color to blue
+  titleExt.style.transition = 'none';
+  titleExt.style.color = '#7BA7BC';
+  titleExt.style.textShadow = '0 0 20px rgba(123,167,188,0.6)';
+  setTimeout(function() {
+    titleExt.style.transition = 'color 3s ease, text-shadow 3s ease';
+    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.style.textShadow = 'none';
+  }, 3000);
+
+  ext2.forEach(function(text, i) {
+    setTimeout(function() {
+      var el = document.getElementById('e'+i);
+      // only update if text changed
+      el.style.transition = 'none';
+      el.textContent = text;
+      el.style.color = '#7BA7BC';
+      el.style.textShadow = '0 0 16px rgba(123,167,188,0.55)';
+      setTimeout(function() {
+        el.style.transition = 'color 3s ease, text-shadow 3s ease';
+        el.style.color = 'rgba(255,255,255,0.85)';
+        el.style.textShadow = 'none';
+      }, 3000);
+    }, i * 180);
+  });
+
+  // candle disappears after layer 2
+  setTimeout(function() {
+    candleWrap.style.transition = 'opacity 1.5s ease';
+    candleWrap.style.opacity = '0';
+    setTimeout(function() { candleWrap.style.display = 'none'; }, 1600);
+  }, 2000);
+}
+
+// ── CANDLE INTERACTION ───────────────────────────────────────────────────────
+
+function startHold() {
+  if (!isLit) {
+    relight();
+    return;
+  }
+  holdTimer = setTimeout(blowOut, 500);
+}
+
+function endHold() {
+  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+}
+
+candleWrap.addEventListener('mousedown', startHold);
+candleWrap.addEventListener('mouseup', endHold);
+candleWrap.addEventListener('mouseleave', endHold);
+candleWrap.addEventListener('touchstart', function(e) { e.preventDefault(); startHold(); }, {passive:false});
+candleWrap.addEventListener('touchend', function(e) { e.preventDefault(); endHold(); }, {passive:false});
+candleWrap.addEventListener('click', function() {
+  if (!isLit) relight();
+});
+</script>
+</body>
+</html>
