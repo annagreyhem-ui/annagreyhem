@@ -36,7 +36,6 @@
       width: min(680px, 88vw);
       min-height: 42vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
@@ -62,7 +61,9 @@
       transform: translateY(0);
     }
 
-    .highlight-em { font-style: italic; }
+    .highlight-em {
+      font-style: italic;
+    }
 
     .instruction {
       position: fixed;
@@ -75,14 +76,17 @@
       text-transform: lowercase;
       white-space: nowrap;
       opacity: 0;
-      transition: opacity 250ms ease;
+      transition: opacity 220ms ease;
       z-index: 3;
       user-select: none;
     }
 
-    .instruction.visible { opacity: 1; }
+    .instruction.visible {
+      opacity: 1;
+    }
 
-    .tap-area, .hold-area {
+    .tap-area,
+    .hold-area {
       position: fixed;
       inset: 0;
       background: transparent;
@@ -94,9 +98,17 @@
       -webkit-appearance: none;
     }
 
-    .tap-area.hidden, .hold-area.hidden { display: none; }
-    .hold-area { display: none; }
-    .hold-area.active { display: block; }
+    .hidden {
+      display: none !important;
+    }
+
+    .hold-area {
+      display: none;
+    }
+
+    .hold-area.active {
+      display: block;
+    }
 
     .hold-target {
       position: fixed;
@@ -113,7 +125,9 @@
       z-index: 0;
     }
 
-    .hold-target.visible { opacity: 1; }
+    .hold-target.visible {
+      opacity: 1;
+    }
 
     .hold-circle {
       position: fixed;
@@ -129,7 +143,9 @@
       z-index: 2;
     }
 
-    .hold-circle.visible { opacity: 1; }
+    .hold-circle.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -145,32 +161,35 @@
   <button class="hold-area" id="holdArea" aria-label="Gedrückt halten"></button>
 
   <script>
-    const firstSection = [
+    const flow = [
       'She was different',
       'colder.',
       'They said things',
       'I didn’t listen.',
       'I followed her',
-      'into the dark.'
-    ];
+      'into the dark.',
 
-    const secondSection = [
+      'HOLD',
+
       'She asked me to come.',
       'I knew something was wrong.',
       'I went anyway.',
       'I think I saw it.',
       'I could have left.',
       'I didn’t.',
+
+      'HOLD',
+
       'Es ist dunkel.',
       'Ich kann nichts sehen.',
       'Ich spüre etwas auf meiner Haut.',
       'Ameisen auf meinen Armen.',
       'Schmetterlinge im Bauch.',
       'Ich bewege mich nicht.',
-      'Ich kann mich nicht bewegen.'
-    ];
+      'Ich kann mich nicht bewegen.',
 
-    const finalSection = [
+      'HOLD',
+
       'Ich bin immer noch da.',
       'Warum bin ich immer noch da?',
       'Warum bist <span class="highlight-em">du</span> immer noch da?'
@@ -183,12 +202,15 @@
     const holdCircle = document.getElementById('holdCircle');
     const holdTarget = document.getElementById('holdTarget');
 
-    let phase = 'first';
-    let index = 0;
+    let i = 0;
     let holdRaf = null;
     let holdStart = 0;
     let canGrowFinal = false;
-    let pausedGerman = false;
+    let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function currentItem() {
+      return flow[i];
+    }
 
     function showText(content, isHtml = false, delay = 0) {
       textEl.classList.remove('visible');
@@ -196,12 +218,12 @@
         if (isHtml) textEl.innerHTML = content;
         else textEl.textContent = content;
         textEl.classList.add('visible');
-      }, delay);
+      }, reducedMotion ? 0 : delay);
     }
 
     function blankThen(callback, ms) {
       textEl.classList.remove('visible');
-      setTimeout(callback, ms);
+      setTimeout(callback, reducedMotion ? 0 : ms);
     }
 
     function setInstruction(text = '', show = false) {
@@ -218,90 +240,51 @@
       }
     }
 
-    function advanceFirst() {
-      if (index < firstSection.length) {
-        showText(firstSection[index]);
-        index += 1;
-        return;
-      }
-      phase = 'hold1-ready';
+    function enterHold() {
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
       setInstruction('hold', true);
     }
 
-    function advanceSecond() {
-      // show until "I didn’t." then trigger hold
-      if (index < secondSection.length) {
-        // stop at "I didn’t." (index 5)
-        if (index === 5) {
-          showText(secondSection[index]);
-          index += 1;
-
-          // next step should be hold
-          phase = 'hold2-ready';
-          tapArea.classList.add('hidden');
-          holdArea.classList.add('active');
-          setInstruction('hold', true);
-          return;
-        }
-
-        showText(secondSection[index]);
-        index += 1;
-        return;
-      }
-    }
-
-      if (index === 6 && !pausedGerman) {
-        pausedGerman = true;
-        const line = secondSection[index];
-        index += 1;
-        blankThen(() => showText(line), 800);
-        return;
-      }
-
-      showText(secondSection[index]);
-      index += 1;
-    }
-
-    function advanceFinal() {
-      if (index < finalSection.length) {
-        const isLast = index === finalSection.length - 1;
-        showText(finalSection[index], isLast);
-        index += 1;
-
-        if (index >= finalSection.length) {
-          canGrowFinal = true;
-        }
-      }
-    }
+    function leaveHold() {
+      holdArea.classList.remove('active');
+      tapArea.classList.remove('hidden');
+      setInstruction('', false);
+      showHoldVisuals(false);
     }
 
     function advance() {
-      if (phase === 'first') return advanceFirst();
-      if (phase === 'second') return advanceSecond();
+      const item = currentItem();
+      if (!item) return;
 
-      if (phase === 'second-continued') {
-        // stop at last German line before final hold
-        if (index < secondSection.length) {
-          if (index === secondSection.length - 1) {
-            showText(secondSection[index]);
-            index += 1;
-
-            phase = 'hold3-ready';
-            tapArea.classList.add('hidden');
-            holdArea.classList.add('active');
-            setInstruction('hold', true);
-            return;
-          }
-
-          showText(secondSection[index]);
-          index += 1;
-          return;
-        }
+      if (item === 'HOLD') {
+        enterHold();
+        return;
       }
 
-      if (phase === 'final') return advanceFinal();
+      const isFinalLast = i === flow.length - 1;
+      const isHtml = isFinalLast;
+
+      // pause before first German line
+      if (item === 'Es ist dunkel.') {
+        i += 1;
+        blankThen(() => showText(item, false, 0), 800);
+        return;
+      }
+
+      // pause before first final line
+      if (item === 'Ich bin immer noch da.') {
+        i += 1;
+        blankThen(() => showText(item, false, 0), 900);
+        return;
+      }
+
+      showText(item, isHtml, i === flow.length - 3 ? 180 : 0);
+      i += 1;
+
+      if (isFinalLast) {
+        canGrowFinal = true;
+      }
     }
 
     function beginHold(e) {
@@ -339,50 +322,11 @@
 
     function finishHold() {
       cancelAnimationFrame(holdRaf);
-      showHoldVisuals(false);
-      holdArea.classList.remove('active');
-      setInstruction('', false);
-
-      // after first hold → go to second section
-      if (phase === 'hold1-ready') {
-        phase = 'second';
-        index = 0;
-        tapArea.classList.remove('hidden');
-        showText(secondSection[0]);
-        index = 1;
-        return;
+      leaveHold();
+      if (currentItem() === 'HOLD') {
+        i += 1;
       }
-
-      // after "I didn’t." hold → continue German part
-      if (phase === 'hold2-ready') {
-        phase = 'second-continued';
-        tapArea.classList.remove('hidden');
-        showText(secondSection[index]); // "Es ist dunkel."
-        index += 1;
-        return;
-      }
-
-      // final hold → go to ending
-      if (phase === 'hold3-ready') {
-        phase = 'final';
-        index = 0;
-        tapArea.classList.remove('hidden');
-        textEl.style.fontSize = '';
-        showText(finalSection[0]);
-        index = 1;
-      }
-    }
-
-      if (phase === 'hold2-ready') {
-        phase = 'final';
-        index = 0;
-        tapArea.classList.remove('hidden');
-        textEl.style.fontSize = '';
-        blankThen(() => {
-          showText(finalSection[0], false, 0);
-          index = 1;
-        }, 900);
-      }
+      advance();
     }
 
     tapArea.addEventListener('click', () => {
@@ -400,7 +344,9 @@
         document.body.appendChild(probe);
         const fits = probe.getBoundingClientRect().width <= wrapWidth;
         document.body.removeChild(probe);
-        if (fits) textEl.style.fontSize = `${currentSize + 2}px`;
+        if (fits) {
+          textEl.style.fontSize = `${currentSize + 2}px`;
+        }
         return;
       }
       advance();
@@ -416,12 +362,11 @@
     ['mouseup', 'mouseleave', 'touchend', 'touchcancel', 'pointerup', 'pointercancel'].forEach((eventName) => {
       holdArea.addEventListener(eventName, (e) => {
         e.preventDefault();
-        if (phase === 'hold1-ready' || phase === 'hold2-ready') cancelHold();
+        if (currentItem() === 'HOLD') cancelHold();
       }, { passive: false });
     });
 
-    showText(firstSection[0], false, 120);
-    index = 1;
+    advance();
   </script>
 </body>
 </html>
