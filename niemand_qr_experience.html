@@ -59,6 +59,11 @@
       white-space: nowrap;
     }
 
+    .highlight-red {
+      color: #ff3b3b;
+    }
+    }
+
     .text.visible {
       opacity: 1;
       transform: translateY(0);
@@ -195,7 +200,7 @@
     const finalSection = [
       'Ich bin immer noch da.',
       'Warum bin ich immer noch da?',
-      'Warum bist du immer noch da?'
+      'Warum bist <span class="highlight-red">du</span> immer noch da?'
     ];
 
     const textEl = document.getElementById('text');
@@ -259,7 +264,7 @@
       phase = 'hold-2';
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
-      setInstruction('keep holding', true);
+      
       wrap.classList.add('dimmed');
     }
 
@@ -282,6 +287,7 @@
 
     function startHold(e) {
       showCircle(true);
+      
 
       const point = e.touches ? e.touches[0] : e;
       holdCircle.style.left = point.clientX + 'px';
@@ -334,7 +340,11 @@
         phase = 'tap-3';
         index = 0;
         tapArea.classList.remove('hidden');
-        showText(finalSection[index], 180);
+        textEl.classList.remove('visible');
+        setTimeout(() => {
+          textEl.innerHTML = finalSection[index];
+          textEl.classList.add('visible');
+        }, 180);
         textEl.style.fontSize = '';
         index += 1;
       }
