@@ -9,11 +9,11 @@
       --bg: #000;
       --fg: #f3f3f3;
       --muted: #9a9a9a;
-      --line-height: 1.45;
-      --hold-duration: 2200ms;
+      --hold-duration: 2200;
     }
 
     * { box-sizing: border-box; }
+
     html, body {
       margin: 0;
       width: 100%;
@@ -30,7 +30,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background-color 700ms ease;
     }
 
     .wrap {
@@ -38,24 +37,24 @@
       min-height: 42vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       text-align: center;
-      padding: 2rem 1rem;
       position: relative;
+      padding: 2rem 1rem;
+      z-index: 2;
     }
 
     .text {
       font-size: clamp(1.15rem, 2.8vw, 1.55rem);
-      line-height: var(--line-height);
+      line-height: 1.45;
       letter-spacing: 0.01em;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease, font-size 240ms ease;
       max-width: 26ch;
-      user-select: none;
-      filter: blur(0px);
       white-space: nowrap;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 500ms ease, transform 500ms ease, font-size 220ms ease;
+      user-select: none;
     }
 
     .text.visible {
@@ -63,9 +62,7 @@
       transform: translateY(0);
     }
 
-    .highlight-em {
-      font-style: italic;
-    }
+    .highlight-em { font-style: italic; }
 
     .instruction {
       position: fixed;
@@ -76,11 +73,11 @@
       color: var(--muted);
       letter-spacing: 0.08em;
       text-transform: lowercase;
-      opacity: 0;
-      transition: opacity 500ms ease;
-      user-select: none;
-      text-align: center;
       white-space: nowrap;
+      opacity: 0;
+      transition: opacity 250ms ease;
+      z-index: 3;
+      user-select: none;
     }
 
     .instruction.visible { opacity: 1; }
@@ -90,34 +87,16 @@
       inset: 0;
       background: transparent;
       border: 0;
-      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      z-index: 1;
+      appearance: none;
+      -webkit-appearance: none;
     }
 
     .tap-area.hidden, .hold-area.hidden { display: none; }
     .hold-area { display: none; }
     .hold-area.active { display: block; }
-
-    .dimmed .text {
-      filter: blur(0.35px);
-      opacity: 0.72;
-    }
-
-    .final .instruction { display: none; }
-
-    .hold-circle {
-      position: fixed;
-      width: 36px;
-      height: 36px;
-      transform: translate(-50%, -50%);
-      border: 1.4px solid rgba(255,255,255,0.6);
-      border-radius: 50%;
-      background: rgba(255,255,255,0.02);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 120ms ease;
-    }
-
-    .hold-circle.visible { opacity: 1; }
 
     .hold-target {
       position: fixed;
@@ -130,23 +109,40 @@
       border-radius: 50%;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 220ms ease;
+      transition: opacity 180ms ease;
+      z-index: 0;
     }
 
     .hold-target.visible { opacity: 1; }
+
+    .hold-circle {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      transform: translate(-50%, -50%);
+      border: 1.4px solid rgba(255,255,255,0.65);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.02);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms ease;
+      z-index: 2;
+    }
+
+    .hold-circle.visible { opacity: 1; }
   </style>
 </head>
 <body>
-  <div class="wrap" id="wrap" aria-live="polite">
+  <div class="wrap">
     <div class="text" id="text"></div>
-    <div class="instruction" id="instruction"></div>
   </div>
 
+  <div class="instruction" id="instruction"></div>
   <div class="hold-target" id="holdTarget" aria-hidden="true"></div>
   <div class="hold-circle" id="holdCircle" aria-hidden="true"></div>
 
   <button class="tap-area" id="tapArea" aria-label="Weiter"></button>
-  <button class="hold-area" id="holdArea" aria-label="Gedrückt halten, um weiterzugehen"></button>
+  <button class="hold-area" id="holdArea" aria-label="Gedrückt halten"></button>
 
   <script>
     const firstSection = [
@@ -184,40 +180,36 @@
     const instructionEl = document.getElementById('instruction');
     const tapArea = document.getElementById('tapArea');
     const holdArea = document.getElementById('holdArea');
-    const wrap = document.getElementById('wrap');
     const holdCircle = document.getElementById('holdCircle');
     const holdTarget = document.getElementById('holdTarget');
 
-    let phase = 'tap1';
+    let phase = 'first';
     let index = 0;
+    let holdRaf = null;
     let holdStart = 0;
-    let holdRAF = null;
-    let finalGrowMode = false;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let canGrowFinal = false;
+    let pausedGerman = false;
 
-    function setText(content, delay = 40, isHtml = false) {
+    function showText(content, isHtml = false, delay = 0) {
       textEl.classList.remove('visible');
-      window.setTimeout(() => {
-        if (isHtml) {
-          textEl.innerHTML = content;
-        } else {
-          textEl.textContent = content;
-        }
+      setTimeout(() => {
+        if (isHtml) textEl.innerHTML = content;
+        else textEl.textContent = content;
         textEl.classList.add('visible');
-      }, reducedMotion ? 0 : delay);
+      }, delay);
     }
 
-    function pauseThen(fn, ms) {
+    function blankThen(callback, ms) {
       textEl.classList.remove('visible');
-      window.setTimeout(fn, reducedMotion ? 0 : ms);
+      setTimeout(callback, ms);
     }
 
-    function setInstruction(text = '', visible = false) {
+    function setInstruction(text = '', show = false) {
       instructionEl.textContent = text;
-      instructionEl.classList.toggle('visible', visible && !!text);
+      instructionEl.classList.toggle('visible', show && !!text);
     }
 
-    function showCircle(show) {
+    function showHoldVisuals(show) {
       holdCircle.classList.toggle('visible', show);
       holdTarget.classList.toggle('visible', show);
       if (!show) {
@@ -226,130 +218,177 @@
       }
     }
 
-    function showNextFirst() {
+    function advanceFirst() {
       if (index < firstSection.length) {
-        setText(firstSection[index]);
+        showText(firstSection[index]);
         index += 1;
         return;
       }
-      phase = 'hold1';
+      phase = 'hold1-ready';
       tapArea.classList.add('hidden');
       holdArea.classList.add('active');
-      wrap.classList.add('dimmed');
       setInstruction('hold', true);
     }
 
-    function showNextSecond() {
-      if (index >= secondSection.length) {
-        phase = 'hold2';
-        tapArea.classList.add('hidden');
-        holdArea.classList.add('active');
-        wrap.classList.add('dimmed');
-        setInstruction('hold', true);
+    function advanceSecond() {
+      // show until "I didn’t." then trigger hold
+      if (index < secondSection.length) {
+        // stop at "I didn’t." (index 5)
+        if (index === 5) {
+          showText(secondSection[index]);
+          index += 1;
+
+          // next step should be hold
+          phase = 'hold2-ready';
+          tapArea.classList.add('hidden');
+          holdArea.classList.add('active');
+          setInstruction('hold', true);
+          return;
+        }
+
+        showText(secondSection[index]);
+        index += 1;
         return;
       }
+    }
 
-      // Pause after "I didn’t." before German part
-      if (index === 6) {
+      if (index === 6 && !pausedGerman) {
+        pausedGerman = true;
         const line = secondSection[index];
         index += 1;
-        pauseThen(() => setText(line), 800);
+        blankThen(() => showText(line), 800);
         return;
       }
 
-      setText(secondSection[index]);
+      showText(secondSection[index]);
       index += 1;
     }
 
-    function showNextFinal() {
-      if (index >= finalSection.length) {
-        finalGrowMode = true;
-        wrap.classList.add('final');
-        return;
+    function advanceFinal() {
+      if (index < finalSection.length) {
+        const isLast = index === finalSection.length - 1;
+        showText(finalSection[index], isLast);
+        index += 1;
+
+        if (index >= finalSection.length) {
+          canGrowFinal = true;
+        }
       }
-      const isLast = index === finalSection.length - 1;
-      setText(finalSection[index], index === 0 ? 220 : 120, isLast);
-      index += 1;
-      if (index >= finalSection.length) {
-        finalGrowMode = true;
-        wrap.classList.add('final');
-      }
+    }
     }
 
     function advance() {
-      if (phase === 'tap1') return showNextFirst();
-      if (phase === 'tap2') return showNextSecond();
-      if (phase === 'tap3') return showNextFinal();
+      if (phase === 'first') return advanceFirst();
+      if (phase === 'second') return advanceSecond();
+
+      if (phase === 'second-continued') {
+        // stop at last German line before final hold
+        if (index < secondSection.length) {
+          if (index === secondSection.length - 1) {
+            showText(secondSection[index]);
+            index += 1;
+
+            phase = 'hold3-ready';
+            tapArea.classList.add('hidden');
+            holdArea.classList.add('active');
+            setInstruction('hold', true);
+            return;
+          }
+
+          showText(secondSection[index]);
+          index += 1;
+          return;
+        }
+      }
+
+      if (phase === 'final') return advanceFinal();
     }
 
-    function startHold(e) {
+    function beginHold(e) {
       const point = e.touches ? e.touches[0] : e;
       holdCircle.style.left = point.clientX + 'px';
       holdCircle.style.top = point.clientY + 'px';
-
-      showCircle(true);
+      showHoldVisuals(true);
       setInstruction('keep holding', true);
       holdStart = performance.now();
-      cancelAnimationFrame(holdRAF);
+      cancelAnimationFrame(holdRaf);
 
       const tick = (now) => {
         const elapsed = now - holdStart;
-        const progress = Math.min(elapsed / 2200, 1);
-        const minSize = 36;
-        const maxSize = Math.min(window.innerWidth, window.innerHeight) * 0.82;
-        const size = minSize + (maxSize - minSize) * progress;
+        const progress = Math.min(elapsed / Number(getComputedStyle(document.documentElement).getPropertyValue('--hold-duration')), 1);
+        const min = 36;
+        const max = Math.min(window.innerWidth, window.innerHeight) * 0.82;
+        const size = min + (max - min) * progress;
         holdCircle.style.width = `${size}px`;
         holdCircle.style.height = `${size}px`;
-        document.body.style.backgroundColor = `rgba(0,0,0,${1 + progress * 0.02})`;
         if (progress < 1) {
-          holdRAF = requestAnimationFrame(tick);
+          holdRaf = requestAnimationFrame(tick);
         } else {
           finishHold();
         }
       };
 
-      holdRAF = requestAnimationFrame(tick);
+      holdRaf = requestAnimationFrame(tick);
     }
 
     function cancelHold() {
-      cancelAnimationFrame(holdRAF);
-      holdCircle.style.width = '36px';
-      holdCircle.style.height = '36px';
-      document.body.style.backgroundColor = '#000';
+      cancelAnimationFrame(holdRaf);
+      showHoldVisuals(false);
       setInstruction('hold', true);
-      showCircle(false);
     }
 
     function finishHold() {
-      cancelAnimationFrame(holdRAF);
+      cancelAnimationFrame(holdRaf);
+      showHoldVisuals(false);
       holdArea.classList.remove('active');
-      wrap.classList.remove('dimmed');
-      showCircle(false);
       setInstruction('', false);
-      document.body.style.backgroundColor = '#000';
 
-      if (phase === 'hold1') {
-        phase = 'tap2';
+      // after first hold → go to second section
+      if (phase === 'hold1-ready') {
+        phase = 'second';
         index = 0;
         tapArea.classList.remove('hidden');
-        setText(secondSection[index], 80);
+        showText(secondSection[0]);
         index = 1;
-      } else if (phase === 'hold2') {
-        phase = 'tap3';
+        return;
+      }
+
+      // after "I didn’t." hold → continue German part
+      if (phase === 'hold2-ready') {
+        phase = 'second-continued';
+        tapArea.classList.remove('hidden');
+        showText(secondSection[index]); // "Es ist dunkel."
+        index += 1;
+        return;
+      }
+
+      // final hold → go to ending
+      if (phase === 'hold3-ready') {
+        phase = 'final';
         index = 0;
         tapArea.classList.remove('hidden');
         textEl.style.fontSize = '';
-        pauseThen(() => {
-          setText(finalSection[index], 180, false);
+        showText(finalSection[0]);
+        index = 1;
+      }
+    }
+
+      if (phase === 'hold2-ready') {
+        phase = 'final';
+        index = 0;
+        tapArea.classList.remove('hidden');
+        textEl.style.fontSize = '';
+        blankThen(() => {
+          showText(finalSection[0], false, 0);
           index = 1;
         }, 900);
       }
     }
 
     tapArea.addEventListener('click', () => {
-      if (finalGrowMode) {
+      if (canGrowFinal) {
         const currentSize = parseFloat(getComputedStyle(textEl).fontSize);
-        const wrapWidth = wrap.clientWidth * 0.94;
+        const wrapWidth = Math.min(680, window.innerWidth * 0.88) * 0.94;
         const probe = document.createElement('span');
         probe.style.position = 'absolute';
         probe.style.visibility = 'hidden';
@@ -367,24 +406,21 @@
       advance();
     });
 
-    const holdStartEvents = ['mousedown', 'touchstart', 'pointerdown'];
-    const holdEndEvents = ['mouseup', 'mouseleave', 'touchend', 'touchcancel', 'pointerup', 'pointercancel'];
-
-    holdStartEvents.forEach((eventName) => {
+    ['mousedown', 'touchstart', 'pointerdown'].forEach((eventName) => {
       holdArea.addEventListener(eventName, (e) => {
         e.preventDefault();
-        startHold(e);
+        beginHold(e);
       }, { passive: false });
     });
 
-    holdEndEvents.forEach((eventName) => {
+    ['mouseup', 'mouseleave', 'touchend', 'touchcancel', 'pointerup', 'pointercancel'].forEach((eventName) => {
       holdArea.addEventListener(eventName, (e) => {
         e.preventDefault();
-        if (phase === 'hold1' || phase === 'hold2') cancelHold();
+        if (phase === 'hold1-ready' || phase === 'hold2-ready') cancelHold();
       }, { passive: false });
     });
 
-    setText(firstSection[0], 150);
+    showText(firstSection[0], false, 120);
     index = 1;
   </script>
 </body>
