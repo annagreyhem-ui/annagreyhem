@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  background: #000;
+  color: rgba(255,255,255,0.9);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(16px, 2.5vw, 20px);
+  line-height: 1.8;
+}
+
+/* Container */
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(80px, 14vh, 140px) clamp(28px, 8vw, 72px);
+}
+
+/* Title */
+.title {
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-style: italic;
+  letter-spacing: 0.12em;
+  margin-bottom: 60px;
+  opacity: 0.9;
+}
+
+/* Text */
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Paragraph */
+.text p {
+  margin: 0;
+}
+
+/* Optional: slightly faded lines */
+.soft {
+  opacity: 0.6;
+}
+
+/* Optional: subtle shift */
+.shift {
+  opacity: 0.8;
+  letter-spacing: 0.02em;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="title">
+    Am I a writer?
+  </div>
+
+  <div class="text">
+    
+    <p>
+      I used to think it had to be something official.
+    </p>
+
+    <p>
+      Something you become.
+    </p>
+
+    <p class="soft">
+      Something someone else confirms.
+    </p>
+
+    <p>
+      I remember sitting at a table that was too big for me,  
+      writing a story about a guinea pig that had more personality than I did.
+    </p>
+
+    <p>
+      I didn’t look up once.
+    </p>
+
+    <p class="shift">
+      The lines on the paper told my letters where to stand.  
+      Nobody told me where I was supposed to.
+    </p>
+
+    <p>
+      At some point, I stopped writing.
+    </p>
+
+    <p class="soft">
+      Or maybe I just stopped calling it that.
+    </p>
+
+    <p>
+      Now it happens again.
+    </p>
+
+    <p>
+      I see something.  
+      I feel something.
+    </p>
+
+    <p>
+      And it has to go somewhere.
+    </p>
+
+  </div>
+
+</div>
+
+</body>
+</html>
