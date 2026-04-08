@@ -265,10 +265,10 @@ function render(val) {
       var el = document.getElementById('e'+i);
       el.textContent = ext_blue[i];
       el.style.opacity = t;
-      el.style.color = 'rgba(255,255,255,0.85)';
+      el.style.color = '#7a1a2a';
     }
     titleExt.style.opacity = t;
-    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.style.color = '#7a1a2a';
     titleExt.textContent = ' with her';
   } else if (val > 0) {
     var t = val;
@@ -276,10 +276,10 @@ function render(val) {
       var el = document.getElementById('e'+i);
       el.textContent = ext_orange[i];
       el.style.opacity = t;
-      el.style.color = 'rgba(255,255,255,0.85)';
+      el.style.color = '#9e6070';
     }
     titleExt.style.opacity = t;
-    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.style.color = '#9e6070';
     titleExt.textContent = ' with her, yes her';
   } else {
     for (var i = 0; i < 10; i++) {
@@ -314,36 +314,39 @@ function setTiltVal(val) {
 function handleOrientation(e) {
   if (userDragging) return;
   var gamma = e.gamma;
-  if (gamma === null) return;
+  if (gamma === null || gamma === undefined) return;
   if (baseGamma === null) baseGamma = gamma;
   var delta = gamma - baseGamma;
   var target = Math.max(-1, Math.min(1, delta / 28));
-  // smooth
   var smoothed = tiltVal * 0.82 + target * 0.18;
   setTiltVal(smoothed);
 }
 
 function startTilt() {
+  if (tiltActive) return;
   if (typeof DeviceOrientationEvent !== 'undefined' &&
       typeof DeviceOrientationEvent.requestPermission === 'function') {
+    // iOS 13+ needs explicit permission from a click event
     DeviceOrientationEvent.requestPermission().then(function(state) {
       if (state === 'granted') {
-        window.addEventListener('deviceorientation', handleOrientation);
+        window.addEventListener('deviceorientation', handleOrientation, true);
         tiltActive = true;
+        baseGamma = null;
       }
     }).catch(console.error);
   } else {
-    window.addEventListener('deviceorientation', handleOrientation);
+    // Android and older iOS – no permission needed
+    window.addEventListener('deviceorientation', handleOrientation, true);
     tiltActive = true;
+    baseGamma = null;
   }
 }
 
-// mobile slider – user can also drag manually
+// mobile slider – user can drag manually
 tiltSlider.addEventListener('touchstart', function() { userDragging = true; }, {passive:true});
-tiltSlider.addEventListener('touchend',   function() {
+tiltSlider.addEventListener('touchend', function() {
   userDragging = false;
-  // recalibrate tilt base to current position on release
-  baseGamma = null;
+  baseGamma = null; // recalibrate tilt to current position
 }, {passive:true});
 tiltSlider.addEventListener('input', function() {
   var val = parseFloat(tiltSlider.value) / 100;
@@ -351,9 +354,15 @@ tiltSlider.addEventListener('input', function() {
   render(val);
 });
 
+// start tilt on first touch anywhere on page
 document.addEventListener('touchstart', function() {
-  if (!tiltActive) startTilt();
-  setTimeout(function() { tiltHint.style.opacity = '1'; }, 800);
+  startTilt();
+  setTimeout(function() { tiltHint.style.opacity = '1'; }, 600);
+}, {once: true, passive: true});
+
+// iOS fallback: also try on first click
+document.addEventListener('click', function() {
+  startTilt();
 }, {once: true, passive: true});
 
 render(0);
