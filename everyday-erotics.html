@@ -16,10 +16,8 @@ html, body {
   font-size:clamp(17px,2vw,21px);
   line-height:1.9;
   cursor:none;
-  transition:background 1.2s ease;
+  overflow-x:hidden;
 }
-
-body.lit { background:#0f0d0a; }
 
 #cursor {
   position:fixed;
@@ -38,85 +36,10 @@ body.lit { background:#0f0d0a; }
   background:rgba(255,255,255,0.35);
 }
 
-/* ── FIXED CANDLE TOP ── */
-#candle-wrap {
-  position:fixed;
-  top:clamp(20px,4vh,40px);
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:10px;
-  z-index:100;
-  cursor:none;
-  user-select:none;
-  -webkit-tap-highlight-color:transparent;
-}
-
-#candle-glow {
-  position:fixed;
-  top:0; left:50%;
-  transform:translateX(-50%);
-  width:340px; height:340px;
-  border-radius:50%;
-  background:radial-gradient(ellipse at center top, rgba(255,150,30,0.18) 0%, rgba(255,100,10,0.05) 55%, transparent 75%);
-  pointer-events:none;
-  z-index:99;
-  animation:glow-pulse 2.6s ease-in-out infinite;
-  opacity:1;
-  transition:opacity 1.2s ease;
-}
-
-body:not(.lit) #candle-glow { opacity:0; animation:none; }
-
-/* ── INSTRUCTION – in scrollable flow, above text ── */
-#candle-label {
-  font-style:italic;
-  font-size:clamp(12px,1.4vw,15px);
-  color:rgba(255,255,255,0.45);
-  letter-spacing:0.06em;
-  text-align:center;
-  line-height:1.8;
-  transition:opacity 1s ease;
-  max-width:280px;
-  display:inline-block;
-}
-
-@keyframes glow-pulse {
-  0%,100% { opacity:1; }
-  50%      { opacity:0.65; }
-}
-
-#flame-group {
-  animation:flicker 2s ease-in-out infinite;
-  transform-origin:50% 100%;
-  transition:opacity 0.3s ease;
-}
-
-@keyframes flicker {
-  0%   { transform:scaleX(1)    scaleY(1)    translateY(0);    }
-  20%  { transform:scaleX(0.90) scaleY(1.08) translateY(-2px); }
-  40%  { transform:scaleX(1.08) scaleY(0.94) translateY(1px);  }
-  60%  { transform:scaleX(0.93) scaleY(1.05) translateY(-1px); }
-  80%  { transform:scaleX(1.05) scaleY(0.97) translateY(1px);  }
-  100% { transform:scaleX(1)    scaleY(1)    translateY(0);    }
-}
-
-#smoke-group { opacity:0; pointer-events:none; }
-
-@keyframes smoke-rise {
-  0%   { transform:translateY(0) scaleX(1);        opacity:0.5; }
-  60%  { transform:translateY(-18px) scaleX(1.5);  opacity:0.2; }
-  100% { transform:translateY(-34px) scaleX(0.7);  opacity:0;   }
-}
-.smoke-puff { animation:smoke-rise 1.6s ease-out forwards; }
-
-/* ── TEXT ── */
-#screen-text {
-  padding:clamp(24px,4vh,48px) clamp(24px,8vw,72px) clamp(60px,10vh,100px);
-  max-width:680px;
+#page {
+  max-width:600px;
   margin:0 auto;
+  padding:clamp(56px,10vh,96px) clamp(28px,8vw,72px) clamp(80px,14vh,130px);
 }
 
 #title {
@@ -124,18 +47,20 @@ body:not(.lit) #candle-glow { opacity:0; animation:none; }
   font-style:italic;
   font-weight:300;
   letter-spacing:0.18em;
-  margin-bottom:clamp(36px,6vh,60px);
+  margin-bottom:clamp(40px,6vh,64px);
   line-height:1.5;
 }
 
 #title-ext {
+  transition:opacity 0.6s ease, color 0.6s ease;
   opacity:0;
-  transition:opacity 0.8s ease, color 3s ease, text-shadow 3s ease;
 }
 
 #poem { list-style:none; }
 
-#poem li { margin-bottom:clamp(18px,2.5vh,28px); }
+#poem li {
+  margin-bottom:clamp(20px,3vh,32px);
+}
 
 .base-line { display:block; }
 
@@ -143,73 +68,118 @@ body:not(.lit) #candle-glow { opacity:0; animation:none; }
   display:block;
   padding-left:1.4em;
   font-style:italic;
-  opacity:0;
-  transition:opacity 0.6s ease, color 3s ease, text-shadow 3s ease;
   min-height:1.9em;
-  color:rgba(255,255,255,0.85);
+  transition:opacity 0.5s ease, color 0.5s ease;
+  opacity:0;
 }
 
-#look-again {
-  display:none;
-  margin-top:clamp(36px,5vh,56px);
-  font-style:italic;
-  font-size:clamp(17px,2vw,21px);
-  color:#E8824A;
-  letter-spacing:0.08em;
-  cursor:none;
-  opacity:0;
+/* ── DESKTOP SLIDER ── */
+#slider-wrap {
+  position:fixed;
+  bottom:clamp(32px,6vh,56px);
+  left:50%;
+  transform:translateX(-50%);
+  z-index:50;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
+#slider-hint {
+  font-style:normal;
+  font-size:16px;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.4em;
+  text-align:center;
   transition:opacity 1s ease;
+}
+
+#slider {
+  -webkit-appearance:none;
+  appearance:none;
+  width:clamp(180px,32vw,300px);
+  height:1px;
+  background:rgba(255,255,255,0.2);
+  outline:none;
+  border:none;
+  cursor:none;
+}
+
+#slider::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:12px; height:12px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.7);
+  cursor:none;
+  border:none;
+}
+#slider::-moz-range-thumb {
+  width:12px; height:12px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.7);
+  cursor:none;
+  border:none;
+}
+
+/* ── MOBILE TILT HINT ── */
+#tilt-hint {
+  position:fixed;
+  bottom:clamp(32px,6vh,56px);
+  left:50%;
+  transform:translateX(-50%);
+  font-style:normal;
+  font-size:16px;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.4em;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 1.5s ease;
+  white-space:nowrap;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
+#tilt-hint-arrows { font-size:16px; letter-spacing:0.4em; }
+
+#tilt-slider {
+  -webkit-appearance:none;
+  appearance:none;
+  width:clamp(180px,60vw,300px);
+  height:1px;
+  background:rgba(255,255,255,0.2);
+  outline:none;
+  border:none;
+  pointer-events:auto;
+}
+
+#tilt-slider::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:12px; height:12px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.7);
+  border:none;
+}
+#tilt-slider::-moz-range-thumb {
+  width:12px; height:12px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.7);
+  border:none;
+}
+
+@media (hover:none) and (pointer:coarse) {
+  #slider-wrap { display:none; }
+  #tilt-hint { display:flex; }
 }
 </style>
 </head>
-<body class="lit">
+<body>
 
 <div id="cursor"></div>
-<div id="candle-glow"></div>
 
-<!-- Scrollable top: instruction + candle -->
-<div id="top-area" style="text-align:center; padding:clamp(32px,6vh,56px) 24px clamp(16px,2vh,24px);">
-  <div id="candle-label" style="font-style:italic;font-size:clamp(12px,1.4vw,15px);color:rgba(255,255,255,0.45);letter-spacing:0.06em;line-height:1.8;transition:opacity 1s ease;margin-bottom:12px;min-height:3.4em;display:flex;flex-direction:column;align-items:center;justify-content:center;">Something is hiding in the dark.<br>Touch the candle to blow it out.</div>
-  <div id="candle-anchor"></div>
-</div>
-
-<!-- Fixed candle -->
-<div id="candle-wrap">
-  <svg id="candle-svg" width="50" height="130" viewBox="0 0 60 150">
-    <defs>
-      <radialGradient id="flameGrad" cx="50%" cy="80%" r="50%">
-        <stop offset="0%" stop-color="#fff8e0"/>
-        <stop offset="35%" stop-color="#ffcc44"/>
-        <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
-      </radialGradient>
-      <radialGradient id="innerGrad" cx="50%" cy="65%" r="40%">
-        <stop offset="0%" stop-color="#ffffff"/>
-        <stop offset="100%" stop-color="#ffe066" stop-opacity="0.3"/>
-      </radialGradient>
-      <radialGradient id="glowRad" cx="50%" cy="100%" r="60%">
-        <stop offset="0%" stop-color="#ff9900" stop-opacity="0.28"/>
-        <stop offset="100%" stop-color="#ff6600" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-    <g id="smoke-group">
-      <ellipse class="smoke-puff" cx="30" cy="92" rx="4" ry="7" fill="rgba(180,180,180,0.45)"/>
-      <ellipse class="smoke-puff" cx="28" cy="88" rx="3" ry="5" fill="rgba(180,180,180,0.3)" style="animation-delay:0.2s"/>
-    </g>
-    <g id="flame-group">
-      <ellipse cx="30" cy="100" rx="22" ry="14" fill="url(#glowRad)"/>
-      <path d="M30,88 C21,93 18,103 21,110 C24,117 36,117 39,110 C42,103 39,93 30,88 Z" fill="url(#flameGrad)" opacity="0.95"/>
-      <path d="M30,92 C25,96 24,103 26,108 C27,112 33,112 34,108 C36,103 35,96 30,92 Z" fill="url(#innerGrad)"/>
-      <circle cx="30" cy="90" r="2.5" fill="#fff5cc"/>
-    </g>
-    <rect x="20" y="112" width="20" height="34" rx="2" fill="#f2ede3" opacity="0.92"/>
-    <rect x="22" y="112" width="5" height="34" rx="1" fill="rgba(255,255,255,0.28)"/>
-    <path d="M20,118 Q17,126 18,134 Q19,137 20,118 Z" fill="#ece7dc" opacity="0.7"/>
-    <line x1="30" y1="112" x2="30" y2="90" stroke="#666" stroke-width="1.5"/>
-  </svg>
-</div>
-
-<!-- Scrollable text -->
-<div id="screen-text">
+<div id="page">
   <div id="title">Everyday erotics<span id="title-ext"></span></div>
   <ul id="poem">
     <li><span class="base-line">Flüstern im Dunklen</span><span class="ext-line" id="e0"></span></li>
@@ -223,14 +193,34 @@ body:not(.lit) #candle-glow { opacity:0; animation:none; }
     <li><span class="base-line">Seine Berührung</span><span class="ext-line" id="e8"></span></li>
     <li><span class="base-line">Meine Berührung</span><span class="ext-line" id="e9"></span></li>
   </ul>
-  <div id="look-again" onclick="window.scrollTo(0,0)">Look again.</div>
+</div>
+
+<!-- Desktop slider -->
+<div id="slider-wrap">
+  <div id="slider-hint">←&nbsp;&nbsp;&nbsp;→</div>
+  <input type="range" id="slider" min="-100" max="100" value="0" step="1">
+</div>
+
+<!-- Mobile: tilt hint + slider that syncs with tilt -->
+<div id="tilt-hint">
+  <div id="tilt-hint-arrows">←&nbsp;&nbsp;&nbsp;→</div>
+  <input type="range" id="tilt-slider" min="-100" max="100" value="0" step="1">
 </div>
 
 <script>
+// cursor (desktop)
 var cur = document.getElementById('cursor');
+var isTouch = false;
 document.addEventListener('mousemove', function(e) {
-  cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
+  cur.style.left = e.clientX+'px';
+  cur.style.top  = e.clientY+'px';
 });
+document.addEventListener('touchstart', function() {
+  isTouch = true;
+  cur.style.display = 'none';
+}, {once:true, passive:true});
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
 
 var ext_blue = [
   'das mich nicht schlafen lässt',
@@ -258,155 +248,115 @@ var ext_orange = [
   'bringt sie zum stöhnen',
 ];
 
-var stage = 0;
-var isLit = true;
-var holdTimer = null;
-var justBlew = false;
-var firstTime = true;
+var titleExt   = document.getElementById('title-ext');
+var sliderEl   = document.getElementById('slider');
+var tiltHint   = document.getElementById('tilt-hint');
+var tiltSlider = document.getElementById('tilt-slider');
+var sliderHint = document.getElementById('slider-hint');
 
-var flameGroup  = document.getElementById('flame-group');
-var smokeGroup  = document.getElementById('smoke-group');
-var candleLabel = document.getElementById('candle-label');var titleExt    = document.getElementById('title-ext');
-var lookAgain   = document.getElementById('look-again');
+// ── RENDER ────────────────────────────────────────────────────────────────────
 
-function clearLines() {
-  for (var i = 0; i < 10; i++) {
-    var el = document.getElementById('e'+i);
-    el.style.transition = 'none';
-    el.style.opacity = '0';
-    el.textContent = '\u00a0';
-  }
-  lookAgain.style.opacity = '0';
-  setTimeout(function() { lookAgain.style.display = 'none'; }, 1000);
-}
+function render(val) {
+  val = Math.max(-1, Math.min(1, val));
 
-function showLines(texts, color) {
-  texts.forEach(function(text, i) {
-    setTimeout(function() {
+  if (val < 0) {
+    var t = -val;
+    for (var i = 0; i < 10; i++) {
       var el = document.getElementById('e'+i);
-      el.style.transition = 'none';
-      el.textContent = text;
-      el.style.color = color;
-      el.style.textShadow = 'none';
-      el.style.opacity = '1';
-    }, i * 140);
-  });
-}
-
-function setTitleExt(text, color) {
-  titleExt.style.transition = 'none';
-  titleExt.textContent = text ? ' ' + text : '';
-  titleExt.style.color = color || '';
-  titleExt.style.textShadow = 'none';
-  titleExt.style.opacity = text ? '1' : '0';
-}
-
-function showLookAgain() {
-  setTimeout(function() {
-    lookAgain.style.display = 'block';
-    setTimeout(function() { lookAgain.style.opacity = '1'; }, 50);
-  }, ext_blue.length * 140 + 400);
-}
-
-function doStage0() {
-  clearLines();
-  setTitleExt('', '');
-  if (!firstTime) return;
-  setTimeout(function() {
-    candleLabel.innerHTML = 'Something is hiding in the dark.<br>Touch the candle to blow it out.';
-    candleLabel.style.opacity = '1';
-  }, 600);
-}
-
-function doStage1() {
-  clearLines();
-  setTitleExt('with her', '#7BA7BC');
-  showLines(ext_blue, '#7BA7BC');
-  showLookAgain();
-  if (firstTime) {
-    setTimeout(function() {
-      candleLabel.innerHTML = 'Maybe we don\'t see everything yet.<br>Touch the candle.';
-      candleLabel.style.opacity = '1';
-    }, 5000);
+      el.textContent = ext_blue[i];
+      el.style.opacity = t;
+      el.style.color = 'rgba(255,255,255,0.85)';
+    }
+    titleExt.style.opacity = t;
+    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.textContent = ' with her';
+  } else if (val > 0) {
+    var t = val;
+    for (var i = 0; i < 10; i++) {
+      var el = document.getElementById('e'+i);
+      el.textContent = ext_orange[i];
+      el.style.opacity = t;
+      el.style.color = 'rgba(255,255,255,0.85)';
+    }
+    titleExt.style.opacity = t;
+    titleExt.style.color = 'rgba(255,255,255,0.85)';
+    titleExt.textContent = ' with her, yes her';
+  } else {
+    for (var i = 0; i < 10; i++) {
+      document.getElementById('e'+i).style.opacity = 0;
+    }
+    titleExt.style.opacity = 0;
   }
 }
 
-function doStage2() {
-  firstTime = false;
-  clearLines();
-  setTitleExt('with her, yes her', '#E8824A');
-  showLines(ext_orange, '#E8824A');
-}
+// ── DESKTOP SLIDER ────────────────────────────────────────────────────────────
 
-function doSmoke() {
-  smokeGroup.style.opacity = '1';
-  smokeGroup.querySelectorAll('.smoke-puff').forEach(function(p) {
-    p.style.animation = 'none';
-    void p.offsetWidth;
-    p.style.animation = '';
-  });
-  setTimeout(function() { smokeGroup.style.opacity = '0'; }, 1800);
-}
-
-function advance() {
-  candleLabel.style.opacity = '0';
-  stage = (stage + 1) % 3;
-  if (stage === 0) doStage0();
-  else if (stage === 1) doStage1();
-  else doStage2();
-}
-
-function extinguish() {
-  if (!isLit) return;
-  isLit = false;
-  justBlew = true;
-  setTimeout(function() { justBlew = false; }, 700);
-  flameGroup.style.opacity = '0';
-  document.body.classList.remove('lit');
-  doSmoke();
-  advance();
-}
-
-function relight() {
-  if (isLit) return;
-  isLit = true;
-  flameGroup.style.opacity = '1';
-  document.body.classList.add('lit');
-  advance();
-}
-
-function startHold() {
-  if (!isLit) return;
-  holdTimer = setTimeout(extinguish, 500);
-}
-
-function endHold() {
-  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-}
-
-var cw = document.getElementById('candle-wrap');
-cw.addEventListener('mousedown', startHold);
-cw.addEventListener('mouseup', endHold);
-cw.addEventListener('mouseleave', endHold);
-cw.addEventListener('click', function() {
-  if (!isLit && !justBlew) relight();
+sliderEl.addEventListener('input', function() {
+  render(parseFloat(sliderEl.value) / 100);
 });
 
-var touchMoved = false;
-cw.addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  touchMoved = false;
-  if (!isLit) return;
-  holdTimer = setTimeout(extinguish, 500);
-}, {passive:false});
-cw.addEventListener('touchmove', function() { touchMoved = true; endHold(); }, {passive:true});
-cw.addEventListener('touchend', function(e) {
-  e.preventDefault();
-  endHold();
-  if (!isLit && !touchMoved && !justBlew) relight();
-}, {passive:false});
+setTimeout(function() { sliderHint.style.opacity = '1'; }, 1500);
 
-clearLines();
+// ── MOBILE TILT + SLIDER ──────────────────────────────────────────────────────
+
+var tiltActive = false;
+var baseGamma  = null;
+var tiltVal    = 0;
+var userDragging = false;
+
+function setTiltVal(val) {
+  tiltVal = Math.max(-1, Math.min(1, val));
+  // sync slider thumb
+  tiltSlider.value = tiltVal * 100;
+  render(tiltVal);
+}
+
+function handleOrientation(e) {
+  if (userDragging) return;
+  var gamma = e.gamma;
+  if (gamma === null) return;
+  if (baseGamma === null) baseGamma = gamma;
+  var delta = gamma - baseGamma;
+  var target = Math.max(-1, Math.min(1, delta / 28));
+  // smooth
+  var smoothed = tiltVal * 0.82 + target * 0.18;
+  setTiltVal(smoothed);
+}
+
+function startTilt() {
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(function(state) {
+      if (state === 'granted') {
+        window.addEventListener('deviceorientation', handleOrientation);
+        tiltActive = true;
+      }
+    }).catch(console.error);
+  } else {
+    window.addEventListener('deviceorientation', handleOrientation);
+    tiltActive = true;
+  }
+}
+
+// mobile slider – user can also drag manually
+tiltSlider.addEventListener('touchstart', function() { userDragging = true; }, {passive:true});
+tiltSlider.addEventListener('touchend',   function() {
+  userDragging = false;
+  // recalibrate tilt base to current position on release
+  baseGamma = null;
+}, {passive:true});
+tiltSlider.addEventListener('input', function() {
+  var val = parseFloat(tiltSlider.value) / 100;
+  tiltVal = val;
+  render(val);
+});
+
+document.addEventListener('touchstart', function() {
+  if (!tiltActive) startTilt();
+  setTimeout(function() { tiltHint.style.opacity = '1'; }, 800);
+}, {once: true, passive: true});
+
+render(0);
 </script>
 </body>
 </html>
