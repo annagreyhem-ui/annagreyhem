@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ending</title>
-
   <style>
     body {
       margin: 0;
@@ -16,7 +15,6 @@
       justify-content: center;
       height: 100vh;
     }
-
     .text {
       max-width: 720px;
       width: 88vw;
@@ -24,49 +22,37 @@
       font-size: 1.3rem;
       line-height: 1.6;
     }
-
     .cursor {
       display: inline-block;
       margin-left: 2px;
       animation: blink 1s steps(1) infinite;
     }
-
     @keyframes blink {
       0%, 49% { opacity: 1; }
       50%, 100% { opacity: 0; }
     }
   </style>
 </head>
-
 <body>
   <div class="text" id="text"></div>
-
   <script>
     const blocks = [
       { text: "Dear reader,", prePause: true },
-
-      { text: "Welcome to the other side." },
-
-      { text: "This didn’t scare you, did it?" },
-
-      { text: "You took the wrong turn.\nYou knew it wasn’t the way.\nAnd you kept going." },
-
-      { text: "Why?" },
-
-      { text: "Don’t act so surprised. I told you it burns. You didn’t wear the gloves." },
-
-      { 
-        text: "Oh, and...", 
-        replaceWith: "I will do this again.", 
+      { text: "How did you end up here?" },
+      { text: "You knew this wasn\u2019t the way.\nAnd still\u2026 you kept going." },
+      { text: "I was wondering if you would." },
+      { text: "Did it scare you?" },
+      { text: "I told you it burns.\nYou wanted to feel it anyway." },
+      {
+        text: "You\u2019re getting closer.",
+        replaceWith: "I\u2019ll do this again.",
         thinkBeforeDelete: true,
-        longThink: true 
+        longThink: true
       },
-
       { text: "Kiss,\nAnna" }
     ];
 
     const textEl = document.getElementById("text");
-
     let content = "";
 
     const settings = {
@@ -75,7 +61,7 @@
       punctuationPause: 140,
       paragraphPause: 800,
       thinkingPause: 1000,
-      deepThinkingPause: 2200, // 👈 längerer Moment hier
+      deepThinkingPause: 2800,
       deleteSpeed: 35,
       replacePause: 250
     };
@@ -90,11 +76,9 @@
 
     function render() {
       textEl.textContent = content;
-
       const cursor = document.createElement("span");
       cursor.className = "cursor";
-      cursor.textContent = "▌";
-
+      cursor.textContent = "\u258c";
       textEl.appendChild(cursor);
     }
 
@@ -103,12 +87,9 @@
         const char = str[i];
         content += char;
         render();
-
         let delay = rand(settings.min, settings.max);
-
-        if (",.!?…".includes(char)) delay += settings.punctuationPause;
+        if (",.!?\u2026".includes(char)) delay += settings.punctuationPause;
         if (char === "\n") delay += 80;
-
         await sleep(delay);
       }
     }
@@ -146,10 +127,9 @@
             render();
             await sleep(block.longThink ? settings.deepThinkingPause : settings.thinkingPause);
           }
-
           await sleep(settings.replacePause);
           await deleteText(block.text.length);
-          await sleep(450);
+          await sleep(600);
           await typeText(block.replaceWith);
         }
 
