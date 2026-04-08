@@ -53,10 +53,10 @@ canvas { display:block; touch-action:none; }
   bottom:clamp(32px,6vh,56px);
   left:50%;
   transform:translateX(-50%);
-  font-size:11px;
+  font-size:clamp(14px,3.5vw,17px);
   font-style:italic;
-  color:rgba(255,255,255,0.18);
-  letter-spacing:0.2em;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.12em;
   pointer-events:none;
   transition:opacity 1.5s ease;
   white-space:nowrap;
@@ -108,26 +108,24 @@ document.addEventListener('touchstart', function() {
 // ── TEXT SEQUENCE ─────────────────────────────────────────────────────────────
 
 var lines = [
-  { text: "You love me",                    duration: 1800, pause: 400  },
-  { text: "You love me not",                duration: 1800, pause: 400  },
-  { text: "You love me",                    duration: 1800, pause: 400  },
-  { text: "You love me not",                duration: 1800, pause: 500  },
-  { text: "I love you",                     duration: 2000, pause: 600  },
-  { text: "You love me",                    duration: 1800, pause: 500  },
-  { text: "You love me not",                duration: 2000, pause: 700  },
-  { text: "You love me",                    duration: 2000, pause: 600  },
-  { text: "You love me not right now",      duration: 2400, pause: 800  },
-  { text: "I have always loved you",        duration: 2600, pause: 900  },
-  { text: "But I love you",                 duration: 2400, pause: 900  },
-  { text: "I want you to love me",          duration: 2600, pause: 1000 },
-  { text: "You loved me?",                  duration: 2800, pause: 1100 },
-  { text: "Did you?",                       duration: 3000, pause: 1200 },
-  { text: "Not enough?",                    duration: 3200, pause: 1400 },
-  { text: "I will make you love me",        duration: 3400, pause: 1600 },
-  { text: "There is nothing left to lose",  duration: 99999, pause: 0   },
+  { text: "You love me.",                   duration: 1800, pause: 400  },
+  { text: "You love me not.",               duration: 1800, pause: 400  },
+  { text: "You love me.",                   duration: 1800, pause: 400  },
+  { text: "You love me not.",               duration: 1800, pause: 500  },
+  { text: "I love you.",                    duration: 2000, pause: 600  },
+  { text: "I know that you love me.",       duration: 2200, pause: 700  },
+  { text: "You love me not.",               duration: 2000, pause: 700  },
+  { text: "You loved me?",                  duration: 2600, pause: 900  },
+  { text: "Not enough?",                    duration: 2800, pause: 1000 },
+  { text: "I have always loved you.",       duration: 2600, pause: 900  },
+  { text: "I waited.",                      duration: 2800, pause: 1100 },
+  { text: "Don't you love me enough?",      duration: 3000, pause: 1200 },
+  { text: "I want you to love me.",         duration: 3000, pause: 1200 },
+  { text: "I will make you love me.",       duration: 3400, pause: 1600 },
+  { text: "There is nothing left to lose.", duration: 99999, pause: 0   },
 ];
 
-var N_PETALS = lines.length;
+var N_PETALS = lines.length; // 15
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 
@@ -177,9 +175,9 @@ function drawScene() {
   petals.forEach(function(p) { if (p.alive) drawPetal(p, p.opacity, false); });
   fallingPetals.forEach(function(p) { drawPetal(p, p.opacity, true); });
 
-  // Stem
-  ctx.strokeStyle = 'rgba(100,160,60,0.75)';
-  ctx.lineWidth   = r * 0.038;
+  // Stem – subtle grey
+  ctx.strokeStyle = 'rgba(160,165,155,0.35)';
+  ctx.lineWidth   = r * 0.025;
   ctx.lineCap     = 'round';
   ctx.beginPath();
   ctx.moveTo(CX, CY + innerR);
