@@ -4,135 +4,140 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Everyday erotics – Anna Greyhem</title>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap">
+
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 
 html, body {
-  min-height:100%;
-  background:#0a0a0a;
-  color:rgba(255,255,255,0.85);
-  font-family:'Cormorant Garamond', Georgia, serif;
-  font-size:clamp(17px,2vw,21px);
-  line-height:1.9;
-  cursor:none;
-  overflow-x:hidden;
+min-height:100%;
+background:#0a0a0a;
+color:rgba(255,255,255,0.85);
+font-family:'Cormorant Garamond', Georgia, serif;
+font-size:clamp(17px,2vw,21px);
+line-height:2;
+cursor:none;
+overflow-x:hidden;
 }
 
+/* ─── CURSOR (weniger gimmick, mehr ruhig) ─── */
 #cursor {
-  position:fixed;
-  width:1px; height:20px;
-  background:rgba(255,255,255,0.35);
-  pointer-events:none;
-  z-index:9999;
-  transform:translate(-50%,-50%);
-}
-#cursor::after {
-  content:'';
-  position:absolute;
-  top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  width:20px; height:1px;
-  background:rgba(255,255,255,0.35);
+position:fixed;
+width:2px;
+height:16px;
+background:rgba(255,255,255,0.3);
+pointer-events:none;
+z-index:9999;
+transform:translate(-50%,-50%);
+transition:opacity 0.2s;
 }
 
+/* ─── PAGE ─── */
 #page {
-  max-width:600px;
-  margin:0 auto;
-  padding:clamp(56px,10vh,96px) clamp(28px,8vw,72px) clamp(80px,14vh,130px);
+max-width:600px;
+margin:0 auto;
+padding:clamp(80px,12vh,120px) clamp(28px,8vw,72px) clamp(100px,18vh,160px);
 }
 
+/* ─── TITLE ─── */
 #title {
-  font-size:clamp(19px,2.4vw,26px);
-  font-style:italic;
-  font-weight:300;
-  letter-spacing:0.18em;
-  margin-bottom:clamp(40px,6vh,64px);
-  line-height:1.5;
+font-size:clamp(19px,2.4vw,26px);
+font-style:italic;
+font-weight:300;
+letter-spacing:0.2em;
+margin-bottom:clamp(60px,8vh,90px);
+line-height:1.6;
+opacity:0.9;
 }
 
 #title-ext {
-  transition:opacity 0.6s ease, color 0.6s ease;
-  opacity:0;
+transition:opacity 0.8s ease;
+opacity:0;
 }
 
+/* ─── POEM ─── */
 #poem { list-style:none; }
 
 #poem li {
-  margin-bottom:clamp(20px,3vh,32px);
+margin-bottom:clamp(28px,4vh,42px);
 }
 
-.base-line { display:block; }
+/* Base lines etwas ruhiger */
+.base-line {
+display:block;
+opacity:0.85;
+}
 
+/* Extension fühlt sich „einschleichend“ an */
 .ext-line {
-  display:block;
-  padding-left:1.4em;
-  font-style:italic;
-  min-height:1.9em;
-  transition:opacity 0.5s ease, color 0.5s ease;
-  opacity:0;
+display:block;
+padding-left:1.6em;
+font-style:italic;
+min-height:1.9em;
+opacity:0;
+transform:translateY(4px);
+transition:
+  opacity 0.8s ease,
+  transform 0.8s ease;
 }
 
-/* ── SLIDER (both desktop and mobile) ── */
+/* ─── SLIDER (weniger UI, mehr Gefühl) ─── */
 #slider-wrap {
-  position:fixed;
-  bottom:0;
-  left:0; right:0;
-  height:clamp(70px,12vh,100px);
-  z-index:50;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:14px;
-  /* large touch zone – whole bottom strip */
+position:fixed;
+bottom:0;
+left:0; right:0;
+height:clamp(80px,14vh,120px);
+z-index:50;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:18px;
 }
 
 #slider-hint {
-  font-style:normal;
-  font-size:16px;
-  color:rgba(255,255,255,0.5);
-  letter-spacing:0.4em;
-  text-align:center;
-  transition:opacity 1s ease;
-  opacity:0;
-  pointer-events:none;
+font-size:14px;
+color:rgba(255,255,255,0.35);
+letter-spacing:0.5em;
+opacity:0;
+transition:opacity 2s ease;
 }
 
 #slider-track {
-  position:relative;
-  width:clamp(200px,55vw,340px);
-  height:20px; /* large hit area */
-  display:flex;
-  align-items:center;
-  cursor:none;
+position:relative;
+width:clamp(200px,55vw,340px);
+height:30px;
+display:flex;
+align-items:center;
 }
 
 #slider-line {
-  position:absolute;
-  left:0; right:0;
-  height:1px;
-  background:rgba(255,255,255,0.2);
+position:absolute;
+left:0; right:0;
+height:1px;
+background:rgba(255,255,255,0.15);
 }
 
 #slider-thumb {
-  position:absolute;
-  width:12px; height:12px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.75);
-  transform:translateX(-50%);
-  left:50%;
-  transition:background 0.2s;
-  pointer-events:none;
+position:absolute;
+width:8px; height:8px;
+border-radius:50%;
+background:rgba(255,255,255,0.6);
+transform:translateX(-50%);
+left:50%;
+transition:background 0.3s ease;
 }
 </style>
 </head>
+
 <body>
 
 <div id="cursor"></div>
 
 <div id="page">
   <div id="title">Everyday erotics<span id="title-ext"></span></div>
+
   <ul id="poem">
     <li><span class="base-line">Flüstern im Dunklen</span><span class="ext-line" id="e0"></span></li>
     <li><span class="base-line">Ein Kuss in einem Traum</span><span class="ext-line" id="e1"></span></li>
@@ -147,7 +152,6 @@ html, body {
   </ul>
 </div>
 
-<!-- Slider (desktop + mobile) -->
 <div id="slider-wrap">
   <div id="slider-hint">←&nbsp;&nbsp;&nbsp;→</div>
   <div id="slider-track">
@@ -157,20 +161,14 @@ html, body {
 </div>
 
 <script>
-// cursor (desktop)
+// Cursor (ruhiger, weniger präsent)
 var cur = document.getElementById('cursor');
-var isTouch = false;
 document.addEventListener('mousemove', function(e) {
   cur.style.left = e.clientX+'px';
   cur.style.top  = e.clientY+'px';
 });
-document.addEventListener('touchstart', function() {
-  isTouch = true;
-  cur.style.display = 'none';
-}, {once:true, passive:true});
 
-// ── DATA ──────────────────────────────────────────────────────────────────────
-
+// DATA bleibt gleich
 var ext_blue = [
   'das mich nicht schlafen lässt',
   'von dem er mir nichts erzählt',
@@ -197,89 +195,59 @@ var ext_orange = [
   'bringt sie zum stöhnen',
 ];
 
-var titleExt   = document.getElementById('title-ext');
-var sliderWrap = document.getElementById('slider-wrap');
+var titleExt = document.getElementById('title-ext');
 var sliderTrack = document.getElementById('slider-track');
 var sliderThumb = document.getElementById('slider-thumb');
-var sliderHint = document.getElementById('slider-hint');
-
-var currentVal = 0; // -1..1
-
-// ── RENDER ────────────────────────────────────────────────────────────────────
 
 function render(val) {
   val = Math.max(-1, Math.min(1, val));
-  currentVal = val;
-
-  // move thumb
   var pct = (val + 1) / 2 * 100;
   sliderThumb.style.left = pct + '%';
 
-  if (val < 0) {
-    var t = -val;
-    for (var i = 0; i < 10; i++) {
-      var el = document.getElementById('e'+i);
+  for (var i = 0; i < 10; i++) {
+    var el = document.getElementById('e'+i);
+
+    if (val < 0) {
+      var t = -val;
       el.textContent = ext_blue[i];
       el.style.opacity = t;
       el.style.color = '#7a1a2a';
+      el.style.transform = 'translateY(0)';
     }
-    titleExt.style.opacity = t;
-    titleExt.style.color = '#7a1a2a';
-    titleExt.textContent = ' with her';
-  } else if (val > 0) {
-    var t = val;
-    for (var i = 0; i < 10; i++) {
-      var el = document.getElementById('e'+i);
+    else if (val > 0) {
+      var t = val;
       el.textContent = ext_orange[i];
       el.style.opacity = t;
       el.style.color = '#9e6070';
+      el.style.transform = 'translateY(0)';
     }
-    titleExt.style.opacity = t;
-    titleExt.style.color = '#9e6070';
-    titleExt.innerHTML = ' with her<span style="font-size:0.6em;opacity:0.8;">, yes her</span>';
+    else {
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(4px)';
+    }
+  }
+
+  if (val !== 0) {
+    titleExt.style.opacity = Math.abs(val);
+    titleExt.textContent = ' with her';
   } else {
-    for (var i = 0; i < 10; i++) {
-      document.getElementById('e'+i).style.opacity = 0;
-    }
     titleExt.style.opacity = 0;
   }
 }
 
-// ── DRAG LOGIC ────────────────────────────────────────────────────────────────
-
-function valFromClientX(clientX) {
+// softer, weniger „UI-haft“
+sliderTrack.addEventListener('mousemove', function(e) {
   var rect = sliderTrack.getBoundingClientRect();
-  var pct  = (clientX - rect.left) / rect.width;
-  return Math.max(-1, Math.min(1, pct * 2 - 1));
-}
-
-var dragging = false;
-
-// Mouse
-sliderWrap.addEventListener('mousedown', function(e) {
-  dragging = true;
-  render(valFromClientX(e.clientX));
+  var pct  = (e.clientX - rect.left) / rect.width;
+  render(pct * 2 - 1);
 });
-document.addEventListener('mousemove', function(e) {
-  if (!dragging) return;
-  render(valFromClientX(e.clientX));
-});
-document.addEventListener('mouseup', function() { dragging = false; });
 
-// Touch – whole wrap is the touch zone
-sliderWrap.addEventListener('touchstart', function(e) {
-  dragging = true;
-  render(valFromClientX(e.touches[0].clientX));
-}, {passive:true});
-document.addEventListener('touchmove', function(e) {
-  if (!dragging) return;
-  render(valFromClientX(e.touches[0].clientX));
-}, {passive:true});
-document.addEventListener('touchend', function() { dragging = false; }, {passive:true});
-
-setTimeout(function() { sliderHint.style.opacity = '1'; }, 1500);
+setTimeout(function() {
+  document.getElementById('slider-hint').style.opacity = '1';
+}, 2000);
 
 render(0);
 </script>
+
 </body>
 </html>
