@@ -76,14 +76,16 @@ html, body {
 /* ── SLIDER (both desktop and mobile) ── */
 #slider-wrap {
   position:fixed;
-  bottom:clamp(32px,6vh,56px);
-  left:50%;
-  transform:translateX(-50%);
+  bottom:0;
+  left:0; right:0;
+  height:clamp(70px,12vh,100px);
   z-index:50;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:12px;
+  justify-content:center;
+  gap:14px;
+  /* large touch zone – whole bottom strip */
 }
 
 #slider-hint {
@@ -94,33 +96,34 @@ html, body {
   text-align:center;
   transition:opacity 1s ease;
   opacity:0;
+  pointer-events:none;
 }
 
-#slider {
-  -webkit-appearance:none;
-  appearance:none;
-  width:clamp(180px,45vw,300px);
+#slider-track {
+  position:relative;
+  width:clamp(200px,55vw,340px);
+  height:20px; /* large hit area */
+  display:flex;
+  align-items:center;
+  cursor:none;
+}
+
+#slider-line {
+  position:absolute;
+  left:0; right:0;
   height:1px;
   background:rgba(255,255,255,0.2);
-  outline:none;
-  border:none;
-  cursor:none;
 }
 
-#slider::-webkit-slider-thumb {
-  -webkit-appearance:none;
+#slider-thumb {
+  position:absolute;
   width:12px; height:12px;
   border-radius:50%;
-  background:rgba(255,255,255,0.7);
-  cursor:none;
-  border:none;
-}
-#slider::-moz-range-thumb {
-  width:12px; height:12px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.7);
-  cursor:none;
-  border:none;
+  background:rgba(255,255,255,0.75);
+  transform:translateX(-50%);
+  left:50%;
+  transition:background 0.2s;
+  pointer-events:none;
 }
 </style>
 </head>
@@ -147,7 +150,10 @@ html, body {
 <!-- Slider (desktop + mobile) -->
 <div id="slider-wrap">
   <div id="slider-hint">←&nbsp;&nbsp;&nbsp;→</div>
-  <input type="range" id="slider" min="-100" max="100" value="0" step="1">
+  <div id="slider-track">
+    <div id="slider-line"></div>
+    <div id="slider-thumb"></div>
+  </div>
 </div>
 
 <script>
@@ -192,13 +198,22 @@ var ext_orange = [
 ];
 
 var titleExt   = document.getElementById('title-ext');
-var sliderEl   = document.getElementById('slider');
+var sliderWrap = document.getElementById('slider-wrap');
+var sliderTrack = document.getElementById('slider-track');
+var sliderThumb = document.getElementById('slider-thumb');
 var sliderHint = document.getElementById('slider-hint');
+
+var currentVal = 0; // -1..1
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 
 function render(val) {
   val = Math.max(-1, Math.min(1, val));
+  currentVal = val;
+
+  // move thumb
+  var pct = (val + 1) / 2 * 100;
+  sliderThumb.style.left = pct + '%';
 
   if (val < 0) {
     var t = -val;
@@ -230,18 +245,39 @@ function render(val) {
   }
 }
 
-// ── SLIDER ────────────────────────────────────────────────────────────────────
+// ── DRAG LOGIC ────────────────────────────────────────────────────────────────
 
-sliderEl.addEventListener('input', function() {
-  render(parseFloat(sliderEl.value) / 100);
+function valFromClientX(clientX) {
+  var rect = sliderTrack.getBoundingClientRect();
+  var pct  = (clientX - rect.left) / rect.width;
+  return Math.max(-1, Math.min(1, pct * 2 - 1));
+}
+
+var dragging = false;
+
+// Mouse
+sliderWrap.addEventListener('mousedown', function(e) {
+  dragging = true;
+  render(valFromClientX(e.clientX));
 });
+document.addEventListener('mousemove', function(e) {
+  if (!dragging) return;
+  render(valFromClientX(e.clientX));
+});
+document.addEventListener('mouseup', function() { dragging = false; });
+
+// Touch – whole wrap is the touch zone
+sliderWrap.addEventListener('touchstart', function(e) {
+  dragging = true;
+  render(valFromClientX(e.touches[0].clientX));
+}, {passive:true});
+document.addEventListener('touchmove', function(e) {
+  if (!dragging) return;
+  render(valFromClientX(e.touches[0].clientX));
+}, {passive:true});
+document.addEventListener('touchend', function() { dragging = false; }, {passive:true});
 
 setTimeout(function() { sliderHint.style.opacity = '1'; }, 1500);
-
-// on mobile use pointer cursor for slider
-document.addEventListener('touchstart', function() {
-  sliderEl.style.cursor = 'default';
-}, {once: true, passive: true});
 
 render(0);
 </script>
