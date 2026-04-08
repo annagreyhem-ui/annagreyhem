@@ -73,7 +73,7 @@ html, body {
   opacity:0;
 }
 
-/* ── DESKTOP SLIDER ── */
+/* ── SLIDER (both desktop and mobile) ── */
 #slider-wrap {
   position:fixed;
   bottom:clamp(32px,6vh,56px);
@@ -93,12 +93,13 @@ html, body {
   letter-spacing:0.4em;
   text-align:center;
   transition:opacity 1s ease;
+  opacity:0;
 }
 
 #slider {
   -webkit-appearance:none;
   appearance:none;
-  width:clamp(180px,32vw,300px);
+  width:clamp(180px,45vw,300px);
   height:1px;
   background:rgba(255,255,255,0.2);
   outline:none;
@@ -120,58 +121,6 @@ html, body {
   background:rgba(255,255,255,0.7);
   cursor:none;
   border:none;
-}
-
-/* ── MOBILE TILT HINT ── */
-#tilt-hint {
-  position:fixed;
-  bottom:clamp(32px,6vh,56px);
-  left:50%;
-  transform:translateX(-50%);
-  font-style:normal;
-  font-size:16px;
-  color:rgba(255,255,255,0.5);
-  letter-spacing:0.4em;
-  pointer-events:none;
-  opacity:0;
-  transition:opacity 1.5s ease;
-  white-space:nowrap;
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-}
-
-#tilt-hint-arrows { font-size:16px; letter-spacing:0.4em; }
-
-#tilt-slider {
-  -webkit-appearance:none;
-  appearance:none;
-  width:clamp(180px,60vw,300px);
-  height:1px;
-  background:rgba(255,255,255,0.2);
-  outline:none;
-  border:none;
-  pointer-events:auto;
-}
-
-#tilt-slider::-webkit-slider-thumb {
-  -webkit-appearance:none;
-  width:12px; height:12px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.7);
-  border:none;
-}
-#tilt-slider::-moz-range-thumb {
-  width:12px; height:12px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.7);
-  border:none;
-}
-
-@media (hover:none) and (pointer:coarse) {
-  #slider-wrap { display:none; }
-  #tilt-hint { display:flex; }
 }
 </style>
 </head>
@@ -195,16 +144,10 @@ html, body {
   </ul>
 </div>
 
-<!-- Desktop slider -->
+<!-- Slider (desktop + mobile) -->
 <div id="slider-wrap">
   <div id="slider-hint">←&nbsp;&nbsp;&nbsp;→</div>
   <input type="range" id="slider" min="-100" max="100" value="0" step="1">
-</div>
-
-<!-- Mobile: tilt hint + slider that syncs with tilt -->
-<div id="tilt-hint">
-  <div id="tilt-hint-arrows">←&nbsp;&nbsp;&nbsp;→</div>
-  <input type="range" id="tilt-slider" min="-100" max="100" value="0" step="1">
 </div>
 
 <script>
@@ -250,8 +193,6 @@ var ext_orange = [
 
 var titleExt   = document.getElementById('title-ext');
 var sliderEl   = document.getElementById('slider');
-var tiltHint   = document.getElementById('tilt-hint');
-var tiltSlider = document.getElementById('tilt-slider');
 var sliderHint = document.getElementById('slider-hint');
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -280,7 +221,7 @@ function render(val) {
     }
     titleExt.style.opacity = t;
     titleExt.style.color = '#9e6070';
-    titleExt.textContent = ' with her, yes her';
+    titleExt.innerHTML = ' with her<span style="font-size:0.6em;opacity:0.8;">, yes her</span>';
   } else {
     for (var i = 0; i < 10; i++) {
       document.getElementById('e'+i).style.opacity = 0;
@@ -289,7 +230,7 @@ function render(val) {
   }
 }
 
-// ── DESKTOP SLIDER ────────────────────────────────────────────────────────────
+// ── SLIDER ────────────────────────────────────────────────────────────────────
 
 sliderEl.addEventListener('input', function() {
   render(parseFloat(sliderEl.value) / 100);
@@ -297,72 +238,9 @@ sliderEl.addEventListener('input', function() {
 
 setTimeout(function() { sliderHint.style.opacity = '1'; }, 1500);
 
-// ── MOBILE TILT + SLIDER ──────────────────────────────────────────────────────
-
-var tiltActive = false;
-var baseGamma  = null;
-var tiltVal    = 0;
-var userDragging = false;
-
-function setTiltVal(val) {
-  tiltVal = Math.max(-1, Math.min(1, val));
-  // sync slider thumb
-  tiltSlider.value = tiltVal * 100;
-  render(tiltVal);
-}
-
-function handleOrientation(e) {
-  if (userDragging) return;
-  var gamma = e.gamma;
-  if (gamma === null || gamma === undefined) return;
-  if (baseGamma === null) baseGamma = gamma;
-  var delta = gamma - baseGamma;
-  var target = Math.max(-1, Math.min(1, delta / 28));
-  var smoothed = tiltVal * 0.82 + target * 0.18;
-  setTiltVal(smoothed);
-}
-
-function startTilt() {
-  if (tiltActive) return;
-  if (typeof DeviceOrientationEvent !== 'undefined' &&
-      typeof DeviceOrientationEvent.requestPermission === 'function') {
-    // iOS 13+ needs explicit permission from a click event
-    DeviceOrientationEvent.requestPermission().then(function(state) {
-      if (state === 'granted') {
-        window.addEventListener('deviceorientation', handleOrientation, true);
-        tiltActive = true;
-        baseGamma = null;
-      }
-    }).catch(console.error);
-  } else {
-    // Android and older iOS – no permission needed
-    window.addEventListener('deviceorientation', handleOrientation, true);
-    tiltActive = true;
-    baseGamma = null;
-  }
-}
-
-// mobile slider – user can drag manually
-tiltSlider.addEventListener('touchstart', function() { userDragging = true; }, {passive:true});
-tiltSlider.addEventListener('touchend', function() {
-  userDragging = false;
-  baseGamma = null; // recalibrate tilt to current position
-}, {passive:true});
-tiltSlider.addEventListener('input', function() {
-  var val = parseFloat(tiltSlider.value) / 100;
-  tiltVal = val;
-  render(val);
-});
-
-// start tilt on first touch anywhere on page
+// on mobile use pointer cursor for slider
 document.addEventListener('touchstart', function() {
-  startTilt();
-  setTimeout(function() { tiltHint.style.opacity = '1'; }, 600);
-}, {once: true, passive: true});
-
-// iOS fallback: also try on first click
-document.addEventListener('click', function() {
-  startTilt();
+  sliderEl.style.cursor = 'default';
 }, {once: true, passive: true});
 
 render(0);
