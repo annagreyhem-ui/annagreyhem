@@ -31,7 +31,12 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
 /* mobile override */
 @media (hover:none) and (pointer:coarse) {
   #switch {
-    left:15%; top:38%;
+    left:15%; top:40%;
+  }
+  #graffiti {
+    top:20%;
+    width:48%;
+    left:5%;
   }
 }
 
@@ -62,14 +67,6 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
   transform-origin:left center;
 }
 #graffiti.show { opacity:0.88; }
-
-@media (hover:none) and (pointer:coarse) {
-  #graffiti {
-    top:35%;
-    width:80%;
-    left:5%;
-  }
-}
 </style>
 </head>
 <body>
