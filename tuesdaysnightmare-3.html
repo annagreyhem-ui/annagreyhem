@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tuesday's Nightmare</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -12,190 +11,93 @@ html, body {
   width:100%; height:100%;
   overflow:hidden;
   background:#000;
-  font-family:'Cormorant Garamond', serif;
   cursor:none;
   user-select:none;
 }
 
-#room {
-  position:fixed; inset:0;
-}
+#room { position:fixed; inset:0; }
 
-/* Video fills screen */
 #room video {
   position:absolute;
   top:50%; left:50%;
   transform:translate(-50%,-50%);
   width:100%; height:100%;
   object-fit:cover;
-  object-position:center center;
 }
 
-#vid-dark  { opacity:1; z-index:1; }
-#vid-light { opacity:0; z-index:2; }
+#vid-dark  { opacity:1; z-index:1; transition:opacity 0.12s ease; }
+#vid-light { opacity:0; z-index:2; transition:opacity 0.12s ease; }
 
-/* Graffiti overlay */
+body.on #vid-dark  { opacity:0; }
+body.on #vid-light { opacity:1; }
+
+/* Graffiti */
 #graffiti {
   position:fixed;
   z-index:40;
   pointer-events:none;
   opacity:0;
   transition:opacity 0.4s ease;
-  /* Desktop: over the bed area */
   left:50%;
   top:38%;
   transform:translate(-50%,-50%);
   width:clamp(260px,40vw,480px);
   rotate:-2deg;
-  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 50%, black 55%, transparent 100%);
-  mask-image: radial-gradient(ellipse 85% 70% at 50% 50%, black 55%, transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 85% 70% at 50% 50%, black 55%, transparent 100%);
+  mask-image:radial-gradient(ellipse 85% 70% at 50% 50%, black 55%, transparent 100%);
 }
-
 #graffiti img { width:100%; }
 
 /* Flash */
 #flash {
   position:fixed; inset:0; z-index:90;
-  background:#fff;
-  opacity:0;
+  background:#fff; opacity:0;
   pointer-events:none;
 }
 
-/* Light switch – desktop */
+/* Switch – desktop */
 #switch-desktop {
   position:fixed;
-  left:27.5%;
-  top:53%;
+  left:27.5%; top:53%;
   transform:translate(-50%,-50%);
-  z-index:50;
-  cursor:none;
+  z-index:50; cursor:none;
   width:54px; height:54px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
 }
-
 #switch-desktop-hit {
   width:54px; height:54px;
   border-radius:4px;
   border:1px solid rgba(255,255,255,0);
   transition:border-color 0.2s;
 }
-#switch-desktop:hover #switch-desktop-hit {
-  border-color:rgba(255,255,255,0.3);
-}
-body.on #switch-desktop:hover #switch-desktop-hit {
-  border-color:rgba(0,0,0,0.2);
-}
+#switch-desktop:hover #switch-desktop-hit { border-color:rgba(255,255,255,0.3); }
+body.on #switch-desktop:hover #switch-desktop-hit { border-color:rgba(0,0,0,0.2); }
 
-/* Light switch – mobile (left wall, ~15% from left, ~55% from top) */
+/* Switch – mobile */
 #switch-mobile {
   position:fixed;
-  left:15%;
-  top:55%;
+  left:15%; top:55%;
   transform:translate(-50%,-50%);
   z-index:50;
-  cursor:pointer;
-  width:60px; height:60px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  width:70px; height:70px;
   -webkit-tap-highlight-color:transparent;
-  display:none; /* shown via media query */
+  display:none;
 }
-
 #switch-mobile-hit {
-  width:60px; height:60px;
+  width:70px; height:70px;
   border-radius:4px;
   border:1px solid rgba(255,255,255,0);
-  transition:border-color 0.15s;
 }
 
-/* Show correct switch per device */
 @media (hover:hover) and (pointer:fine) {
-  /* Desktop */
-  #switch-desktop { display:flex; }
+  #switch-desktop { display:block; }
   #switch-mobile  { display:none; }
 }
 @media (hover:none) and (pointer:coarse) {
-  /* Mobile */
   #switch-desktop { display:none; }
-  #switch-mobile  { display:flex; }
+  #switch-mobile  { display:block; }
 }
 
-/* Text */
-#text-wrap {
-  position:fixed;
-  top:0; left:0; right:0;
-  z-index:60;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:clamp(32px,6vh,64px) 24px 0;
-  pointer-events:none;
-}
-
-#title {
-  font-size:clamp(12px,1.2vw,15px);
-  font-style:italic;
-  font-weight:300;
-  letter-spacing:0.4em;
-  color:rgba(255,255,255,0.22);
-  margin-bottom:clamp(20px,4vh,40px);
-  transition:color 0.5s;
-  text-transform:lowercase;
-}
-body.on #title { color:rgba(30,20,10,0.28); }
-
-#story {
-  max-width:520px;
-  width:100%;
-  text-align:center;
-  font-size:clamp(15px,1.6vw,19px);
-  font-style:italic;
-  font-weight:300;
-  line-height:2;
-  letter-spacing:0.03em;
-  color:rgba(255,255,255,0);
-  transition:color 1s ease;
-}
-#story.show { color:rgba(255,255,255,0.52); }
-body.on #story.show { color:rgba(30,20,10,0.55); }
-
-#question {
-  position:fixed;
-  bottom:clamp(48px,10vh,88px);
-  left:50%;
-  transform:translateX(-50%);
-  z-index:60;
-  font-size:clamp(15px,1.6vw,20px);
-  font-style:italic;
-  font-weight:300;
-  letter-spacing:0.05em;
-  color:rgba(255,255,255,0);
-  transition:color 1.8s ease;
-  white-space:nowrap;
-  pointer-events:none;
-  text-align:center;
-  padding:0 20px;
-}
-#question.show { color:rgba(255,255,255,0.45); }
-body.on #question.show { color:rgba(30,20,10,0.42); }
-
-#credit {
-  position:fixed;
-  bottom:18px; left:50%;
-  transform:translateX(-50%);
-  font-size:10px;
-  letter-spacing:0.3em;
-  font-style:italic;
-  color:rgba(255,255,255,0.1);
-  z-index:60;
-  transition:color 0.5s;
-  white-space:nowrap;
-}
-body.on #credit { color:rgba(30,20,10,0.12); }
-
+/* Cursor (desktop only) */
 #cursor {
   position:fixed;
   width:5px; height:5px;
@@ -215,67 +117,34 @@ body.on #cursor { background:rgba(0,0,0,0.3); }
 <div id="flash"></div>
 
 <div id="room">
-  <video id="vid-dark"  src="./room.mp4"                    muted playsinline preload="auto"></video>
-  <video id="vid-light" src="./room.mp4"                    muted playsinline preload="auto"></video>
+  <video id="vid-dark"  muted playsinline preload="auto"></video>
+  <video id="vid-light" muted playsinline preload="auto"></video>
 </div>
 
-<!-- Graffiti -->
 <div id="graffiti"><img src="./graffiti.png" alt=""></div>
 
-<div id="text-wrap">
-  <div id="title">Tuesday's Nightmare</div>
-  <div id="story"></div>
-</div>
-
-<!-- Desktop switch -->
-<div id="switch-desktop" onclick="handleSwitch()">
-  <div id="switch-desktop-hit"></div>
-</div>
-
-<!-- Mobile switch -->
-<div id="switch-mobile">
-  <div id="switch-mobile-hit"></div>
-</div>
-
-<div id="question"></div>
-<div id="credit">Anna Greyhem</div>
+<div id="switch-desktop"><div id="switch-desktop-hit"></div></div>
+<div id="switch-mobile"><div id="switch-mobile-hit"></div></div>
 
 <script>
-// ── DETECT MOBILE ──────────────────────────────────────────────────────────────
 var isMobile = window.matchMedia('(hover:none) and (pointer:coarse)').matches;
 
-// ── SET CORRECT VIDEO SRC ──────────────────────────────────────────────────────
 var vidDark  = document.getElementById('vid-dark');
 var vidLight = document.getElementById('vid-light');
+var src = isMobile ? './tuesdaysnightmare_phone.mp4' : './room.mp4';
 
-if (isMobile) {
-  vidDark.src  = './tuesdaysnightmare_phone.mp4';
-  vidLight.src = './tuesdaysnightmare_phone.mp4';
-}
+vidDark.src  = src;
+vidLight.src = src;
 
-// Videos: dark = paused at frame 0, light = paused at last frame
-var LIGHT_TIME = 2.894; // duration of room.mp4 / phone video
-
-function seekTo(vid, t, cb) {
-  vid.currentTime = t;
-  if (cb) {
-    vid.addEventListener('seeked', function handler() {
-      vid.removeEventListener('seeked', handler);
-      cb();
-    });
-  }
-}
-
-// Init: dark at 0, light at end
+// Init: dark paused at frame 0, light paused at last frame
 vidDark.addEventListener('loadedmetadata', function() {
-  seekTo(vidDark, 0);
+  vidDark.currentTime = 0;
 });
 vidLight.addEventListener('loadedmetadata', function() {
-  var dur = vidLight.duration || LIGHT_TIME;
-  seekTo(vidLight, dur);
+  vidLight.currentTime = vidLight.duration;
 });
 
-// ── CURSOR ─────────────────────────────────────────────────────────────────────
+// Cursor
 var cur = document.getElementById('cursor');
 document.addEventListener('mousemove', function(e) {
   cur.style.left = e.clientX + 'px';
@@ -283,30 +152,11 @@ document.addEventListener('mousemove', function(e) {
 });
 if (isMobile) cur.style.display = 'none';
 
-// ── STATE ──────────────────────────────────────────────────────────────────────
+// State
 var isOn = false;
 var clicks = 0;
-var story    = document.getElementById('story');
-var question = document.getElementById('question');
-var flash    = document.getElementById('flash');
 var graffiti = document.getElementById('graffiti');
-var graffitiCount = 0;
-
-var texts = [
-  "I woke up. It was dark in the room. I wanted to get up so I pressed the light switch. The light switch didn't work. I tried to push it again. My light switch always worked. This must be a dream. And I fear, I know that this is a scary dream.",
-  "I woke up. I was relieved. What a heavy dream. It was still early, so the room was dark. I got up, told my boyfriend about this dream and turned on the light switch. It didn't work. This was a funny coincidence. I tried again and it didn't work. And I realized this must be a dream.",
-  "I feared to wake up again.",
-  "I woke up again."
-];
-
-function showText(t) {
-  story.classList.remove('show');
-  void story.offsetWidth;
-  story.textContent = t;
-  setTimeout(function() { story.classList.add('show'); }, 40);
-}
-
-setTimeout(function() { showText(texts[0]); }, 1000);
+var flash    = document.getElementById('flash');
 
 function doFlash() {
   flash.style.transition = 'opacity 0.03s';
@@ -317,84 +167,23 @@ function doFlash() {
   }, 40);
 }
 
-// ── VIDEO TRANSITION ───────────────────────────────────────────────────────────
-// Light on: play vidLight forward (0 → end), show vidLight over dark
-// Light off: play vidDark backward (end → 0), show vidDark over light
-
-function lightOn() {
-  var dur = vidLight.duration || LIGHT_TIME;
-  seekTo(vidLight, 0, function() {
-    vidLight.style.opacity = '1';
-    vidLight.play();
-    var interval = setInterval(function() {
-      if (vidLight.currentTime >= dur - 0.05) {
-        vidLight.pause();
-        clearInterval(interval);
-      }
-    }, 50);
-  });
-}
-
-function lightOff() {
-  var dur = vidDark.duration || LIGHT_TIME;
-  seekTo(vidDark, dur, function() {
-    vidDark.style.opacity = '1';
-    vidLight.style.opacity = '0';
-    // play dark backwards by scrubbing
-    var fps = 30;
-    var spd = dur / 0.35; // fast reverse: 350ms
-    var interval = setInterval(function() {
-      vidDark.currentTime = Math.max(0, vidDark.currentTime - (1/fps) * spd * (1/fps));
-      if (vidDark.currentTime <= 0.02) {
-        vidDark.currentTime = 0;
-        clearInterval(interval);
-      }
-    }, 1000/fps);
-  });
-}
-
-// ── GRAFFITI ───────────────────────────────────────────────────────────────────
 function checkGraffiti() {
-  // appears every 4th click when lights off
-  graffitiCount++;
-  if (graffitiCount % 4 === 0 && !isOn) {
+  clicks++;
+  if (clicks % 4 === 0 && !isOn) {
     graffiti.style.opacity = '1';
     setTimeout(function() { graffiti.style.opacity = '0'; }, 1800);
   }
 }
 
-// ── HANDLE SWITCH ──────────────────────────────────────────────────────────────
 function handleSwitch() {
-  clicks++;
   doFlash();
   isOn = !isOn;
   document.body.classList.toggle('on', isOn);
   checkGraffiti();
-
-  if (isOn) {
-    lightOn();
-  } else {
-    lightOff();
-  }
-
-  if (clicks === 1) {
-    showText(texts[1]);
-  } else if (clicks === 2) {
-    showText(texts[2]);
-  } else if (clicks === 3) {
-    showText(texts[3]);
-    setTimeout(function() {
-      question.textContent = 'Should I try the light switch again?';
-      question.classList.add('show');
-    }, 2000);
-  }
 }
 
-// ── EVENTS ─────────────────────────────────────────────────────────────────────
 document.getElementById('switch-desktop').addEventListener('click', handleSwitch);
-
-var switchMobile = document.getElementById('switch-mobile');
-switchMobile.addEventListener('touchend', function(e) {
+document.getElementById('switch-mobile').addEventListener('touchend', function(e) {
   e.preventDefault();
   handleSwitch();
 }, {passive:false});
