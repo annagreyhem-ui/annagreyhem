@@ -8,9 +8,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:none; user-select:none; }
 
-#room {
-  position:fixed; inset:0;
-}
+#room { position:fixed; inset:0; }
 #room video {
   position:absolute; inset:0;
   width:100%; height:100%;
@@ -19,15 +17,27 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
   display:block;
 }
 
-/* light switch – on the wall, left of bed */
+/* light switch */
 #switch {
   position:fixed;
-  left: 28%;
-  top: 42%;
-  transform: translate(-50%, -50%);
   z-index:50;
   cursor:none;
   -webkit-tap-highlight-color:transparent;
+  /* desktop default */
+  left:28%; top:42%;
+  transform:translate(-50%,-50%);
+}
+
+/* mobile override */
+@media (hover:none) and (pointer:coarse) {
+  #switch {
+    left:15%; top:40%;
+  }
+  #graffiti {
+    top:20%;
+    width:48%;
+    left:5%;
+  }
 }
 
 #flash {
@@ -45,26 +55,39 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
 }
 body.on #cursor { background:rgba(0,0,0,0.28); }
 
-/* graffiti – constrained to left wall above bed */
 #graffiti {
   position:fixed;
-  left: 5%;
-  top: 18%;
-  width: 48%;
+  left:5%; top:28%;
+  width:48%;
   z-index:40;
   opacity:0;
   pointer-events:none;
-  transition: opacity 0.3s ease;
-  transform: rotate(-2deg);
-  transform-origin: left center;
-  -webkit-mask-image: linear-gradient(to right, black 55%, transparent 92%),
-                      linear-gradient(to bottom, black 70%, transparent 100%);
-  -webkit-mask-composite: destination-in;
-  mask-image: linear-gradient(to right, black 55%, transparent 92%),
-              linear-gradient(to bottom, black 70%, transparent 100%);
-  mask-composite: intersect;
+  transition:opacity 0.6s ease;
+  transform:rotate(-2deg);
+  transform-origin:left center;
+  mix-blend-mode:screen;
 }
-#graffiti.show { opacity:0.88; }
+#graffiti.show { opacity:1; }
+
+/* Mobile: full image overlay */
+#graffiti-mobile {
+  position:fixed;
+  inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:center center;
+  z-index:40;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.6s ease;
+  display:none;
+}
+#graffiti-mobile.show { opacity:1; }
+
+@media (hover:none) and (pointer:coarse) {
+  #graffiti { display:none; }
+  #graffiti-mobile { display:block; }
+}
 </style>
 </head>
 <body>
@@ -77,6 +100,7 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
 </div>
 
 <img id="graffiti" src="./graffiti.png" alt="">
+<img id="graffiti-mobile" src="./tuesdaysnightmare_graffiti_phone.jpg" alt="">
 
 <div id="switch" onclick="toggle()">
   <svg width="28" height="52" viewBox="0 0 28 52">
@@ -88,28 +112,102 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
 </div>
 
 <script>
+var isMobile = window.matchMedia('(hover:none) and (pointer:coarse)').matches;
+
 // cursor
 var cur = document.getElementById('cursor');
-document.addEventListener('mousemove', function(e) {
-  cur.style.left = e.clientX+'px';
-  cur.style.top  = e.clientY+'px';
-});
+if (isMobile) {
+  cur.style.display = 'none';
+} else {
+  document.addEventListener('mousemove', function(e) {
+    cur.style.left = e.clientX+'px';
+    cur.style.top  = e.clientY+'px';
+  });
+}
 
-var vid    = document.getElementById('vid');
-var flash  = document.getElementById('flash');
-var graffiti = document.getElementById('graffiti');
-var isOn   = false;
-var busy   = false;
+var vid      = document.getElementById('vid');
+var flash    = document.getElementById('flash');
+var graffiti       = document.getElementById('graffiti');
+var graffitiMobile = document.getElementById('graffiti-mobile');
+var graffitiShown  = 0; // how many times graffiti has appeared
+
+function showGraffiti(show) {
+  if (show) {
+    graffiti.classList.add('show');
+    graffitiMobile.classList.add('show');
+  } else {
+    graffiti.classList.remove('show');
+    graffitiMobile.classList.remove('show');
+  }
+}
+
+function triggerGraffiti() {
+  graffitiShown++;
+
+  if (graffitiShown === 1) {
+    // First time: very brief flicker – 300ms
+    showGraffiti(true);
+    setTimeout(function() { showGraffiti(false); }, 300);
+  } else if (graffitiShown === 2) {
+    // Second time: a bit longer – 800ms
+    showGraffiti(true);
+    setTimeout(function() { showGraffiti(false); }, 800);
+  } else if (graffitiShown === 3) {
+    // Third time: stays for 2s
+    showGraffiti(true);
+    setTimeout(function() { showGraffiti(false); }, 2000);
+  } else {
+    // Fourth time onwards: stays until next switch action
+    showGraffiti(true);
+  }
+}
+var isOn     = false;
+var busy     = false;
 var DURATION = 2.894;
 var clickCount = 0;
+var rafId    = null;
 
-vid.src = './room.mp4';
-vid.load();
+// Set video source based on device
+vid.src = isMobile ? './tuesdaysnightmare_phone.mp4' : './room.mp4';
 
-// park on first frame
-vid.addEventListener('loadeddata', function() {
-  vid.currentTime = 0;
-});
+// iOS requires play() from a user gesture before seeking works
+var unlocked = false;
+
+function ensureUnlocked(cb) {
+  if (unlocked) { cb(); return; }
+  var p = vid.play();
+  if (p && p.then) {
+    p.then(function() {
+      vid.pause();
+      vid.currentTime = 0;
+      unlocked = true;
+      cb();
+    }).catch(function() {
+      vid.currentTime = 0;
+      unlocked = true;
+      cb();
+    });
+  } else {
+    vid.pause();
+    vid.currentTime = 0;
+    unlocked = true;
+    cb();
+  }
+}
+
+// Desktop: park on first frame once loaded
+if (!isMobile) {
+  vid.addEventListener('loadeddata', function() {
+    vid.currentTime = 0;
+  });
+}
+
+// Mobile: unlock on first touch, then park on frame 0
+if (isMobile) {
+  document.addEventListener('touchstart', function() {
+    ensureUnlocked(function() {});
+  }, { once: true, passive: true });
+}
 
 function doFlash() {
   flash.style.transition = 'none';
@@ -136,34 +234,14 @@ function updateSwitch() {
   }
 }
 
-var rafId = null;
-var SPEED_ON  = 2.894;  // ~1s to turn on
-var SPEED_OFF = 8.0;    // ~0.35s to turn off – abrupt
+var SPEED_ON  = 2.894;
+var SPEED_OFF = 8.0;
 
-function toggle() {
-  if (busy) return;
-  busy = true;
-  doFlash();
-
-  isOn = !isOn;
-  document.body.classList.toggle('on', isOn);
-  updateSwitch();
-  clickCount++;
-
-  // graffiti appears when lights go OFF on every 4th click (clicks 4, 8, 12...)
-  if (!isOn && clickCount % 4 === 0) {
-    graffiti.classList.add('show');
-  } else {
-    graffiti.classList.remove('show');
-  }
-
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-  vid.pause();
-
-  var startTime = null;
+function runAnimation() {
+  var startTime    = null;
   var startVidTime = isOn ? 0 : DURATION;
-  var direction = isOn ? 1 : -1;
-  var speed = isOn ? SPEED_ON : SPEED_OFF;
+  var direction    = isOn ? 1 : -1;
+  var speed        = isOn ? SPEED_ON : SPEED_OFF;
 
   vid.currentTime = startVidTime;
 
@@ -177,20 +255,54 @@ function toggle() {
     if ((direction > 0 && newTime >= DURATION) || (direction < 0 && newTime <= 0)) {
       vid.currentTime = direction > 0 ? DURATION : 0;
       rafId = null;
-      busy = false;
+      busy  = false;
       return;
     }
     rafId = requestAnimationFrame(step);
   }
-
   rafId = requestAnimationFrame(step);
 }
 
-// touch support
+function toggle() {
+  function doToggle() {
+    if (busy) return;
+    busy = true;
+    doFlash();
+
+    isOn = !isOn;
+    document.body.classList.toggle('on', isOn);
+    updateSwitch();
+    clickCount++;
+
+    // Graffiti appears when lights go OFF: clicks 2, 5, 9, 14...
+    // (getting harder to find each time)
+    var graffitiClicks = [2, 5, 9, 14];
+    if (!isOn && graffitiClicks.indexOf(clickCount) !== -1) {
+      triggerGraffiti();
+    } else if (graffitiShown >= 4) {
+      // after 4th appearance: always show when lights off, hide when on
+      if (!isOn) showGraffiti(true);
+      else showGraffiti(false);
+    } else {
+      showGraffiti(false);
+    }
+
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    vid.pause();
+    runAnimation();
+  }
+
+  if (isMobile && !unlocked) {
+    ensureUnlocked(doToggle);
+  } else {
+    doToggle();
+  }
+}
+
 document.getElementById('switch').addEventListener('touchend', function(e) {
   e.preventDefault();
   toggle();
-});
+}, { passive: false });
 </script>
 </body>
 </html>
