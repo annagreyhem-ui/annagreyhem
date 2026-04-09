@@ -62,19 +62,31 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
   z-index:40;
   opacity:0;
   pointer-events:none;
-  transition:opacity 0.3s ease;
+  transition:opacity 0.6s ease;
   transform:rotate(-2deg);
   transform-origin:left center;
   mix-blend-mode:screen;
 }
 #graffiti.show { opacity:1; }
 
+/* Mobile: full image overlay */
+#graffiti-mobile {
+  position:fixed;
+  inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:center center;
+  z-index:40;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.6s ease;
+  display:none;
+}
+#graffiti-mobile.show { opacity:1; }
+
 @media (hover:none) and (pointer:coarse) {
-  #graffiti {
-    left:-5%; top:0;
-    width:80%;
-    transform:none;
-  }
+  #graffiti { display:none; }
+  #graffiti-mobile { display:block; }
 }
 </style>
 </head>
@@ -88,6 +100,7 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
 </div>
 
 <img id="graffiti" src="./graffiti.png" alt="">
+<img id="graffiti-mobile" src="./tuesdaysnightmare_graffiti_phone.jpg" alt="">
 
 <div id="switch" onclick="toggle()">
   <svg width="28" height="52" viewBox="0 0 28 52">
@@ -114,7 +127,18 @@ if (isMobile) {
 
 var vid      = document.getElementById('vid');
 var flash    = document.getElementById('flash');
-var graffiti = document.getElementById('graffiti');
+var graffiti       = document.getElementById('graffiti');
+var graffitiMobile = document.getElementById('graffiti-mobile');
+
+function showGraffiti(show) {
+  if (show) {
+    graffiti.classList.add('show');
+    graffitiMobile.classList.add('show');
+  } else {
+    graffiti.classList.remove('show');
+    graffitiMobile.classList.remove('show');
+  }
+}
 var isOn     = false;
 var busy     = false;
 var DURATION = 2.894;
@@ -229,9 +253,9 @@ function toggle() {
     clickCount++;
 
     if (!isOn && clickCount % 4 === 0) {
-      graffiti.classList.add('show');
+      showGraffiti(true);
     } else {
-      graffiti.classList.remove('show');
+      showGraffiti(false);
     }
 
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
