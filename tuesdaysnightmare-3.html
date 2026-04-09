@@ -55,37 +55,47 @@ body.on #vid-light { opacity:1; }
   pointer-events:none;
 }
 
-/* Switch – desktop */
+/* Switch – desktop: left wall area */
 #switch-desktop {
   position:fixed;
-  left:27.5%; top:53%;
+  left:27.5%; top:38%;
   transform:translate(-50%,-50%);
   z-index:50; cursor:none;
-  width:54px; height:54px;
 }
-#switch-desktop-hit {
-  width:54px; height:54px;
-  border-radius:4px;
-  border:1px solid rgba(255,255,255,0);
-  transition:border-color 0.2s;
-}
-#switch-desktop:hover #switch-desktop-hit { border-color:rgba(255,255,255,0.3); }
-body.on #switch-desktop:hover #switch-desktop-hit { border-color:rgba(0,0,0,0.2); }
+#switch-desktop:hover .switch-plate { opacity:0.85; }
 
 /* Switch – mobile */
 #switch-mobile {
   position:fixed;
-  left:15%; top:55%;
+  left:15%; top:45%;
   transform:translate(-50%,-50%);
   z-index:50;
-  width:70px; height:70px;
   -webkit-tap-highlight-color:transparent;
   display:none;
 }
-#switch-mobile-hit {
-  width:70px; height:70px;
-  border-radius:4px;
-  border:1px solid rgba(255,255,255,0);
+
+@media (hover:hover) and (pointer:fine) {
+  #switch-desktop { display:block; }
+  #switch-mobile  { display:none; }
+}
+@media (hover:none) and (pointer:coarse) {
+  #switch-desktop { display:none; }
+  #switch-mobile  { display:block; }
+}
+
+.switch-plate {
+  opacity:0.65;
+  transition:opacity 0.2s;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+}
+body.on .switch-plate {
+  opacity:0.75;
+}
+.switch-toggle {
+  transition:transform 0.12s ease;
+}
+body.on .switch-toggle {
+  transform:translateY(6px);
 }
 
 @media (hover:hover) and (pointer:fine) {
@@ -123,8 +133,28 @@ body.on #cursor { background:rgba(0,0,0,0.3); }
 
 <div id="graffiti"><img src="./graffiti.png" alt=""></div>
 
-<div id="switch-desktop"><div id="switch-desktop-hit"></div></div>
-<div id="switch-mobile"><div id="switch-mobile-hit"></div></div>
+<div id="switch-desktop" onclick="handleSwitch()">
+  <svg class="switch-plate" width="36" height="58" viewBox="0 0 36 58">
+    <!-- plate -->
+    <rect x="1" y="1" width="34" height="56" rx="3" ry="3"
+      fill="#e8e4dc" stroke="#b0a898" stroke-width="1"/>
+    <!-- rocker toggle -->
+    <rect class="switch-toggle" x="9" y="10" width="18" height="24" rx="2" ry="2"
+      fill="#c8c4bc" stroke="#a09890" stroke-width="0.8"/>
+    <!-- subtle shadow line -->
+    <line x1="9" y1="22" x2="27" y2="22" stroke="#909088" stroke-width="0.5" opacity="0.5"/>
+  </svg>
+</div>
+
+<div id="switch-mobile" ontouchend="function(e){e.preventDefault();handleSwitch();}">
+  <svg class="switch-plate" width="36" height="58" viewBox="0 0 36 58">
+    <rect x="1" y="1" width="34" height="56" rx="3" ry="3"
+      fill="#e8e4dc" stroke="#b0a898" stroke-width="1"/>
+    <rect class="switch-toggle" x="9" y="10" width="18" height="24" rx="2" ry="2"
+      fill="#c8c4bc" stroke="#a09890" stroke-width="0.8"/>
+    <line x1="9" y1="22" x2="27" y2="22" stroke="#909088" stroke-width="0.5" opacity="0.5"/>
+  </svg>
+</div>
 
 <script>
 var isMobile = window.matchMedia('(hover:none) and (pointer:coarse)').matches;
@@ -136,13 +166,68 @@ var src = isMobile ? './tuesdaysnightmare_phone.mp4' : './room.mp4';
 vidDark.src  = src;
 vidLight.src = src;
 
-// Init: dark paused at frame 0, light paused at last frame
-vidDark.addEventListener('loadedmetadata', function() {
+// iOS requires a user gesture to unlock video
+// We play+pause on first touch to unlock, then seek to correct frames
+var videosUnlocked = false;
+
+function unlockVideos(cb) {
+  if (videosUnlocked) { if (cb) cb(); return; }
+  var p1 = vidDark.play();
+  var p2 = vidLight.play();
+  Promise.all([
+    p1 ? p1.catch(function(){}) : Promise.resolve(),
+    p2 ? p2.catch(function(){}) : Promise.resolve()
+  ]).then(function() {
+    vidDark.pause();
+    vidLight.pause();
+    videosUnlocked = true;
+    seekToFrames(cb);
+  });
+}
+
+function seekToFrames(cb) {
+  var loaded = 0;
+  function done() { loaded++; if (loaded === 2 && cb) cb(); }
+
   vidDark.currentTime = 0;
-});
-vidLight.addEventListener('loadedmetadata', function() {
-  vidLight.currentTime = vidLight.duration;
-});
+  vidDark.addEventListener('seeked', function h() {
+    vidDark.removeEventListener('seeked', h); done();
+  });
+
+  // seek light to end once duration is known
+  function seekLight() {
+    if (vidLight.duration && isFinite(vidLight.duration)) {
+      vidLight.currentTime = vidLight.duration - 0.01;
+      vidLight.addEventListener('seeked', function h() {
+        vidLight.removeEventListener('seeked', h); done();
+      });
+    } else {
+      vidLight.addEventListener('loadedmetadata', function h() {
+        vidLight.removeEventListener('loadedmetadata', h);
+        vidLight.currentTime = vidLight.duration - 0.01;
+        vidLight.addEventListener('seeked', function h2() {
+          vidLight.removeEventListener('seeked', h2); done();
+        });
+      });
+    }
+  }
+  seekLight();
+}
+
+// Desktop: seek on metadata load
+if (!isMobile) {
+  vidDark.addEventListener('loadedmetadata', function() { vidDark.currentTime = 0; });
+  vidLight.addEventListener('loadedmetadata', function() {
+    vidLight.currentTime = vidLight.duration - 0.01;
+  });
+}
+
+// Mobile: unlock on first touch anywhere
+if (isMobile) {
+  document.addEventListener('touchstart', function() {
+    unlockVideos();
+  }, {once: true, passive: true});
+}
 
 // Cursor
 var cur = document.getElementById('cursor');
