@@ -65,8 +65,17 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
   transition:opacity 0.3s ease;
   transform:rotate(-2deg);
   transform-origin:left center;
+  mix-blend-mode:screen;
 }
-#graffiti.show { opacity:0.88; }
+#graffiti.show { opacity:1; }
+
+@media (hover:none) and (pointer:coarse) {
+  #graffiti {
+    left:0; top:0;
+    width:100%;
+    transform:none;
+  }
+}
 </style>
 </head>
 <body>
