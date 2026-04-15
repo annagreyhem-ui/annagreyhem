@@ -25,7 +25,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 500;
     border-bottom: 1px solid #1a1a1a;
   }
 
@@ -36,6 +36,7 @@
     letter-spacing: 0.35em;
     color: #fff;
     font-weight: 400;
+    cursor: pointer;
   }
 
   /* ── CASTLE WRAPPER ── */
@@ -61,7 +62,6 @@
     position: absolute;
     cursor: pointer;
     background: transparent;
-    border: none;
     transition: background 0.25s ease;
     border-radius: 3px;
     z-index: 10;
@@ -92,170 +92,177 @@
     color: rgba(255, 255, 255, 0.75);
   }
 
-  /* ── OVERLAY ── */
-  #overlay {
+  /* ── ROOM VIEW — fullscreen below topbar ── */
+  #room-view {
     display: none;
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.93);
-    z-index: 300;
-    align-items: center;
-    justify-content: center;
+    top: 44px;
+    left: 0; right: 0; bottom: 0;
+    background: #000;
+    z-index: 400;
+    animation: fadeIn 0.4s ease forwards;
   }
 
-  #overlay.active {
-    display: flex;
-  }
-
-  #room-panel {
-    position: relative;
-    max-width: 860px;
-    width: 88vw;
-    animation: fadeUp 0.35s ease forwards;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  #room-image-wrap img {
-    width: 100%;
-    max-height: 62vh;
-    object-fit: cover;
+  #room-view.active {
     display: block;
-    filter: brightness(0.9);
   }
 
-  .room-placeholder {
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Room image fills the entire space */
+  #room-view img {
     width: 100%;
-    height: 360px;
-    background: #080808;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  /* Placeholder when no image yet */
+  #room-placeholder {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 18px;
+    background: #050505;
   }
 
-  .room-placeholder .ph-title {
+  #room-placeholder .ph-name {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 26px;
+    font-size: 32px;
     letter-spacing: 0.3em;
-    color: #222;
+    color: #1e1e1e;
   }
 
-  .room-placeholder .ph-sub {
-    font-size: 12px;
-    letter-spacing: 0.22em;
-    color: #161616;
-    font-style: italic;
-  }
-
-  #room-info {
-    background: #000;
-    padding: 18px 26px 22px;
-    border-top: 1px solid #181818;
-  }
-
-  #room-name {
+  #room-placeholder .ph-desc {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 20px;
-    letter-spacing: 0.22em;
-    color: #fff;
-    margin-bottom: 7px;
-  }
-
-  #room-desc {
-    font-family: 'Cormorant Garamond', serif;
     font-size: 14px;
-    color: #555;
+    letter-spacing: 0.15em;
+    color: #151515;
+    max-width: 400px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  #room-placeholder .ph-soon {
+    font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    letter-spacing: 0.06em;
-    line-height: 1.75;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: #111;
+    margin-top: 8px;
   }
 
-  #close-btn {
+  /* Room name overlay bottom left */
+  #room-caption {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.75);
-    border: 1px solid #2a2a2a;
-    color: #666;
-    font-size: 16px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: color 0.2s, border-color 0.2s;
-    border-radius: 2px;
+    bottom: 32px;
+    left: 36px;
+    pointer-events: none;
   }
 
-  #close-btn:hover { color: #fff; border-color: #555; }
+  #room-caption .cap-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+  }
+
+  #room-caption .cap-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* Back hint top left */
+  #back-btn {
+    position: absolute;
+    top: 14px;
+    left: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    z-index: 10;
+  }
+
+  #back-btn:hover {
+    color: rgba(255,255,255,0.6);
+  }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- TOP BAR — always on top, clicking name goes back to castle -->
 <div id="topbar">
-  <span>Anna Greyhem</span>
+  <span onclick="closeRoom()">Anna Greyhem</span>
 </div>
 
 <!-- CASTLE -->
 <div id="castle-wrapper">
-  <img id="castle-img" src="castle.png" alt="Anna Greyhem's Castle" draggable="false" />
+  <img id="castle-img" src="castle.png" alt="" draggable="false" />
 
-  <!-- THE BEDROOM — top left tower, red curtains, spinning wheel -->
+  <!-- THE BEDROOM -->
   <div class="hotspot" style="left:2%; top:2%; width:21%; height:46%;"
        onclick="openRoom('bedroom')">
     <span class="label">The Bedroom</span>
   </div>
 
-  <!-- THE LIBRARY — second floor left, bookshelves + desk -->
+  <!-- THE LIBRARY -->
   <div class="hotspot" style="left:2%; top:50%; width:26%; height:26%;"
        onclick="openRoom('library')">
     <span class="label">The Library</span>
   </div>
 
-  <!-- THE DRAWING ROOM — ground floor left, fireplace + portrait + red chair -->
+  <!-- THE DRAWING ROOM -->
   <div class="hotspot" style="left:2%; top:77%; width:26%; height:22%;"
        onclick="openRoom('drawing')">
     <span class="label">The Drawing Room</span>
   </div>
 
-  <!-- THE CHILDREN'S ROOM — top right, drawings everywhere + rabbit toy -->
+  <!-- THE CHILDREN'S ROOM -->
   <div class="hotspot" style="left:54%; top:2%; width:26%; height:44%;"
        onclick="openRoom('children')">
     <span class="label">The Children's Room</span>
   </div>
 
-  <!-- THE CORRIDOR — middle right, staircase + torches -->
+  <!-- THE CORRIDOR -->
   <div class="hotspot" style="left:54%; top:48%; width:26%; height:27%;"
        onclick="openRoom('corridor')">
     <span class="label">The Corridor</span>
   </div>
 
-  <!-- THE APOTHECARY — ground floor right, globe + bottles + candles -->
+  <!-- THE APOTHECARY -->
   <div class="hotspot" style="left:54%; top:77%; width:26%; height:22%;"
        onclick="openRoom('apothecary')">
     <span class="label">The Apothecary</span>
   </div>
-
 </div>
 
-<!-- OVERLAY -->
-<div id="overlay" onclick="handleOverlayClick(event)">
-  <div id="room-panel">
-    <button id="close-btn" onclick="closeRoom()">✕</button>
-    <div id="room-image-wrap"></div>
-    <div id="room-info">
-      <div id="room-name"></div>
-      <div id="room-desc"></div>
-    </div>
+<!-- ROOM VIEW — fullscreen -->
+<div id="room-view">
+  <button id="back-btn" onclick="closeRoom()">← back</button>
+  <div id="room-image-wrap" style="width:100%;height:100%;"></div>
+  <div id="room-caption">
+    <div class="cap-name" id="cap-name"></div>
+    <div class="cap-desc" id="cap-desc"></div>
   </div>
 </div>
 
@@ -295,35 +302,34 @@ const rooms = {
 
 function openRoom(id) {
   const room = rooms[id];
-  document.getElementById('room-name').textContent = room.name;
-  document.getElementById('room-desc').textContent = room.desc;
-
+  const view = document.getElementById('room-view');
   const wrap = document.getElementById('room-image-wrap');
+
+  document.getElementById('cap-name').textContent = room.name;
+  document.getElementById('cap-desc').textContent = room.desc;
+
   wrap.innerHTML = '';
 
   const img = new Image();
   img.onload = () => {
-    img.style.cssText = 'width:100%;max-height:62vh;object-fit:cover;display:block;filter:brightness(0.9);';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block;';
     wrap.appendChild(img);
   };
   img.onerror = () => {
     wrap.innerHTML = `
-      <div class="room-placeholder">
-        <div class="ph-title">${room.name}</div>
-        <div class="ph-sub">coming soon.</div>
+      <div id="room-placeholder">
+        <div class="ph-name">${room.name}</div>
+        <div class="ph-desc">${room.desc}</div>
+        <div class="ph-soon">coming soon.</div>
       </div>`;
   };
   img.src = room.img;
 
-  document.getElementById('overlay').classList.add('active');
+  view.classList.add('active');
 }
 
 function closeRoom() {
-  document.getElementById('overlay').classList.remove('active');
-}
-
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('overlay')) closeRoom();
+  document.getElementById('room-view').classList.remove('active');
 }
 
 document.addEventListener('keydown', e => {
