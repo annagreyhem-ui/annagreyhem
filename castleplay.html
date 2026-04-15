@@ -50,8 +50,8 @@
   #castle-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center top;
+    object-fit: contain;
+    object-position: center center;
     display: block;
     user-select: none;
     pointer-events: none;
@@ -116,7 +116,7 @@
   #room-view img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     display: block;
   }
@@ -271,32 +271,32 @@ const rooms = {
   bedroom: {
     name: "The Bedroom",
     desc: "She was beautiful, frozen, waiting.",
-    img: "rooms/bedroom.png"
+    img: "bedroom.png"
   },
   library: {
     name: "The Library",
     desc: "She left the book open. She always does.",
-    img: "rooms/library.png"
+    img: "library.png"
   },
   drawing: {
     name: "The Drawing Room",
     desc: "She set the table for twelve. No one came. She wasn't surprised.",
-    img: "rooms/drawing.png"
+    img: "drawing.png"
   },
   children: {
     name: "The Children's Room",
     desc: "Every wall a memory. Every painting a door that never opened.",
-    img: "rooms/children.png"
+    img: "children.png"
   },
   corridor: {
     name: "The Corridor",
     desc: "Somewhere in here, a staircase leads somewhere it shouldn't.",
-    img: "rooms/corridor.png"
+    img: "corridor.png"
   },
   apothecary: {
     name: "The Apothecary",
     desc: "Not everything in those bottles has a name.",
-    img: "rooms/apothecary.png"
+    img: "apothecary.png"
   }
 };
 
@@ -312,7 +312,7 @@ function openRoom(id) {
 
   const img = new Image();
   img.onload = () => {
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block;';
+    img.style.cssText = 'position:fixed;top:44px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 44px);object-fit:cover;object-position:center;display:block;';
     wrap.appendChild(img);
   };
   img.onerror = () => {
