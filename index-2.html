@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna Greyhem</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-bottom: 1px solid #111;
+  }
+
+  #topbar span {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    letter-spacing: 0.35em;
+    color: #fff;
+    font-weight: 400;
+  }
+
+  /* ── CASTLE WRAPPER ── */
+  #castle-wrapper {
+    margin-top: 44px;
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 44px;
+  }
+
+  #castle-img {
+    width: 100%;
+    display: block;
+  }
+
+  /* ── HOTSPOTS ── */
+  .hotspot {
+    position: absolute;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    transition: background 0.3s ease;
+    border-radius: 4px;
+  }
+
+  .hotspot:hover {
+    background: rgba(139, 0, 0, 0.12);
+    outline: 1px solid rgba(139, 0, 0, 0.3);
+  }
+
+  .hotspot .label {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0);
+    transition: color 0.3s ease;
+    pointer-events: none;
+  }
+
+  .hotspot:hover .label {
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ── OVERLAY ── */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.4s ease;
+  }
+
+  #overlay.active {
+    display: flex;
+    background: rgba(0,0,0,0.92);
+  }
+
+  #room-panel {
+    position: relative;
+    max-width: 900px;
+    width: 90vw;
+    max-height: 85vh;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  #overlay.active #room-panel {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #room-panel img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.92);
+  }
+
+  #room-info {
+    background: #000;
+    padding: 20px 28px 24px;
+    border-top: 1px solid #1a1a1a;
+  }
+
+  #room-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    letter-spacing: 0.2em;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  #room-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: #666;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    line-height: 1.7;
+  }
+
+  #close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid #333;
+    color: #888;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    border-radius: 2px;
+  }
+
+  #close-btn:hover {
+    color: #fff;
+    border-color: #555;
+  }
+
+  /* Placeholder room image — dark atmospheric */
+  .room-placeholder {
+    width: 100%;
+    height: 420px;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .room-placeholder .ph-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 28px;
+    letter-spacing: 0.3em;
+    color: #2a2a2a;
+  }
+
+  .room-placeholder .ph-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #1a1a1a;
+    font-style: italic;
+  }
+
+  /* ── SUBTLE FOOTER ── */
+  #footer {
+    text-align: center;
+    padding: 40px 0 32px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #222;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <span>Anna Greyhem</span>
+</div>
+
+<!-- CASTLE -->
+<div id="castle-wrapper">
+  <img id="castle-img" src="castle.png" alt="Anna Greyhem's Castle" />
+
+  <!-- HOTSPOTS — percentage-based positions -->
+
+  <!-- The Bedroom — top left tower -->
+  <div class="hotspot" id="hs-bedroom"
+    style="left:3%; top:5%; width:22%; height:38%;"
+    onclick="openRoom('bedroom')">
+    <span class="label">The Bedroom</span>
+  </div>
+
+  <!-- The Children's Room — top right -->
+  <div class="hotspot" id="hs-children"
+    style="left:55%; top:5%; width:24%; height:36%;"
+    onclick="openRoom('children')">
+    <span class="label">The Children's Room</span>
+  </div>
+
+  <!-- The Library — middle left -->
+  <div class="hotspot" id="hs-library"
+    style="left:3%; top:44%; width:28%; height:28%;"
+    onclick="openRoom('library')">
+    <span class="label">The Library</span>
+  </div>
+
+  <!-- The Corridor — middle center/right -->
+  <div class="hotspot" id="hs-corridor"
+    style="left:55%; top:44%; width:24%; height:28%;"
+    onclick="openRoom('corridor')">
+    <span class="label">The Corridor</span>
+  </div>
+
+  <!-- The Drawing Room — bottom left -->
+  <div class="hotspot" id="hs-drawing"
+    style="left:3%; top:73%; width:28%; height:25%;"
+    onclick="openRoom('drawing')">
+    <span class="label">The Drawing Room</span>
+  </div>
+
+  <!-- The Apothecary — bottom right -->
+  <div class="hotspot" id="hs-apothecary"
+    style="left:55%; top:73%; width:24%; height:25%;"
+    onclick="openRoom('apothecary')">
+    <span class="label">The Apothecary</span>
+  </div>
+
+</div>
+
+<div id="footer">look again.</div>
+
+<!-- OVERLAY -->
+<div id="overlay" onclick="handleOverlayClick(event)">
+  <div id="room-panel">
+    <button id="close-btn" onclick="closeRoom()">✕</button>
+    <div id="room-image-wrap"></div>
+    <div id="room-info">
+      <div id="room-name"></div>
+      <div id="room-desc"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const rooms = {
+  bedroom: {
+    name: "The Bedroom",
+    desc: "She was beautiful, frozen, waiting.",
+    img: "rooms/bedroom.jpg"
+  },
+  children: {
+    name: "The Children's Room",
+    desc: "Every wall a memory. Every painting a door that never opened.",
+    img: "rooms/children.jpg"
+  },
+  library: {
+    name: "The Library",
+    desc: "She left the book open. She always does.",
+    img: "rooms/library.jpg"
+  },
+  corridor: {
+    name: "The Corridor",
+    desc: "Somewhere in here, a staircase leads somewhere it shouldn't.",
+    img: "rooms/corridor.jpg"
+  },
+  drawing: {
+    name: "The Drawing Room",
+    desc: "She set the table for twelve. No one came. She wasn't surprised.",
+    img: "rooms/drawing.jpg"
+  },
+  apothecary: {
+    name: "The Apothecary",
+    desc: "Not everything in those bottles has a name.",
+    img: "rooms/apothecary.jpg"
+  }
+};
+
+function openRoom(id) {
+  const room = rooms[id];
+  const overlay = document.getElementById('overlay');
+  const nameEl = document.getElementById('room-name');
+  const descEl = document.getElementById('room-desc');
+  const imageWrap = document.getElementById('room-image-wrap');
+
+  nameEl.textContent = room.name;
+  descEl.textContent = room.desc;
+
+  // Try to load room image, fall back to placeholder
+  imageWrap.innerHTML = '';
+  const img = new Image();
+  img.onload = function() {
+    img.style.cssText = 'width:100%;max-height:70vh;object-fit:cover;display:block;filter:brightness(0.92);';
+    imageWrap.appendChild(img);
+  };
+  img.onerror = function() {
+    imageWrap.innerHTML = `
+      <div class="room-placeholder">
+        <div class="ph-title">${room.name}</div>
+        <div class="ph-sub">coming soon.</div>
+      </div>`;
+  };
+  img.src = room.img;
+
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRoom() {
+  const overlay = document.getElementById('overlay');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('overlay')) {
+    closeRoom();
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeRoom();
+});
+</script>
+</body>
+</html>
