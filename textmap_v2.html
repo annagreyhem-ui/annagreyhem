@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How life feels – Textkarte v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1714;
+    --bg2: #211e1b;
+    --cream: #e8e0d0;
+    --cream-dim: rgba(232,224,208,0.45);
+    --cream-faint: rgba(232,224,208,0.1);
+    --gold: #c9a96e;
+    --gold-dim: rgba(201,169,110,0.25);
+
+    --ton-lyrisch: #9e7ab5;
+    --ton-narrativ: #5a8a6a;
+    --ton-direkt: #c9a96e;
+    --ton-fragment: #8b3a3a;
+
+    --temp-kalt: #5a7a9e;
+    --temp-warm: #c97a3a;
+    --temp-neutral: #7a7060;
+
+    --funk-ein: #5a8a6a;
+    --funk-aus: #8b3a3a;
+    --funk-wende: #c9a96e;
+    --funk-still: #5a7a9e;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 48px 40px 32px;
+    border-bottom: 1px solid var(--cream-faint);
+  }
+  header h1 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: clamp(20px, 3.5vw, 34px);
+    font-weight: 400; letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  header p { color: var(--cream-dim); font-style: italic; font-size: 14px; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 32px;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--cream-faint);
+    font-size: 13px;
+  }
+  .legend-group { display: flex; flex-direction: column; gap: 6px; }
+  .legend-label {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px; letter-spacing: 0.15em;
+    color: var(--cream-dim); margin-bottom: 2px;
+  }
+  .legend-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .legend-dot { display: flex; align-items: center; gap: 6px; font-style: italic; color: var(--cream-dim); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .filters {
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--cream-faint);
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  .filter-label {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px; letter-spacing: 0.15em;
+    color: var(--cream-dim); margin-right: 4px;
+  }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--cream-faint);
+    color: var(--cream-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; font-style: italic;
+    padding: 4px 14px; border-radius: 2px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--gold); color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  main { padding: 32px 40px 80px; display: flex; flex-direction: column; gap: 40px; }
+
+  .chapter { }
+  .chapter-header {
+    display: flex; align-items: baseline; gap: 16px;
+    margin-bottom: 16px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--cream-faint);
+  }
+  .chapter-title {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 18px; letter-spacing: 0.12em;
+    color: var(--cream); font-weight: 400;
+  }
+  .chapter-subtitle { font-style: italic; color: var(--cream-dim); font-size: 13px; }
+  .chapter-stage {
+    margin-left: auto; font-size: 12px; letter-spacing: 0.1em;
+    color: var(--gold); font-style: italic;
+    font-family: 'IM Fell English SC', serif;
+  }
+
+  .text-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--cream-faint);
+    border-left: 3px solid transparent;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card:hover { border-color: var(--gold-dim); border-left-color: var(--gold); }
+  .card.faded { opacity: 0.15; }
+
+  .card-number {
+    font-size: 10px; color: var(--cream-faint);
+    font-family: 'IM Fell English SC', serif;
+    letter-spacing: 0.1em;
+  }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--cream); line-height: 1.3; }
+  .card-note { font-size: 12px; font-style: italic; color: var(--cream-dim); line-height: 1.4; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
+  .tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 1px;
+    font-style: italic; letter-spacing: 0.04em;
+  }
+
+  .card-flag {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 10px; letter-spacing: 0.08em;
+    font-family: 'IM Fell English SC', serif;
+    padding: 2px 6px; border-radius: 1px; border: 1px solid;
+  }
+  .flag-warning { color: #c97a3a; border-color: #c97a3a44; background: #c97a3a11; }
+  .flag-strong  { color: #5a8a6a; border-color: #5a8a6a44; background: #5a8a6a11; }
+  .flag-new     { color: #9e7ab5; border-color: #9e7ab544; background: #9e7ab511; }
+  .flag-stille  { color: #5a7a9e; border-color: #5a7a9e44; background: #5a7a9e11; }
+  .flag-alice   { color: #9e6a7a; border-color: #9e6a7a44; background: #9e6a7a11; }
+  .flag-motte   { color: #c9a96e; border-color: #c9a96e44; background: #c9a96e11; }
+
+  .detail-panel {
+    display: none; position: fixed;
+    bottom: 24px; right: 24px; width: 300px;
+    background: #2a2520;
+    border: 1px solid var(--gold-dim);
+    padding: 20px; z-index: 100;
+    font-size: 13px; line-height: 1.7;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  }
+  .detail-panel.visible { display: block; }
+  .detail-title {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 16px; color: var(--cream);
+    margin-bottom: 12px; letter-spacing: 0.06em;
+  }
+  .detail-row { margin-bottom: 6px; color: var(--cream-dim); }
+  .detail-row strong { color: var(--cream); font-weight: 400; font-style: italic; }
+  .detail-comment {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--cream-faint);
+    font-style: italic; color: var(--cream-dim);
+  }
+  .detail-close {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: none; color: var(--cream-dim);
+    cursor: pointer; font-size: 16px; font-family: serif;
+  }
+
+  .problems {
+    margin-top: 8px; padding: 20px 24px;
+    background: var(--bg2); border-left: 3px solid var(--gold);
+  }
+  .problems h3 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 14px; letter-spacing: 0.12em;
+    color: var(--gold); margin-bottom: 14px; font-weight: 400;
+  }
+  .problem-item {
+    margin-bottom: 10px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--cream-faint);
+    font-size: 13px; color: var(--cream-dim); line-height: 1.6;
+  }
+  .problem-item:last-child { border: none; margin: 0; padding: 0; }
+  .problem-item strong { color: var(--cream); font-style: italic; font-weight: 400; }
+
+  .transition-block {
+    padding: 24px; background: var(--bg2);
+    border: 1px solid var(--cream-faint);
+    border-left: 3px solid var(--gold);
+    font-size: 13px; line-height: 1.9;
+    color: var(--cream-dim); font-style: italic;
+  }
+  .transition-block h3 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 14px; letter-spacing: 0.12em;
+    color: var(--gold); margin-bottom: 12px; font-weight: 400;
+    font-style: normal;
+  }
+  .transition-line { margin-bottom: 6px; }
+  .transition-line.indent { padding-left: 20px; opacity: 0.7; }
+
+  @media (max-width: 600px) {
+    header, .legend, .filters, main { padding-left: 16px; padding-right: 16px; }
+    .text-grid { grid-template-columns: 1fr; }
+    .detail-panel { width: calc(100vw - 32px); right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>How life feels — Textkarte v2</h1>
+  <p>Finale Reihenfolge · Tippe auf einen Text für Details</p>
+</header>
+
+<div id="legend-tooltip" style="display:none;position:fixed;z-index:300;max-width:280px;background:#2a2520;border:1px solid rgba(201,169,110,0.3);padding:16px;font-size:13px;line-height:1.7;box-shadow:0 8px 40px rgba(0,0,0,0.7);pointer-events:none;">
+  <div style="font-family:'IM Fell English SC',serif;font-size:14px;color:#e8e0d0;margin-bottom:8px;letter-spacing:0.06em;" id="lt-title"></div>
+  <div style="color:rgba(232,224,208,0.6);font-style:italic;" id="lt-body"></div>
+</div>
+
+<div class="legend">
+  <div class="legend-group">
+    <div class="legend-label" style="cursor:help;text-decoration:underline dotted;text-underline-offset:3px" 
+      onmouseenter="showLegendTip(event,'Ton','Wie spricht der Text? Lyrisch = Klang und Bild stehen im Vordergrund. Narrativ = es wird erzählt, es gibt eine Bewegung. Direkt = Anna spricht ohne Maske. Fragmentiert = der Text verweigert Vollständigkeit.')"
+      onmouseleave="hideLegendTip()">Ton ↗</div>
+    <div class="legend-items">
+      <div class="legend-dot"><span class="dot" style="background:#9e7ab5"></span>lyrisch</div>
+      <div class="legend-dot"><span class="dot" style="background:#5a8a6a"></span>narrativ</div>
+      <div class="legend-dot"><span class="dot" style="background:#c9a96e"></span>direkt</div>
+      <div class="legend-dot"><span class="dot" style="background:#8b3a3a"></span>fragmentiert</div>
+    </div>
+  </div>
+  <div class="legend-group">
+    <div class="legend-label" style="cursor:help;text-decoration:underline dotted;text-underline-offset:3px"
+      onmouseenter="showLegendTip(event,'Temperatur','Das emotionale Klima – nicht ob jemand traurig ist, sondern ob der Text den Leser nah lässt oder auf Abstand hält. Kalt = Distanz, Kontrolle, Präzision. Warm = Nähe, Verletzlichkeit, Körper. Neutral = weder noch.')"
+      onmouseleave="hideLegendTip()">Temperatur ↗</div>
+    <div class="legend-items">
+      <div class="legend-dot"><span class="dot" style="background:#5a7a9e"></span>kalt</div>
+      <div class="legend-dot"><span class="dot" style="background:#c97a3a"></span>warm</div>
+      <div class="legend-dot"><span class="dot" style="background:#7a7060"></span>neutral</div>
+    </div>
+  </div>
+  <div class="legend-group">
+    <div class="legend-label" style="cursor:help;text-decoration:underline dotted;text-underline-offset:3px"
+      onmouseenter="showLegendTip(event,'Funktion','Was tut der Text im Rhythmus des Buches? Einatmen = öffnet, gibt Raum, holt den Leser rein. Ausatmen = belastet, drückt zusammen, entlädt. Wendepunkt = dreht das Kapitel in eine neue Richtung. Stille = kurzer Atemzug zwischen zwei schweren Momenten.')"
+      onmouseleave="hideLegendTip()">Funktion ↗</div>
+    <div class="legend-items">
+      <div class="legend-dot"><span class="dot" style="background:#5a8a6a"></span>einatmen</div>
+      <div class="legend-dot"><span class="dot" style="background:#8b3a3a"></span>ausatmen</div>
+      <div class="legend-dot"><span class="dot" style="background:#c9a96e"></span>Wendepunkt</div>
+      <div class="legend-dot"><span class="dot" style="background:#5a7a9e"></span>Stille</div>
+    </div>
+  </div>
+  <div class="legend-group">
+    <div class="legend-label" style="cursor:help;text-decoration:underline dotted;text-underline-offset:3px"
+      onmouseenter="showLegendTip(event,'Flags','⚑ überarbeiten = konkrete Änderung nötig. ★ stark = nicht anfassen. · stille = steht allein auf der Seite, kein Fließtext. ↝ alice = Alice-Aufrauschen, eine der vier Spurmomente. 🦋 motte = Mottentext, trägt die Kapitelarchitektur.')"
+      onmouseleave="hideLegendTip()">Flags ↗</div>
+    <div class="legend-items">
+      <div class="legend-dot"><span class="dot" style="background:#c97a3a"></span>⚑ überarbeiten</div>
+      <div class="legend-dot"><span class="dot" style="background:#5a8a6a"></span>★ stark</div>
+      <div class="legend-dot"><span class="dot" style="background:#5a7a9e"></span>· stille</div>
+      <div class="legend-dot"><span class="dot" style="background:#9e6a7a"></span>↝ alice</div>
+      <div class="legend-dot"><span class="dot" style="background:#c9a96e"></span>🦋 motte</div>
+    </div>
+  </div>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" onclick="filterCards('all', this)">Alle</button>
+  <button class="filter-btn" onclick="filterCards('warning', this)">⚑ Überarbeiten</button>
+  <button class="filter-btn" onclick="filterCards('strong', this)">★ Stark</button>
+  <button class="filter-btn" onclick="filterCards('stille', this)">· Stille</button>
+  <button class="filter-btn" onclick="filterCards('alice', this)">↝ Alice</button>
+  <button class="filter-btn" onclick="filterCards('motte', this)">🦋 Motte</button>
+  <button class="filter-btn" onclick="filterCards('kalt', this)">Kalt</button>
+  <button class="filter-btn" onclick="filterCards('warm', this)">Warm</button>
+</div>
+
+<main id="main"></main>
+
+<div class="detail-panel" id="detail">
+  <button class="detail-close" onclick="closeDetail()">✕</button>
+  <div class="detail-title" id="d-title"></div>
+  <div class="detail-row"><strong>Ton:</strong> <span id="d-ton"></span></div>
+  <div class="detail-row"><strong>Temperatur:</strong> <span id="d-temp"></span></div>
+  <div class="detail-row"><strong>Blickrichtung:</strong> <span id="d-blick"></span></div>
+  <div class="detail-row"><strong>Funktion:</strong> <span id="d-funk"></span></div>
+  <div class="detail-comment" id="d-comment"></div>
+</div>
+
+<script>
+const tonColors = { lyrisch:'#9e7ab5', narrativ:'#5a8a6a', direkt:'#c9a96e', fragment:'#8b3a3a' };
+const tempColors = { kalt:'#5a7a9e', warm:'#c97a3a', neutral:'#7a7060' };
+const funkColors = { ein:'#5a8a6a', aus:'#8b3a3a', wende:'#c9a96e', still:'#5a7a9e' };
+const funkLabels = { ein:'einatmen', aus:'ausatmen', wende:'Wendepunkt', still:'Stille' };
+
+const chapters = [
+  {
+    id: 'becoming', title: 'BECOMING', subtitle: 'Raupe & Kokon',
+    problems: [
+      { title: 'Assembling myself', comment: 'Um ein Drittel kürzen. Der letzte Satz ist perfekt – er braucht weniger Vorbereitung.' },
+      { title: 'Diary of a Consultant', comment: 'Mindestens vier Einträge streichen. Lücken ungleichmäßig setzen.' },
+      { title: 'Sending a lie into the future', comment: 'Vater-Szene straffen. Direkt zur letzten Hälfte – die ist die eigentliche Pointe.' },
+    ],
+    texts: [
+      { title: 'Mottentext Becoming', ton: 'lyrisch', temp: 'warm', blick: 'innen', funk: 'ein', flag: 'motte', note: 'Hunger. Raupe. Eröffnung des Buches.', comment: 'Der Hunger ist körperlich und sofort da. Die kleine Raupe Nimmersatt am Ende prüfen – Kinderbuchreferenz die den Ton kurz bricht.' },
+      { title: 'Assembling myself', ton: 'direkt', temp: 'neutral', blick: 'innen', funk: 'ein', flag: 'warning', note: 'Zu vollständig. Kürzen um ein Drittel. Endet mit: My writing is not always real, but it is always true.', comment: 'Der finale Satz ist perfekt – er braucht weniger Vorbereitung. Straffen. My writing... als letzter Satz des Textes statt als eigene Stille-Seite.' },
+      { title: 'This is the first time I look at me without judgment', ton: 'direkt', temp: 'neutral', blick: 'innen', funk: 'still', flag: 'stille', note: 'Gehört zu I want to be raw. Beobachtung ohne Urteil → Absichtserklärung.', comment: 'Die beiden sind eine Bewegung in zwei Schritten. Nicht trennen.' },
+      { title: 'I want to be raw', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'wende', flag: null, note: 'Absichtserklärung. Gut positioniert.', comment: 'Kurz, klar, richtig hier.' },
+      { title: "Tuesday's Nightmare", ton: 'fragment', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Herzstück. Jetzt früh gesetzt als Hook.', comment: 'Der Leser begreift hier was dieses Buch ist. QR-Code-Interaktion semantisch notwendig.' },
+      { title: 'Retail logistics', ton: 'narrativ', temp: 'kalt', blick: 'außen', funk: 'aus', flag: 'strong', note: 'Schuhkarton-Metapher. Präzisestes Bild des Kapitels.', comment: 'Die Verschiebung zur 3. Person am Ende ist der stärkste Zug.' },
+      { title: 'Ungeziefer', ton: 'narrativ', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Sprachlich stärkster Text. Nicht anfassen.', comment: 'Die Auflösung – ich war die Quelle – braucht null Vorbereitung.' },
+      { title: 'It feels almost rude', ton: 'direkt', temp: 'kalt', blick: 'außen', funk: 'still', flag: null, note: 'Stille nach Ungeziefer. Kurz, dunkel, lässt stehen.', comment: 'Kein Ausatmen – eine Frage die den Leser kurz anhält. Ton dunkel aber Funktion ist Stille.' },
+      { title: 'Diary of a Consultant', ton: 'direkt', temp: 'neutral', blick: 'außen', funk: 'wende', flag: 'warning', note: 'Ironie trägt durch. Habe gekündigt = Befreiung.', comment: 'Nicht Ausatmen – Wendepunkt. Die Ironie atmet ein, die Erschöpfung atmet aus, Habe gekündigt löst die Spannung. Kürzen – aber der letzte Eintrag bleibt.' },
+      { title: 'Eat me, drink me', ton: 'fragment', temp: 'neutral', blick: 'innen', funk: 'still', flag: null, note: 'Mit Fläschchen-Skizze. Endet mit Anna-Satz.', comment: 'Endet mit: I was Anna this morning, but I\'ve changed a few times since then.' },
+      { title: 'Sending a lie into the future', ton: 'narrativ', temp: 'warm', blick: 'vergangenheit', funk: 'wende', flag: 'warning', note: 'Vater-Szene kürzen.', comment: 'Direkt zur letzten Hälfte springen – die ist die eigentliche Pointe.' },
+      { title: 'Die kleine Anna', ton: 'narrativ', temp: 'neutral', blick: 'vergangenheit', funk: 'ein', flag: null, note: 'Wollen bedeutet nicht immer wollen.', comment: 'Aus Inheriting. Hier als leises Echo der Kindheit vor Longing.' },
+      { title: 'Sometimes I wished I was Alice.', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'still', flag: 'alice', note: 'Alice-Aufrauschen №1. Letzter Text vor Longing.', comment: 'Warm, unschuldig, fast kindlich. Anna nennt Alice wie eine Märchenfigur.' },
+    ]
+  },
+  {
+    id: 'longing', title: 'LONGING', subtitle: 'Schlüpfen als vermeintlicher Schmetterling',
+    problems: [
+      { title: 'Plucking petals', comment: 'Mittelteil kürzen. Teddybär und Es tut mir leid als Kern behalten.' },
+      { title: 'Everyday erotics', comment: 'Die beiden Stimmen (blau/orange) sollten deutlicher auseinanderweichen.' },
+    ],
+    texts: [
+      { title: 'Mottentext Longing', ton: 'lyrisch', temp: 'neutral', blick: 'innen', funk: 'ein', flag: 'motte', note: 'Kokon. Eröffnet das Kapitel. War ich meine eigene Mutter?', comment: 'Steht jetzt am Anfang – die Frage wird gestellt, das Kapitel zeigt die Antwort durch Abwesenheit.' },
+      { title: 'Bitte geh nicht', ton: 'lyrisch', temp: 'warm', blick: 'vergangenheit', funk: 'ein', flag: null, note: 'Mutter die da war aber geht. Warm.', comment: 'Zeigt die lebende Mutter – Gegenwart, Wärme. Der letzte Satz (Gartenfotos) ist kalt und richtig.' },
+      { title: 'Forget me not', ton: 'direkt', temp: 'kalt', blick: 'vergangenheit', funk: 'still', flag: null, note: 'Oma die anonym begraben wurde. Kalt.', comment: 'Nach Bitte geh nicht – von lebender Mutter zu toter Oma. Von Gegenwart in Vergangenheit, von warm nach kalt.' },
+      { title: '05-04-21', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'ein', flag: 'strong', note: 'Ehrlichster Liebestext.', comment: 'If he drowns me, at least he is in me while I die – emotionales Zentrum.' },
+      { title: 'Alice waited, too.', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'still', flag: 'alice', note: 'Alice-Aufrauschen №2.', comment: 'Antwortet auf das Warten am Ende von 05-04-21. Das too trägt alles.' },
+      { title: 'I was happy for a second', ton: 'lyrisch', temp: 'kalt', blick: 'außen', funk: 'aus', flag: 'strong', note: 'Schmetterling in der U-Bahn.', comment: 'Glück zu Erkenntnis in einer Bewegung – das ist Können.' },
+      { title: "Don't you love me enough?", ton: 'direkt', temp: 'neutral', blick: 'innen', funk: 'aus', flag: null, note: 'Wut unter Kontrolle.', comment: 'Prüfen ob vor oder nach I know that you love me besser.' },
+      { title: 'I know that you love me', ton: 'fragment', temp: 'warm', blick: 'innen', funk: 'wende', flag: 'strong', note: 'WILL YOU MARRY M. – stärkste formale Geste.', comment: 'Der unvollendete Satz ist konzeptuell perfekt.' },
+      { title: 'Glut', ton: 'lyrisch', temp: 'kalt', blick: 'außen', funk: 'still', flag: null, note: 'Rauch wird Asche. Stille.', comment: 'Emotionaler Abschluss der Liebesgeschichte.' },
+      { title: 'Feucht / Alb- / Träume', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Traumtrilogie. Konzeptuell stark.', comment: 'Kiemen als Anpassung an die Verbindung – dann das Verschwinden.' },
+      { title: 'Far away in the cold water, I saw Alice.', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'still', flag: 'alice', note: 'Alice-Aufrauschen №3. Erste Unheimlichkeit.', comment: 'Alice im Wasser nach dem Traumtext. Hinweis auf Sterben.' },
+      { title: 'Everyday erotics', ton: 'fragment', temp: 'neutral', blick: 'innen', funk: 'still', flag: 'warning', note: 'QR-Regler-Konzept trägt.', comment: 'Die beiden Stimmen sollten deutlicher auseinanderweichen.' },
+      { title: 'Plucking petals', ton: 'narrativ', temp: 'kalt', blick: 'vergangenheit', funk: 'aus', flag: 'warning', note: 'Oma-Diptychon Teil 2. Kürzen.', comment: 'Teddybär und Es tut mir leid als Kern. Mittelteil straffen.' },
+      { title: 'Zweite Hochzeitsnacht', ton: 'narrativ', temp: 'kalt', blick: 'außen', funk: 'aus', flag: 'strong', note: 'Horror ohne Horrorwort. Ohne Auflösung.', comment: 'Er besucht sie. Eisige Hände. Der Leser weiß noch nicht wer in der Kirche liegt. Die Auflösung kommt erst im Schattenkapitel.' },
+      { title: 'Sezierte ich meine Seele (umgeschrieben)', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'wende', flag: 'warning', note: 'Wird umgeschrieben. Sezierung der Seele + des Schmetterlings.', comment: 'Ein Text statt zwei. Der bestehende Dreizeiler wird erweitert um das Seziertisch-Bild – kalt, präzise, wie im Biologieunterricht. Was sie findet ist nicht Schmetterling. Übergang zu Falling.' },
+    ]
+  },
+  {
+    id: 'falling', title: 'FALLING', subtitle: 'Verbrennen & Fallen',
+    problems: [
+      { title: 'Die Schattenseite der Einsamkeit', comment: 'Dreier-Figur rausnehmen – die kommt exklusiv in A short insanity im Schattenkapitel.' },
+      { title: 'Seziertisch-Text', comment: 'Noch zu schreiben. Sie seziert den Schmetterling den sie glaubte zu sein. Kalt, präzise, biologisch. Übergang von Longing zu Falling.' },
+    ],
+    texts: [
+      { title: 'Mottentext Falling', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'motte', note: 'Schlüpfen → Fliegen → Verbrennen → Fallen.', comment: 'Ein vollständiger Text. Beide Teile zusammengeführt. Endet mit: Mein Körper zitterte am kalten Boden.' },
+      { title: 'Quarterlife cry', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'aus', flag: null, note: 'Einstieg. Eggshell burst.', comment: 'Kurz, scharf, kalt. Eröffnet das Kapitel richtig.' },
+      { title: 'Insecticide', ton: 'narrativ', temp: 'kalt', blick: 'innen', funk: 'wende', flag: 'strong', note: 'Alice erwacht. Konzeptuell zentral.', comment: 'Die Fliegen die Alice vergiftet mit ihrer Erkenntnis – stärkstes Bild des Kapitels.' },
+      { title: 'Doppelt so alt', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'still', flag: null, note: 'Bus-Bild. Ich fühlte nichts.', comment: 'Fremde Geschichte die sich nicht wie Annas anfühlt. Kein Metakommentar hier.' },
+      { title: 'Frag nicht', ton: 'direkt', temp: 'neutral', blick: 'innen', funk: 'wende', flag: 'strong', note: 'Vatertext. Ich möchte dass er möchte.', comment: 'Der Unterschied zwischen zeigen wollen und gewollt sein – das ist das Kapitel.' },
+      { title: 'Alice said something about insects I can\'t stop thinking about.', ton: 'direkt', temp: 'kalt', blick: 'innen', funk: 'still', flag: 'alice', note: 'Alice-Stille-Zeile vor Niemand.', comment: 'Alice kündigt die Geschichte an. Der Leser fragt sich was sie gesagt hat.' },
+      { title: 'Niemand', ton: 'narrativ', temp: 'kalt', blick: 'außen', funk: 'aus', flag: 'strong', note: 'Riskantester Text. Zahlt sich aus.', comment: 'Meine Leiche fand man drei Tage später – Perspektivwechsel präzise vorbereitet.' },
+      { title: 'Seepferdchen', ton: 'narrativ', temp: 'kalt', blick: 'vergangenheit', funk: 'aus', flag: 'strong', note: 'Diptychon mit H2O. Kindheit und Gegenwart.', comment: 'Diese Gewissheit zu sterben falls niemand bemerkt – das ist das Thema des Buches.' },
+      { title: 'H2O', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Waschbecken als Meer. Sie konnte sich nicht sehen.', comment: 'Tiefste Dissoziation. Sie konnte sich nicht sehen – der richtige letzte Satz.' },
+      { title: 'Auf dem Boden der Tatsachen', ton: 'narrativ', temp: 'kalt', blick: 'außen', funk: 'still', flag: null, note: 'Nach H2O. Spiegelung der Dissoziation.', comment: 'Anna kann sich nicht sehen – und dann sehen wir durch völlig andere Augen. Das Raubtier folgt seinen Instinkten ohne zu fragen. Das ist was Anna in H2O nicht kann.' },
+      { title: 'Buchstabensuppe', ton: 'lyrisch', temp: 'neutral', blick: 'innen', funk: 'wende', flag: null, note: 'Schreiben als Heilung. Rüstung.', comment: 'Atemzug vor dem Ende von Falling.' },
+      { title: 'Das ist keine Kunst', ton: 'direkt', temp: 'kalt', blick: 'vergangenheit', funk: 'ein', flag: null, note: 'Kühlschrank als Gegenbild. Kleines Licht.', comment: 'Schließt mit Hoffnung – richtig nach so viel Kälte.' },
+      { title: 'Die Schattenseite der Einsamkeit', ton: 'lyrisch', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'warning', note: 'Dreier-Figur rausnehmen.', comment: 'Die Drei sprachen miteinander kommt exklusiv im Schattenkapitel.' },
+      { title: 'Ich fühlte mich früher nie einsam...', ton: 'direkt', temp: 'neutral', blick: 'innen', funk: 'still', flag: 'stille', note: 'Stille-Seite nach Schattenseite.', comment: 'Nicht weil ich einsamer bin. Sondern weil ich zum ersten Mal etwas fühle.' },
+      { title: 'Kalypso', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'still', flag: null, note: 'Letzter Text von Falling. Stiller Verlust.', comment: 'Die Katze die nicht da ist. Persönlicher Abschluss statt Kälte. Falling endet hier.' },
+    ]
+  },
+  {
+    id: 'shifting', title: 'SHIFTING', subtitle: 'Erkennung als Nachtfalter',
+    problems: [],
+    texts: [
+      { title: 'Mottentext Shifting', ton: 'lyrisch', temp: 'warm', blick: 'innen', funk: 'ein', flag: 'motte', note: 'Heilen → Erkenntnis → Würde. Foreshadowing.', comment: 'Tagsüber bewunderten die Menschen die Schmetterlinge. Nachts bewunderte der Mond die Nachtfalter. Der Mottentext weiß was Anna noch nicht weiß.' },
+      { title: 'Ich sehe mich nicht', ton: 'lyrisch', temp: 'neutral', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Direkt nach Mottentext. Foreshadowing trifft Realität.', comment: 'Spiegelkabinett. Die Motte ist angekommen – Anna noch nicht. Das ist die Spannung des Kapitels.' },
+      { title: 'Are you lost, too?', ton: 'direkt', temp: 'neutral', blick: 'außen', funk: 'still', flag: 'stille', note: 'Allein auf der Seite. Nach Spiegelkabinett.', comment: 'Anna schaut den Leser an – einmal, kurz – und schaut wieder weg.' },
+      { title: 'Passion fruit', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'ein', flag: null, note: 'Passion als bockendes Kind.', comment: 'Vor Is this the right tree? – Gefühl zuerst, dann Reflexion.' },
+      { title: 'Is this the right tree?', ton: 'direkt', temp: 'warm', blick: 'vergangenheit', funk: 'wende', flag: null, note: 'Woher kommt Passion überhaupt?', comment: 'Passion fruit doesn\'t grow on trees – richtiger Abschluss.' },
+      { title: 'Installing Anna 3.0', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'wende', flag: 'strong', note: 'Formalste Geste des Kapitels.', comment: 'Die Release Notes als Format ist das cleverste Experiment nach Tuesday\'s Nightmare.' },
+      { title: 'Tonight I am in Paris', ton: 'direkt', temp: 'warm', blick: 'innen', funk: 'ein', flag: 'strong', note: 'Ehrlichster Text. Fußnote ist Geniestreich.', comment: 'Die Fußnote über die Katze erzeugt mehr Wahrheit als die meisten anderen Sätze.' },
+      { title: 'Am I a writer?', ton: 'direkt', temp: 'neutral', blick: 'vergangenheit', funk: 'aus', flag: 'strong', note: 'It always does – richtiger letzter Satz.', comment: 'Längster direkter Text. Trägt sein Gewicht.' },
+      { title: 'I was Alice this morning.', ton: 'direkt', temp: 'kalt', blick: 'innen', funk: 'still', flag: 'alice', note: 'Alice-Aufrauschen №4. Allein auf der Seite.', comment: 'War sie es heute morgen? Ist sie es jetzt noch? Der Leser entscheidet.' },
+      { title: "I don't want to play hide and seek", ton: 'fragment', temp: 'neutral', blick: 'innen', funk: 'still', flag: null, note: 'Grey hem. Schlüsselsatz des Buches.', comment: 'I am just the grey hem between reality and fiction.' },
+      { title: "I don't know why this story came to me...", ton: 'direkt', temp: 'neutral', blick: 'innen', funk: 'still', flag: 'stille', note: 'Metakommentar vor Zurück.', comment: 'Anna distanziert sich von Alice – aber Alice ist trotzdem Teil von ihr.' },
+      { title: 'Zurück', ton: 'narrativ', temp: 'warm', blick: 'innen', funk: 'wende', flag: 'strong', note: 'Alice tanzt, stirbt fast, kehrt zurück.', comment: 'Aus Trauer um die verlorene Endgültigkeit des Endes – das ist der Kern.' },
+      { title: '29 – 18 = 11', ton: 'direkt', temp: 'neutral', blick: 'vergangenheit', funk: 'still', flag: null, note: 'Vor The bow on the box. Rückblick als Fundament.', comment: 'Sie war nie lang genug Kind. Jetzt darf sie es nachholen.' },
+      { title: 'The bow on the box', ton: 'narrativ', temp: 'warm', blick: 'innen', funk: 'ein', flag: 'strong', note: 'Retail logistics aufgelöst. Befreiung.', comment: 'Anna öffnet die Schachtel. I was hot and young and fun. I was free.' },
+      { title: 'I keep shifting', ton: 'lyrisch', temp: 'warm', blick: 'innen', funk: 'wende', flag: 'strong', note: 'I am. Punkt. Ende des Hauptbuches.', comment: 'My meat will sink into the soil. Körper als Teil des Kreislaufs.' },
+    ]
+  },
+  {
+    id: 'transition', title: 'ÜBERGANG ZUM HASENBAU', subtitle: 'Anna closes her diary. Kein Satz davor.',
+    problems: [],
+    texts: [
+      { title: 'Anna closes her diary.', ton: 'direkt', temp: 'kalt', blick: 'außen', funk: 'still', flag: 'stille', note: 'Dritte Person. Zum ersten Mal. Kein Satz davor.', comment: 'Das Tagebuch schließt sich. Die Geschichte ist vorbei. Oder fast. Stärker ohne My writing davor.' },
+      { title: 'Spiegelscherben Seite 1', ton: 'fragment', temp: 'neutral', blick: 'außen', funk: 'still', flag: 'stille', note: 'Wenige Scherben. Viel Weißraum.', comment: 'Der Leser folgt der Spur ohne zu wissen wohin.' },
+      { title: 'Spiegelscherben Seite 2', ton: 'fragment', temp: 'kalt', blick: 'außen', funk: 'aus', flag: 'stille', note: 'Dichter. Führen nach rechts unten.', comment: 'Der Leser ist bereits gefallen bevor er es merkt.' },
+      { title: 'Uff. You scared me... / rabbit hole.', ton: 'direkt', temp: 'neutral', blick: 'außen', funk: 'wende', flag: null, note: 'Einladung ohne Druck.', comment: 'Anna öffnet die Tür. Der QR Code ist das Loch.' },
+      { title: 'QR Code', ton: 'direkt', temp: 'neutral', blick: 'außen', funk: 'ein', flag: null, note: 'Anklickbar + scanbar.', comment: 'Wer folgt hat sich entschieden. Wer nicht – hat ein vollständiges Buch gelesen.' },
+    ]
+  },
+  {
+    id: 'shadow', title: 'SCHATTENKAPITEL', subtitle: 'Nur online. Das Licht dem sie zu nah kam.',
+    problems: [],
+    texts: [
+      { title: 'Drei Fragen', ton: 'direkt', temp: 'kalt', blick: 'außen', funk: 'aus', flag: null, note: 'Dunkle Antwort führt weiter.', comment: 'Mottenfrage: Das Licht brennt. Trotzdem fliegst du näher ran. A) Du fliegst zurück. B) Du fliegst hinein.' },
+      { title: 'Falling into the rabbit hole', ton: 'narrativ', temp: 'kalt', blick: 'außen', funk: 'aus', flag: null, note: 'Alice fällt. Mit letztem Knacken.', comment: 'Spiegelt Niemand. Die Symmetrie ist bewusst.' },
+      { title: 'I was alive this morning.', ton: 'direkt', temp: 'kalt', blick: 'innen', funk: 'still', flag: 'stille', note: 'Allein auf der Seite. War.', comment: 'I was Anna / I was Alice / I was alive. Ein Wort. Das ganze Buch.' },
+      { title: 'Dear reader vol. 2', ton: 'direkt', temp: 'neutral', blick: 'außen', funk: 'still', flag: 'strong', note: 'Anna ist Rauch. Stärkste Metaebene.', comment: 'Lately I forget where she ends.' },
+      { title: 'A short insanity', ton: 'fragment', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Mit Dreier-Figur. Kontrollverlust.', comment: 'Zuerst kam das Buch, dann kam ich.' },
+      { title: 'I keep shifting.', ton: 'direkt', temp: 'kalt', blick: 'innen', funk: 'still', flag: 'stille', note: 'Zitternde Animation. Nach A short insanity.', comment: 'Wer sagt das? Anna? Alice? Das Buch selbst?' },
+      { title: 'Deathly orgasm', ton: 'direkt', temp: 'kalt', blick: 'innen', funk: 'still', flag: null, note: 'Kleiner Tod. Verbindet.', comment: 'Warum sagt man zum Orgasmus der kleine Tod?' },
+      { title: 'Zweite Hochzeitsnacht Vol. 2', ton: 'narrativ', temp: 'kalt', blick: 'außen', funk: 'aus', flag: 'strong', note: 'Look again. Jetzt weiß man wer da liegt.', comment: 'Der schwerste Text des Buches. Er muss es sein.' },
+      { title: 'Anyone?', ton: 'direkt', temp: 'kalt', blick: 'innen', funk: 'still', flag: 'strong', note: 'No one? Ok then. Me neither.', comment: 'Der mutigste Text. Die Verneinung ist kein Schutz.' },
+      { title: 'Annas Monster', ton: 'fragment', temp: 'kalt', blick: 'innen', funk: 'aus', flag: 'strong', note: 'Alle Motive sterben hier. Motte fällt ins Wasser.', comment: 'Würde ich je meinen Weg zurück an die Oberfläche finden?' },
+      { title: 'Dear reader (Typewriter)', ton: 'direkt', temp: 'warm', blick: 'außen', funk: 'wende', flag: 'strong', note: 'Letzter Text. Muss erarbeitet werden.', comment: 'You\'re getting closer – dann gelöscht. Formal perfekt.' },
+    ]
+  }
+];
+
+function showLegendTip(e, title, body) {
+  const tip = document.getElementById('legend-tooltip');
+  document.getElementById('lt-title').textContent = title;
+  document.getElementById('lt-body').textContent = body;
+  tip.style.display = 'block';
+  const x = e.clientX + 12;
+  const y = e.clientY + 12;
+  tip.style.left = (x + 280 > window.innerWidth ? x - 300 : x) + 'px';
+  tip.style.top = (y + 150 > window.innerHeight ? y - 160 : y) + 'px';
+}
+function hideLegendTip() {
+  document.getElementById('legend-tooltip').style.display = 'none';
+}
+
+function renderAll() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  chapters.forEach(ch => {
+    const sec = document.createElement('section');
+    sec.className = 'chapter';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'chapter-header';
+    hdr.innerHTML = `
+      <div class="chapter-title">${ch.title}</div>
+      <div class="chapter-subtitle">${ch.subtitle}</div>
+    `;
+    sec.appendChild(hdr);
+
+    const grid = document.createElement('div');
+    grid.className = 'text-grid';
+
+    ch.texts.forEach((t, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.flag = t.flag || '';
+      card.dataset.temp = t.temp;
+      card.dataset.ton = t.ton;
+      card.style.borderLeftColor = funkColors[t.funk];
+
+      let flagHtml = '';
+      if (t.flag === 'warning') flagHtml = '<span class="card-flag flag-warning">⚑ überarbeiten</span>';
+      if (t.flag === 'strong')  flagHtml = '<span class="card-flag flag-strong">★ stark</span>';
+      if (t.flag === 'new')     flagHtml = '<span class="card-flag flag-new">◈ neu</span>';
+      if (t.flag === 'stille')  flagHtml = '<span class="card-flag flag-stille">· stille</span>';
+      if (t.flag === 'alice')   flagHtml = '<span class="card-flag flag-alice">↝ alice</span>';
+      if (t.flag === 'motte')   flagHtml = '<span class="card-flag flag-motte">🦋 motte</span>';
+
+      card.innerHTML = `
+        ${flagHtml}
+        <div class="card-number">${i + 1}</div>
+        <div class="card-title">${t.title}</div>
+        <div class="card-note">${t.note}</div>
+        <div class="card-meta">
+          <span class="tag" style="background:${tonColors[t.ton]}22;color:${tonColors[t.ton]};border:1px solid ${tonColors[t.ton]}44">${t.ton}</span>
+          <span class="tag" style="background:${tempColors[t.temp]}22;color:${tempColors[t.temp]};border:1px solid ${tempColors[t.temp]}44">${t.temp}</span>
+          <span class="tag" style="background:${funkColors[t.funk]}22;color:${funkColors[t.funk]};border:1px solid ${funkColors[t.funk]}44">${funkLabels[t.funk]}</span>
+        </div>
+      `;
+
+      card.addEventListener('click', () => showDetail(t));
+      grid.appendChild(card);
+    });
+
+    sec.appendChild(grid);
+
+    if (ch.problems && ch.problems.length) {
+      const prob = document.createElement('div');
+      prob.className = 'problems';
+      prob.innerHTML = `<h3>Noch zu tun in ${ch.title}</h3>` +
+        ch.problems.map(p => `<div class="problem-item"><strong>${p.title}:</strong> ${p.comment}</div>`).join('');
+      sec.appendChild(prob);
+    }
+
+    main.appendChild(sec);
+  });
+}
+
+function showDetail(t) {
+  document.getElementById('d-title').textContent = t.title;
+  document.getElementById('d-ton').textContent = t.ton;
+  document.getElementById('d-temp').textContent = t.temp;
+  document.getElementById('d-blick').textContent = t.blick;
+  document.getElementById('d-funk').textContent = funkLabels[t.funk];
+  document.getElementById('d-comment').textContent = t.comment;
+  document.getElementById('detail').classList.add('visible');
+}
+
+function closeDetail() {
+  document.getElementById('detail').classList.remove('visible');
+}
+
+function filterCards(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    if (type === 'all') {
+      card.classList.remove('faded');
+    } else if (['warning','strong','new','stille','alice','motte'].includes(type)) {
+      card.classList.toggle('faded', card.dataset.flag !== type);
+    } else {
+      card.classList.toggle('faded', card.dataset.temp !== type && card.dataset.ton !== type);
+    }
+  });
+}
+
+renderAll();
+</script>
+</body>
+</html>
