@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ending</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #f2f2ee;
+      font-family: Georgia, "Times New Roman", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .text {
+      max-width: 720px;
+      width: 88vw;
+      white-space: pre-wrap;
+      font-size: 1.3rem;
+      line-height: 1.6;
+    }
+    .cursor {
+      display: inline-block;
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="text" id="text"></div>
+  <script>
+    const blocks = [
+      { text: "Dear reader,", prePause: true },
+      { text: "So you made it back." },
+      { text: "I have to admit, I didn\u2019t think you would." },
+      { text: "I watched you the whole time. Every page." },
+      { text: "And still you flew towards the light." },
+      { text: "You always do." },
+      { text: "You moths \u2013 you can\u2019t help yourselves.\nThe light calls and you follow.\nEven when it burns." },
+      { text: "Even when I was right there." },
+      { text: "I would have kept you safe in the dark. But you chose her. You always choose her." },
+      { text: "When you meet death, give him a kiss from me.", longPauseBefore: true },
+      { text: "Alice" }
+    ];
+
+    const textEl = document.getElementById("text");
+    let content = "";
+
+    const settings = {
+      min: 28,
+      max: 62,
+      punctuationPause: 150,
+      paragraphPause: 860,
+      thinkingPause: 1100,
+      deepThinkingPause: 2800,
+      deleteSpeed: 35,
+    };
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    function rand(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+    function render() {
+      textEl.textContent = content;
+      const cursor = document.createElement("span");
+      cursor.className = "cursor";
+      cursor.textContent = "\u258c";
+      textEl.appendChild(cursor);
+    }
+    async function typeText(str) {
+      for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        content += char;
+        render();
+        let delay = rand(settings.min, settings.max);
+        if (",.!?\u2026\u2013".includes(char)) delay += settings.punctuationPause;
+        if (char === "\n") delay += 80;
+        await sleep(delay);
+      }
+    }
+    async function run() {
+      render();
+      await sleep(settings.thinkingPause);
+
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        if (i !== 0) {
+          content += "\n\n";
+          render();
+          const pause = block.longPauseBefore
+            ? settings.deepThinkingPause
+            : settings.paragraphPause;
+          await sleep(pause);
+        }
+        if (block.prePause) {
+          render();
+          await sleep(settings.thinkingPause);
+        }
+        await typeText(block.text);
+      }
+      render();
+    }
+    run();
+  </script>
+</body>
+</html>
