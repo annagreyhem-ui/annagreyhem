@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna Greyhem - Lost places in my mind</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:#fff; font-family:Georgia,serif; font-size:clamp(17px,2.2vw,22px); line-height:1.9; }
+.story { display:none; min-height:100vh; padding:80px 0 120px; animation:fadein 1.2s ease forwards; }
+.story.active { display:block; }
+@keyframes fadein { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.story-inner { max-width:640px; margin:0 auto; padding:0 40px; }
+.center-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding-bottom:80px; }
+h1 { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:normal; font-size:clamp(28px,4vw,42px); color:#fff; letter-spacing:0.08em; margin-bottom:48px; line-height:1.3; }
+p { margin-bottom:1.4em; }
+p:last-of-type { margin-bottom:0; }
+.dim { color:#555; }
+.look-again { font-family:Georgia,serif; font-style:italic; color:#666; margin-bottom:40px; display:block; }
+.placeholder { color:#333; font-style:italic; font-family:'Cormorant Garamond',serif; font-size:clamp(16px,2vw,20px); border-left:1px solid #1a1a1a; padding:20px 24px; margin-top:32px; }
+/* Fixed nav arrow */
+#fixed-nav {
+  position:fixed; bottom:40px; left:50%; transform:translateX(-50%);
+  z-index:500; display:none;
+  font-size:36px; color:#888;
+  padding:8px 40px; transition:color 0.3s; user-select:none;
+}
+#fixed-nav:hover { color:#fff; }
+/* Click overlay for p0/p1 */
+#click-overlay { position:fixed; inset:0; z-index:400; display:none; }
+#click-hint { position:fixed; bottom:48px; left:50%; transform:translateX(-50%); opacity:0; transition:opacity 1.2s; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:#888; letter-spacing:0.2em; white-space:nowrap; z-index:401; pointer-events:none; }
+/* Shifting page */
+#shift-page { min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding-top:28vh; padding-bottom:80px; }
+#shift-text { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(24px,4vw,40px); color:#fff; letter-spacing:0.1em; text-align:center; }
+.sletter { display:inline-block; }
+/* Alive page */
+#alive-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding-bottom:80px; }
+#alive-text { font-family:'Cormorant Garamond',serif; font-style:normal; font-size:clamp(20px,3vw,32px); color:#fff; letter-spacing:0.08em; text-align:center; line-height:2; opacity:0; }
+@keyframes flicker-in { 0%{opacity:0} 8%{opacity:0.9} 14%{opacity:0.1} 20%{opacity:1} 25%{opacity:0.3} 30%{opacity:1} 35%{opacity:0.7} 40%{opacity:1} 100%{opacity:1} }
+/* 13-13-13 page */
+#thirteen-page { min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding-top:80px; padding-bottom:80px; }
+#thirteen-inner { max-width:640px; width:100%; padding:0 40px; }
+#thirteen-inner h1 { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:normal; font-size:clamp(28px,4vw,42px); color:#fff; letter-spacing:0.08em; margin-bottom:48px; }
+#thirteen-text { font-family:Georgia,serif; font-style:normal; font-size:clamp(17px,2.2vw,22px); color:#fff; line-height:1.9; }
+/* Blood word */
+#blood-word { transition:color 1.2s ease; display:inline-block; position:relative; }
+@media (max-width:768px) {
+  body { font-size:clamp(18px,4.5vw,22px) !important; }
+  h1 { font-size:clamp(26px,6vw,36px) !important; }
+}
+</style>
+</head>
+<body>
+<div id="fixed-nav">&#8964;</div>
+<div id="click-overlay"></div>
+<div id="click-hint">click to enter</div>
+<canvas id="blood-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:200;display:none;"></canvas>
+
+<!-- P0: Warning / choice -->
+<div class="story active" id="p0">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:0 40px;text-align:center;">
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(20px,3vw,34px);color:#fff;line-height:1.6;max-width:580px;margin-bottom:20px;">Are you sure you want to go further into the dark?<br>This is the part I almost didn't write.</p>
+    <p style="font-family:Georgia,serif;font-size:clamp(13px,1.4vw,16px);color:#555;line-height:1.7;max-width:480px;margin-bottom:64px;">If you're not in a good place right now – come back another time. I'll still be here.</p>
+    <div style="display:flex;flex-direction:column;gap:20px;align-items:center;">
+      <button id="btn-ready" style="background:none;border:none;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(18px,2.2vw,24px);color:#fff;letter-spacing:0.12em;cursor:pointer;padding:8px 0;border-bottom:1px solid #333;transition:border-color 0.3s;">I'm ready</button>
+      <button id="btn-nottoday" style="background:none;border:none;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(18px,2.2vw,24px);color:#555;letter-spacing:0.12em;cursor:pointer;padding:8px 0;transition:color 0.3s;">Not today</button>
+    </div>
+  </div>
+</div>
+
+<!-- P1: DYING -->
+<div class="story" id="p1">
+  <div class="story-inner center-page">
+    <h1 style="text-align:center;font-size:clamp(24px,4vw,42px);letter-spacing:0.18em;margin:0;color:#8b0000;font-style:normal;font-family:Georgia,serif;">DYING</h1>
+  </div>
+</div>
+
+<!-- P2: Falling into the rabbit hole -->
+<div class="story" id="p2">
+  <div class="story-inner">
+    <h1>Falling into the rabbit hole</h1>
+    <p>Und Alice rannte dem Hasen nach. Sie wollte das wei&szlig;e H&auml;schen nicht entwischen lassen. Sie hatte doch noch so viele Karotten, die sie ihm geben w&uuml;rde. Und so viele Kuschelstunden, die sie schon geplant hatte. Also rannte Alice so schnell sie konnte.</p>
+    <p>Und, ups. Da plumpste Alice in das Loch, dem Hasen hinterher. Zuerst war es dunkel und sie hatte Angst, dann sah sie, dass es gar nicht dunkel war. Es glitzerte und Schlieren von Farben zogen sich wie Nordlichter &uuml;ber die W&auml;nde hinweg. Das Kaninchen und sie schwebten auf dem Regenbogen. Es machte Spa&szlig; zu fliegen. Das Kaninchen trippelte unentwegt mit dem Fu&szlig;, es wartete auf etwas. Es wurde wieder dunkler. Sie schienen am anderen Ende des Tunnels anzukommen.</p>
+    <p>Alice und der Hase schlugen auf dem Boden auf. Alice war bewusstlos. Der Hase stand &uuml;ber ihr. Mit einem letzten Knacken brach er ihr Genick und hielt sie mit seinen Vorderl&auml;ufen, w&auml;hrend er <span id="alice-name">Alice</span> in St&uuml;cke riss.</p>
+  </div>
+</div>
+
+<!-- P3: I was alive this morning -->
+<div class="story" id="p3">
+  <div id="alive-page">
+    <div id="alive-text"></div>
+  </div>
+</div>
+
+<!-- P4: Dear reader -->
+<div class="story" id="p4">
+  <div class="story-inner">
+    <h1>Dear reader,</h1>
+    <p>Isn't it strange. You've been reading me this whole time.</p>
+    <p>But which one of us did you meet? I'm not sure I know anymore.</p>
+    <p>Anna is smoke. She surrounds me, settles on my skin, disappears with me into the dark. Lately I forget where she ends.</p>
+    <p>Sometimes she is so close that I burn myself on her embers. And then it shifts, only her ashes stay with me.</p>
+    <p>She changes the temperature in rooms. I can feel it.</p>
+  </div>
+</div>
+
+<!-- P5: A short insanity -->
+<div class="story" id="p5">
+  <div class="story-inner" id="insanity-inner">
+    <h1>A short insanity</h1>
+    <p>Es ist, als w&uuml;rde ich in dieses Buch gesogen.</p>
+    <p>Ich schlafe kaum noch. Die Gedanken warten nicht bis ich wach bin. Selbst unter der Dusche fl&uuml;stere ich neue Einf&auml;lle unentwegt vor mich hin, damit ich sie nicht vergesse.</p>
+    <p>Langsam wei&szlig; ich nicht mehr, wo das Buch aufh&ouml;rt und wo ich anfange. Zuerst kam das Buch, dann kam ich.</p>
+    <p>Ich suche etwas in diesem Buch. Wenn ich mich nur erinnern k&ouml;nnte, was es genau war. Ich bin sicher, dass es da ist. Es muss da sein. Ich habe zu viel geschrieben, damit es nicht da ist.</p>
+    <p>Aber wie kann ich es erkennen, wenn ich nicht wei&szlig;, was ich suche? Vielleicht erkenne ich es, wenn ich es finde. Vielleicht finde ich es, wenn ich aufh&ouml;re zu suchen. Aber ich kann nicht aufh&ouml;ren zu suchen.</p>
+    <p>Oder habe ich mich versteckt? Habe ich mich in viele glitzernde Splitter zerbrochen und verteilt, damit ich nicht gefunden werden kann?</p>
+    <p>Ich sollte Alice fragen. Oder Anna. Die beiden kennen sich hier besser aus als ich.</p>
+    <p id="insanity-trigger2">Und die drei sprachen miteinander.<br>
+    Die drei sprachen miteinander, bis es wieder hei&szlig;er wurde und der Verirrte dahingerafft wurde.</p>
+    <p id="insanity-trigger">Und pl&ouml;tzlich sehe ich Verbindungen, wo keine sind.</p>
+  </div>
+</div>
+
+<!-- P6: I keep shifting -->
+<div class="story" id="p6">
+  <div id="shift-page">
+    <div id="shift-text"></div>
+  </div>
+</div>
+
+<!-- P7: 13-13-13 -->
+<div class="story" id="p7">
+  <div id="thirteen-page">
+    <div id="thirteen-inner">
+      <h1>13-13-13</h1>
+      <div id="thirteen-text">
+        He tastes like salt water and smells like Christmas.<br>
+        His black eyes never blink.<br>
+        <br>
+        I always wanted a pretty death.<br>
+        Maybe a bit tragic and younger than expected.<br>
+        He was all of that.<br>
+        <br>
+        I felt so sure that he was the one.<br>
+        When I saw his eyes, when I heard his silence, I knew.<br>
+        <br>
+        I fell for him.<br>
+        He led me home, drowned me.<br>
+        <br>
+        He was in me while I died.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- P8: Zweite Hochzeitsnacht Vol. 2 -->
+<div class="story" id="p8">
+  <div class="story-inner">
+    <h1>Zweite Hochzeitsnacht, Vol. 2</h1>
+    <span class="look-again">Look again.</span>
+    <p>Er starrte sich selbst durch die Scheibe an und durch sie hindurch. Sie befand sich in der schwarzen Kutsche, die vor das Anwesen fuhr. Sein Herz klopfte schneller bei diesem Anblick und seine Fingerspitzen strichen das k&uuml;hle Glas entlang. Sehnsuchtserf&uuml;llt glitt er in die Vormittagsluft und den Duft nach nassem Gras und Tannen. Heute war ihr Tag und alle waren gekommen, um sie zu sehen. Auch er hatte sich in seinem feinsten Anzug zurecht gemacht. Der Bart war getrimmt, so wie sie es mochte und alles war mit Blumen und Kerzen geschm&uuml;ckt. Er war emotional und nerv&ouml;s, heute w&uuml;rde auch viel Aufmerksamkeit auf ihn gerichtet sein.</p>
+    <p>Er betrat die Kirche. Sie sah wundersch&ouml;n aus, in ihrem prachtvollen wei&szlig;en Kleid. Den Atem hielt sie an und das Str&auml;u&szlig;chen in den H&auml;nden. Er hatte sie so sehr vermisst. Er vermisste sie immer noch und wollte endlich mit ihr alleine sein.</p>
+    <p>Nachdem die G&auml;ste gegangen waren, ging er zu ihr nach drau&szlig;en. Als er sie ansah und ihre eisigen H&auml;nde ber&uuml;hrte, wurde ihm klar, wie kalt ihr sein musste. Er nahm sie in den Arm und strich ihr &uuml;bers Haar. Er nahm ihr behutsam das Str&auml;u&szlig;chen ab, w&auml;hrend er sie k&uuml;sste. Es war als h&auml;tte sein Herz f&uuml;r einen Augenblick aufgeh&ouml;rt zu schlagen und endlich konnte er bei ihr sein.</p>
+    <p>Er hielt sie und strich mit seinen Lippen &uuml;ber ihren Hals. Sein Verlangen wuchs, als er mit einer Hand unter ihr Kleid fuhr. Sie hatte die Augen noch immer geschlossen, sie schien genussvoll abwesend zu sein. Er zog ihr Kleid hoch, das H&ouml;schen aus. Seine Finger wanderten ihren ganzen K&ouml;rper entlang und in ihn hinein. Seine K&uuml;sse wurden heftiger und die Sehnsucht immer gr&ouml;&szlig;er. W&auml;hrend er zustie&szlig; hielt sie atemlos die Augen geschlossen. Sie wurde bei jeder Bewegung mitgerissen und ihr K&ouml;rper vibrierte als Echo seines St&ouml;hnens.</p>
+    <p style="color:#555;">Als er fertig war, lagen die beiden arm in arm und blickten zu den Sternen hinauf, bis er irgendwann erkannte, was er getan hatte. Das Mondlicht schien auf ihn hinab, bis auch er endlich seine Augen schloss.</p>
+    <p style="color:#555;">Als die Sonne langsam aufging, sah man die Erde, die neben dem Grabstein aufgeh&auml;uft war und den Spaten, der wie eine Sonnenuhr warnend auf ihn zeigte. Die beiden Leichen fand man erst gegen Mittag, als die Sonne hei&szlig; &uuml;ber ihnen stand und seine S&uuml;nden mit dem Duft nach Verwesendem anprangerte.</p>
+  </div>
+</div>
+
+<!-- P9: Annas Monster -->
+<div class="story" id="p9">
+  <div class="story-inner" id="monster-inner">
+    <h1>Annas Monster</h1>
+    <p>Ich jagte der Hoffnung nach, dem Gef&uuml;hl zu f&uuml;hlen.</p>
+    <p>Zuerst kam das Buch, dann kam ich.</p>
+    <p>Auch Frankenstein hatte sein Monster geliebt.</p>
+    <p><em>Bin ich der Preis, den ich bezahle, damit dieses Buch existieren kann?</em></p>
+    <p>Dann traf mich die Hitze. Sie fra&szlig; sich durch meine Fl&uuml;gel, durch meine Haut. Mein Verlangen hatte mich verbrannt und ich bezahlte mit einem Teil von mir.</p>
+    <p>Ich fiel. Das Wasser kam mir entgegen.</p>
+    <p>Ich versuchte so lange wie m&ouml;glich die Luft anzuhalten und hoffte, dass jemand bemerken w&uuml;rde, dass ich fehlte.</p>
+    <p>Weit entfernt im kalten Wasser sah ich Alice.</p>
+    <p>W&uuml;rde ich je meinen Weg zur&uuml;ck an die Oberfl&auml;che finden?</p>
+  </div>
+</div>
+
+<!-- P10: Dear reader Typewriter -->
+<div class="story" id="p10">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div id="typewriter-text" style="max-width:720px;width:88vw;white-space:pre-wrap;font-family:Georgia,'Times New Roman',serif;font-size:1.3rem;line-height:1.6;color:#f2f2ee;"></div>
+  </div>
+</div>
+
+<script>
+var PAGES = ['p0','p1','p2','p3','p4','p5','p7','p8','p6','p9','p10'];
+var TOTAL = PAGES.length - 1;
+var current = 0;
+function getEl(n) { return document.getElementById(PAGES[n]); }
+
+var fixedNav = document.getElementById('fixed-nav');
+fixedNav.addEventListener('click', function() { navigate(1); });
+
+function goToPage(id) {
+  getEl(current).classList.remove('active');
+  current = PAGES.indexOf(id);
+  getEl(current).classList.add('active');
+  window.scrollTo(0, 0);
+  showPage(current);
+}
+
+document.getElementById('btn-ready').addEventListener('click', function() {
+  goToPage('p1');
+});
+document.getElementById('btn-nottoday').addEventListener('click', function() {
+  goToPage('p10');
+});
+
+// hover effects for buttons
+document.getElementById('btn-ready').addEventListener('mouseenter', function() { this.style.borderColor = '#fff'; });
+document.getElementById('btn-ready').addEventListener('mouseleave', function() { this.style.borderColor = '#333'; });
+document.getElementById('btn-nottoday').addEventListener('mouseenter', function() { this.style.color = '#aaa'; });
+document.getElementById('btn-nottoday').addEventListener('mouseleave', function() { this.style.color = '#555'; });
+
+var overlay = document.getElementById('click-overlay');
+var hint = document.getElementById('click-hint');
+
+function showPage(n) {
+  fixedNav.style.display = 'none';
+  overlay.style.display = 'none';
+  if (n === 0) {
+    fixedNav.style.display = 'none';
+  } else if (n === TOTAL) {
+    fixedNav.style.display = 'none';
+  } else {
+    fixedNav.style.display = 'block';
+  }
+  var pageId = PAGES[n];
+  if (pageId === 'p6') startShiftGlitch();
+  else stopShiftGlitch();
+  if (pageId === 'p3' && window._startAliveFlicker) window._startAliveFlicker();
+  if (pageId === 'p10') startTypewriter();
+  if (pageId === 'p9') { /* Annas Monster - no special effect */ }
+  else stopBlood();
+  if (pageId === 'p5') setTimeout(setupInsanityObserver, 600);
+  else { if (insanityObserver) insanityObserver.disconnect(); }
+}
+
+function navigate(dir) {
+  var next = current + dir;
+  if (next < 0 || next > TOTAL) return;
+  getEl(current).classList.remove('active');
+  current = next;
+  getEl(current).classList.add('active');
+  window.scrollTo(0, 0);
+  showPage(current);
+}
+
+// ---- I keep shifting glitch ----
+var shiftStr = 'I keep shifting.';
+var shiftContainer = document.getElementById('shift-text');
+var shiftLetters = [];
+var glitchChars = ['a','e','i','o','s','h','f','t','g','x','z','#','&','@','!'];
+var shiftTimer = null;
+for (var si = 0; si < shiftStr.length; si++) {
+  var sp = document.createElement('span');
+  sp.className = 'sletter';
+  sp.textContent = shiftStr[si] === ' ' ? '\u00a0' : shiftStr[si];
+  shiftContainer.appendChild(sp);
+  shiftLetters.push(sp);
+}
+function doShiftGlitch() {
+  var n = 2 + Math.floor(Math.random() * 4);
+  var saved = [];
+  for (var g = 0; g < n; g++) {
+    var idx = Math.floor(Math.random() * shiftLetters.length);
+    if (shiftStr[idx] === ' ') continue;
+    var s = shiftLetters[idx];
+    var tx = (Math.random() - 0.5) * 14;
+    var ty = (Math.random() - 0.5) * 10;
+    var rot = (Math.random() - 0.5) * 18;
+    var sc = 0.6 + Math.random() * 0.7;
+    s.style.transform = 'translate('+tx+'px,'+ty+'px) rotate('+rot+'deg) scale('+sc+')';
+    s.style.opacity = String(0.3 + Math.random() * 0.7);
+    if (Math.random() < 0.6) s.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+    saved.push({ el:s, orig: shiftStr[idx] === ' ' ? '\u00a0' : shiftStr[idx] });
+  }
+  shiftContainer.style.transform = 'translate('+((Math.random()-0.5)*8)+'px,'+((Math.random()-0.5)*5)+'px)';
+  setTimeout(function() {
+    for (var r = 0; r < saved.length; r++) {
+      saved[r].el.style.transform = '';
+      saved[r].el.style.opacity = '1';
+      saved[r].el.textContent = saved[r].orig;
+    }
+    shiftContainer.style.transform = '';
+  }, 60 + Math.random() * 90);
+}
+function shiftBurst() {
+  var b = 3 + Math.floor(Math.random() * 4);
+  for (var i = 0; i < b; i++) {
+    (function(d) { setTimeout(doShiftGlitch, d); })(i * (70 + Math.random() * 100));
+  }
+}
+function startShiftGlitch() {
+  stopShiftGlitch();
+  shiftBurst();
+  function loop() { shiftBurst(); shiftTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
+  shiftTimer = setTimeout(loop, 800);
+}
+function stopShiftGlitch() {
+  if (shiftTimer) { clearTimeout(shiftTimer); shiftTimer = null; }
+}
+
+// ---- I was alive: build text then flicker in, then cycle 'alive' word ----
+(function() {
+  var el = document.getElementById('alive-text');
+  if (!el) return;
+  el.innerHTML = 'I was <span id="alive-word">Anna</span> this morning,<br>but I have changed a few times since then.';
+  el.style.opacity = '0';
+
+  function cycleAliveWord() {
+    var word = document.getElementById('alive-word');
+    if (!word) return;
+    // Step 1: Anna briefly
+    word.textContent = 'Anna';
+    word.style.color = '';
+    setTimeout(function() {
+      // Step 2: Alice in red, longer
+      word.textContent = 'Alice';
+      word.style.color = '#8b0000';
+      setTimeout(function() {
+        // Step 3: alive, normal color
+        word.textContent = 'alive';
+        word.style.color = '';
+        // Step 4: TV glitch blink
+        setTimeout(function() {
+          var blinks = 0;
+          var maxBlinks = 3 + Math.floor(Math.random() * 3);
+          function blink() {
+            if (blinks >= maxBlinks) { word.style.opacity = '1'; return; }
+            word.style.opacity = '0';
+            setTimeout(function() {
+              word.style.opacity = '1';
+              blinks++;
+              setTimeout(blink, 60 + Math.random() * 120);
+            }, 40 + Math.random() * 60);
+          }
+          blink();
+        }, 400);
+      }, 1500);
+    }, 50);
+  }
+
+  window._startAliveFlicker = function() {
+    el.style.opacity = '0';
+    el.style.animation = 'none';
+    setTimeout(function() {
+      el.style.animation = 'flicker-in 1.4s ease forwards';
+      setTimeout(cycleAliveWord, 1400);
+    }, 600);
+  };
+})();
+
+// ---- Typewriter for last page ----
+var twBlocks = [
+  { text: "Dear reader,", prePause: true },
+  { text: "How did you end up here?" },
+  { text: "You knew this wasn\u2019t the way.\nAnd still\u2026 you kept going." },
+  { text: "I was wondering if you would." },
+  { text: "Did it scare you?" },
+  { text: "I told you it burns.\nYou wanted to feel it anyway." },
+  { text: "Kiss,\nAnna" }
+];
+var twRunning = false;
+function startTypewriter() {
+  if (twRunning) return;
+  twRunning = true;
+  var textEl = document.getElementById('typewriter-text');
+  if (!textEl) return;
+  textEl.textContent = '';
+  var content = '';
+  var twSettings = { min:28, max:60, punctuationPause:140, paragraphPause:800, thinkingPause:1000, deepThinkingPause:2800, deleteSpeed:35, replacePause:250 };
+  function render() {
+    textEl.textContent = content;
+    var cursor = document.createElement('span');
+    cursor.style.cssText = 'display:inline-block;margin-left:2px;animation:tw-blink 1s steps(1) infinite;';
+    cursor.textContent = '\u258c';
+    textEl.appendChild(cursor);
+  }
+  function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+  function rand(a,b) { return Math.random()*(b-a)+a; }
+  async function typeText(str) {
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i];
+      content += ch;
+      render();
+      var delay = rand(twSettings.min, twSettings.max);
+      if (',.!?\u2026'.includes(ch)) delay += twSettings.punctuationPause;
+      if (ch === '\n') delay += 80;
+      await sleep(delay);
+    }
+  }
+  async function deleteText(count) {
+    for (var i = 0; i < count; i++) {
+      content = content.slice(0, -1);
+      render();
+      await sleep(twSettings.deleteSpeed);
+    }
+  }
+  async function run() {
+    render();
+    await sleep(3000); // 2 extra seconds of cursor blinking before start
+    for (var i = 0; i < twBlocks.length; i++) {
+      var block = twBlocks[i];
+      if (i !== 0) { content += '\n\n'; render(); await sleep(twSettings.paragraphPause); }
+      if (block.prePause) { render(); await sleep(twSettings.thinkingPause); }
+      await typeText(block.text);
+      if (block.replaceWith) {
+        if (block.thinkBeforeDelete) { render(); await sleep(block.longThink ? twSettings.deepThinkingPause : twSettings.thinkingPause); }
+        await sleep(twSettings.replacePause);
+        await deleteText(block.text.length);
+        await sleep(600);
+        await typeText(block.replaceWith);
+      }
+    }
+    render();
+  }
+  run();
+}
+
+// add typewriter cursor blink keyframe dynamically
+(function(){
+  var s = document.createElement('style');
+  s.textContent = '@keyframes tw-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }';
+  document.head.appendChild(s);
+})();
+
+// ---- Easter egg: Alice -> Anna flash (longer visible) ----
+(function() {
+  var el = document.getElementById('alice-name');
+  if (!el) return;
+  function flashAnna() {
+    el.textContent = 'Anna';
+    setTimeout(function() {
+      el.textContent = 'Alice';
+      setTimeout(flashAnna, 8000 + Math.random() * 12000);
+    }, 2500);
+  }
+  setTimeout(flashAnna, 3000 + Math.random() * 5000);
+})();
+
+// ---- I keep shifting in Annas Monster ----
+(function() {
+  var monStr = 'I keep shifting.';
+  var monEl = document.getElementById('monster-shift');
+  if (!monEl) return;
+  var monLetters = [];
+  monEl.textContent = '';
+  for (var i = 0; i < monStr.length; i++) {
+    var sp = document.createElement('span');
+    sp.className = 'sletter';
+    sp.textContent = monStr[i] === ' ' ? '\u00a0' : monStr[i];
+    monEl.appendChild(sp);
+    monLetters.push(sp);
+  }
+  var monTimer = null;
+  function doMonGlitch() {
+    var n = 2 + Math.floor(Math.random() * 4);
+    var saved = [];
+    for (var g = 0; g < n; g++) {
+      var idx = Math.floor(Math.random() * monLetters.length);
+      if (monStr[idx] === ' ') continue;
+      var s = monLetters[idx];
+      s.style.transform = 'translate('+((Math.random()-0.5)*14)+'px,'+((Math.random()-0.5)*10)+'px) rotate('+((Math.random()-0.5)*18)+'deg) scale('+(0.6+Math.random()*0.7)+')';
+      s.style.opacity = String(0.3 + Math.random() * 0.7);
+      if (Math.random() < 0.6) s.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+      saved.push({ el:s, orig: monStr[idx] === ' ' ? '\u00a0' : monStr[idx] });
+    }
+    monEl.style.transform = 'translate('+((Math.random()-0.5)*8)+'px,'+((Math.random()-0.5)*5)+'px)';
+    setTimeout(function() {
+      for (var r = 0; r < saved.length; r++) {
+        saved[r].el.style.transform = '';
+        saved[r].el.style.opacity = '1';
+        saved[r].el.textContent = saved[r].orig;
+      }
+      monEl.style.transform = '';
+    }, 60 + Math.random() * 90);
+  }
+  var monObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      doMonGlitch();
+      function loop() { doMonGlitch(); monTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
+      monTimer = setTimeout(loop, 800);
+    } else {
+      if (monTimer) { clearTimeout(monTimer); monTimer = null; }
+    }
+  }, { threshold: 0.3 });
+  monObs.observe(monEl);
+})();
+
+// ---- A short insanity screen glitch ----
+var insanityDone = false;
+var insanityObserver = null;
+function setupInsanityObserver() {
+  insanityDone = false;
+  var trigger = document.getElementById('insanity-trigger');
+  if (!trigger) return;
+  if (insanityObserver) insanityObserver.disconnect();
+  insanityObserver = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !insanityDone) {
+      insanityDone = true;
+      setTimeout(doInsanityGlitch, 400);
+    }
+  }, { threshold: 0.5 });
+  insanityObserver.observe(trigger);
+  var trigger2 = document.getElementById('insanity-trigger2');
+  if (!trigger2) return;
+  var obs2 = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      obs2.disconnect();
+      setTimeout(function() { runJolts(document.getElementById('insanity-inner'), 4, null); }, 300);
+    }
+  }, { threshold: 0.5 });
+  obs2.observe(trigger2);
+}
+function runJolts(inner, count, callback) {
+  var jolts = 0;
+  function jolt() {
+    if (jolts >= count) { inner.style.transform = ''; if (callback) callback(); return; }
+    inner.style.transform = 'translate('+((Math.random()-0.5)*52)+'px,'+((Math.random()-0.5)*32)+'px) rotate('+((Math.random()-0.5)*3)+'deg)';
+    jolts++;
+    setTimeout(jolt, 45 + Math.random() * 50);
+  }
+  jolt();
+}
+function doInsanityGlitch() {
+  var inner = document.getElementById('insanity-inner');
+  runJolts(inner, 5, function() {
+    setTimeout(function() { runJolts(inner, 4, null); }, 4000);
+  });
+}
+
+// ---- Blood effect for Annas Monster ----
+var bloodActive = false;
+var bloodRaf = null;
+var bloodDrops = [];
+var bloodPuddle = [];
+var bloodTimer = null;
+var bloodObserver = null;
+function setupBloodObserver() {
+  stopBlood();
+  var word = document.getElementById('blood-word');
+  if (!word) return;
+  if (bloodObserver) bloodObserver.disconnect();
+  bloodObserver = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !bloodActive) {
+      bloodObserver.disconnect();
+      setTimeout(startBlood, 1200);
+    }
+  }, { threshold: 0.8 });
+  bloodObserver.observe(word);
+}
+function startBlood() {
+  if (bloodActive) return;
+  bloodActive = true;
+  var word = document.getElementById('blood-word');
+  if (!word) return;
+  word.style.transition = 'color 1.5s ease';
+  word.style.color = '#8b0000';
+  setTimeout(function() {
+    if (!bloodActive) return;
+    var canvas = document.getElementById('blood-canvas');
+    if (!canvas) return;
+    canvas.style.display = 'block';
+    var W = window.innerWidth;
+    var H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext('2d');
+    var rect = word.getBoundingClientRect();
+    function spawnDrop() {
+      if (!bloodActive) return;
+      bloodDrops.push({
+        x: rect.left + Math.random() * rect.width,
+        y: rect.bottom + window.scrollY,
+        vy: 0.8 + Math.random() * 1.2,
+        vx: (Math.random() - 0.5) * 0.4,
+        r: 2.5 + Math.random() * 2.5,
+        alpha: 0.85 + Math.random() * 0.15,
+        trail: [],
+        landed: false,
+        landY: 0
+      });
+    }
+    var spawnInterval = setInterval(function() {
+      if (!bloodActive) { clearInterval(spawnInterval); return; }
+      spawnDrop();
+      spawnDrop();
+    }, 300);
+    for (var i = 0; i < 4; i++) spawnDrop();
+    function drawBlood() {
+      if (!bloodActive) return;
+      bloodRaf = requestAnimationFrame(drawBlood);
+      ctx.clearRect(0, 0, W, H);
+      for (var pd = 0; pd < bloodPuddle.length; pd++) {
+        var p = bloodPuddle[pd];
+        p.r = Math.min(p.r + 0.08, p.maxR);
+        p.alpha = Math.min(p.alpha + 0.005, 0.7);
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.r, p.r * 0.35, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(100,0,0,' + p.alpha + ')';
+        ctx.fill();
+      }
+      for (var d = bloodDrops.length - 1; d >= 0; d--) {
+        var drop = bloodDrops[d];
+        if (drop.landed) { bloodDrops.splice(d, 1); continue; }
+        var screenY = drop.y - window.scrollY;
+        drop.trail.push({ x: drop.x, y: screenY });
+        if (drop.trail.length > 30) drop.trail.shift();
+        drop.vy = Math.min(drop.vy + 0.15, 8);
+        drop.y += drop.vy;
+        drop.x += drop.vx;
+        var landThreshold = rect.bottom + 280 + Math.random() * 80;
+        if (drop.y - window.scrollY > landThreshold || screenY > H - 60) {
+          bloodPuddle.push({ x: drop.x, y: screenY, r: drop.r, maxR: drop.r * (4 + Math.random() * 6), alpha: 0 });
+          drop.landed = true;
+          continue;
+        }
+        for (var t = 1; t < drop.trail.length; t++) {
+          var prog = t / drop.trail.length;
+          ctx.beginPath();
+          ctx.moveTo(drop.trail[t-1].x, drop.trail[t-1].y);
+          ctx.lineTo(drop.trail[t].x, drop.trail[t].y);
+          ctx.strokeStyle = 'rgba(120,0,0,' + (prog * drop.alpha * 0.5) + ')';
+          ctx.lineWidth = drop.r * prog * 1.4;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.arc(drop.x, screenY, drop.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(139,0,0,' + drop.alpha + ')';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(drop.x - drop.r * 0.5, screenY);
+        ctx.quadraticCurveTo(drop.x, screenY - drop.r * 2.5, drop.x + drop.r * 0.5, screenY);
+        ctx.fillStyle = 'rgba(139,0,0,' + drop.alpha * 0.6 + ')';
+        ctx.fill();
+      }
+    }
+    drawBlood();
+  }, 1800);
+}
+function stopBlood() {
+  bloodActive = false;
+  if (bloodObserver) { bloodObserver.disconnect(); bloodObserver = null; }
+  if (bloodTimer) { clearTimeout(bloodTimer); bloodTimer = null; }
+  if (bloodRaf) { cancelAnimationFrame(bloodRaf); bloodRaf = null; }
+  bloodDrops = [];
+  bloodPuddle = [];
+  var word = document.getElementById('blood-word');
+  if (word) { word.style.color = ''; word.style.transition = ''; }
+  var canvas = document.getElementById('blood-canvas');
+  if (canvas) { canvas.style.display = 'none'; var ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+}
+
+// init
+showPage(0);
+</script>
+</body>
+</html>
