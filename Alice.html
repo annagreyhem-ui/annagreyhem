@@ -11,9 +11,11 @@
       color: #f2f2ee;
       font-family: Georgia, "Times New Roman", serif;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       min-height: 100vh;
+      padding: 30vh 0 40px 0;
+      box-sizing: border-box;
     }
     .text {
       max-width: 720px;
@@ -54,13 +56,13 @@
     let content = "";
 
     const settings = {
-      min: 28,
-      max: 62,
-      punctuationPause: 150,
-      paragraphPause: 860,
-      thinkingPause: 1100,
-      deepThinkingPause: 2800,
-      deleteSpeed: 35,
+      min: 35,
+      max: 75,
+      punctuationPause: 200,
+      paragraphPause: 1100,
+      thinkingPause: 1300,
+      deepThinkingPause: 3200,
+      readingPause: 700,
     };
 
     function sleep(ms) {
@@ -69,12 +71,16 @@
     function rand(min, max) {
       return Math.random() * (max - min) + min;
     }
+    function scrollToBottom() {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
     function render() {
       textEl.textContent = content;
       const cursor = document.createElement("span");
       cursor.className = "cursor";
       cursor.textContent = "\u258c";
       textEl.appendChild(cursor);
+      scrollToBottom();
     }
     async function typeText(str) {
       for (let i = 0; i < str.length; i++) {
@@ -83,7 +89,7 @@
         render();
         let delay = rand(settings.min, settings.max);
         if (",.!?\u2026\u2013".includes(char)) delay += settings.punctuationPause;
-        if (char === "\n") delay += 80;
+        if (char === "\n") delay += 100;
         await sleep(delay);
       }
     }
@@ -99,6 +105,7 @@
           const pause = block.longPauseBefore
             ? settings.deepThinkingPause
             : settings.paragraphPause;
+          await sleep(settings.readingPause);
           await sleep(pause);
         }
         if (block.prePause) {
