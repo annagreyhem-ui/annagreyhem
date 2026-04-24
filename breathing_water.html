@@ -56,7 +56,7 @@ var flow = [
   'Anna kept floating in the water.',
   'She couldn\u2019t feel the cold anymore.',
   'Her body went quiet.',
-  {t:'She looked down.', dim:true},
+  'She looked down.',
   'Alice was below her, deep in the ocean.',
   'She looked up.',
   'Anna was above her, at the surface.',
@@ -64,7 +64,7 @@ var flow = [
   {t:'She had no air left.', dim:true},
   'CHOICE'
 ];
-var annaLines = ['Life.','It will always be life.','I love life. Even when it burns.','HOLD','Will life ever love me back?'];
+var annaLines = ['Life.','It will always be life.','I love life. Even when it burns.','Will life ever love me back?'];
 
 var textEl = document.getElementById('text');
 var instrEl = document.getElementById('instruction');
@@ -83,19 +83,20 @@ var inAnnaHold = false;
 var afterLastLine = false;
 var tapShown = false;
 var ripples = [];
+var holdTimer=null, holdInterval=null;
+var annaHoldTimer=null, annaHoldInterval=null;
 
 function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-function addRipple(x,y,color){
-  ripples.push({x:x,y:y,r:0,alpha:0.5,color:color});
-}
+function addRipple(x,y,color){ ripples.push({x:x,y:y,r:0,alpha:0.5,color:color}); }
+function clearRipples(){ ripples=[]; ctx.clearRect(0,0,canvas.width,canvas.height); }
 function drawRipples(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ripples = ripples.filter(function(r){return r.alpha>0.01;});
+  ripples=ripples.filter(function(r){return r.alpha>0.01;});
   ripples.forEach(function(rp){
-    rp.r += 3.5; rp.alpha *= 0.965;
+    rp.r+=3.5; rp.alpha*=0.965;
     for(var k=0;k<3;k++){
       var r=rp.r-k*28; if(r<0)continue;
       ctx.beginPath(); ctx.arc(rp.x,rp.y,r,0,Math.PI*2);
@@ -107,81 +108,7 @@ function drawRipples(){
 }
 drawRipples();
 
-var holdTimer=null, holdInterval=null;
-function startHold(choice,x,y){
-  var color = choice==='anna' ? 'rgba(255,255,255,A)' : 'rgba(80,130,200,A)';
-  holdInterval=setInterval(function(){addRipple(x,y,color);},180);
-  holdTimer=setTimeout(function(){finishHold(choice);},2200);
-}
-function cancelHold(){
-  clearTimeout(holdTimer); clearInterval(holdInterval);
-  holdTimer=null; holdInterval=null;
-}
-function finishHold(choice){
-  cancelHold(); exitChoice();
-  if(choice==='alice'){ window.location.href='https://annagreyhem-ui.github.io/annagreyhem/Alice_Hand.html'; }
-  else { showAnnaResult(); }
-}
-
-var annaHoldTimer=null, annaHoldInterval=null;
-function startAnnaHold(x,y){
-  inAnnaHold=true;
-  tapArea.style.display='none';
-  setInstruction('hold');
-  annaHoldInterval=setInterval(function(){addRipple(x,y,'rgba(255,255,255,A)');},180);
-  annaHoldTimer=setTimeout(function(){finishAnnaHold();},2200);
-}
-function cancelAnnaHold(){
-  clearTimeout(annaHoldTimer); clearInterval(annaHoldInterval);
-  inAnnaHold=false; tapArea.style.display=''; setInstruction('');
-}
-function finishAnnaHold(){
-  clearTimeout(annaHoldTimer); clearInterval(annaHoldInterval);
-  inAnnaHold=false; tapArea.style.display=''; setInstruction('');
-  textEl.classList.remove('visible');
-  setTimeout(function(){
-    textEl.textContent='Will life ever love me back?';
-    textEl.classList.add('visible');
-    afterLastLine=true;
-  },400);
-}
-
-function enterChoice(){
-  inChoice=true;
-  tapArea.style.display='none';
-  holdAnnaBtn.style.display='block';
-  holdAliceBtn.style.display='block';
-  document.getElementById('choice-anna').classList.add('visible');
-  document.getElementById('choice-alice').classList.add('visible');
-  document.getElementById('water-line').classList.add('visible');
-  textEl.classList.remove('visible');
-  setTimeout(function(){ document.getElementById('she-reached').classList.add('visible'); },400);
-  setInstruction('hold to choose');
-}
-function exitChoice(){
-  inChoice=false;
-  holdAnnaBtn.style.display='none';
-  holdAliceBtn.style.display='none';
-  document.getElementById('choice-anna').classList.remove('visible');
-  document.getElementById('choice-alice').classList.remove('visible');
-  document.getElementById('water-line').classList.remove('visible');
-  document.getElementById('she-reached').classList.remove('visible');
-  tapArea.style.display=''; setInstruction('');
-}
-
-function showAnnaResult(){
-  inAnnaResult=true; annaIdx=0;
-  textEl.classList.remove('visible');
-  setTimeout(function(){ showAnnaLine(); },600);
-}
-function showAnnaLine(){
-  textEl.classList.remove('visible');
-  setTimeout(function(){
-    textEl.textContent=annaLines[annaIdx];
-    textEl.classList.add('visible');
-    annaIdx++;
-  },400);
-}
+function setInstruction(txt){ instrEl.textContent=txt||''; instrEl.classList.toggle('visible',!!txt); }
 
 function showText(item){
   textEl.classList.remove('visible');
@@ -189,69 +116,108 @@ function showText(item){
     if(typeof item==='object' && item.dim) textEl.innerHTML='<span class="dim">'+item.t+'</span>';
     else textEl.textContent=(typeof item==='object'?item.t:item);
     textEl.classList.add('visible');
+    if(!tapShown){ tapShown=true; setTimeout(function(){ setInstruction('tap'); },600); }
   },300);
-}
-
-function setInstruction(txt){
-  instrEl.textContent=txt;
-  instrEl.classList.toggle('visible',!!txt);
 }
 
 function advance(){
   if(idx>=flow.length) return;
   var item=flow[idx];
-  if(item==='CHOICE'||item.t==='CHOICE'){ idx++; enterChoice(); return; }
+  var isChoice=(item==='CHOICE')||(typeof item==='object'&&item.t==='CHOICE');
+  if(isChoice){ idx++; enterChoice(); return; }
+  setInstruction('');
   showText(item); idx++;
-  if(!tapShown){ setInstruction('tap'); tapShown=true; } else { setInstruction(''); }
 }
 
-tapArea.addEventListener('click',function(e){
-  setInstruction('');
-  if(afterLastLine){
-    soupEl.classList.add('visible');
-    tapArea.style.display='none';
-    return;
-  }
+function enterChoice(){
+  inChoice=true; tapArea.style.display='none';
+  holdAnnaBtn.style.display='block'; holdAliceBtn.style.display='block';
+  document.getElementById('choice-anna').classList.add('visible');
+  document.getElementById('choice-alice').classList.add('visible');
+  document.getElementById('water-line').classList.add('visible');
+  textEl.classList.remove('visible');
+  setInstruction('hold to choose');
+  setTimeout(function(){ document.getElementById('she-reached').classList.add('visible'); },400);
+}
+function exitChoice(){
+  inChoice=false; holdAnnaBtn.style.display='none'; holdAliceBtn.style.display='none';
+  document.getElementById('choice-anna').classList.remove('visible');
+  document.getElementById('choice-alice').classList.remove('visible');
+  document.getElementById('water-line').classList.remove('visible');
+  document.getElementById('she-reached').classList.remove('visible');
+  tapArea.style.display=''; setInstruction('');
+}
+function startHold(choice,x,y){
+  var color=choice==='anna'?'rgba(255,255,255,A)':'rgba(80,130,200,A)';
+  holdInterval=setInterval(function(){ addRipple(x,y,color); },180);
+  holdTimer=setTimeout(function(){ finishHold(choice); },2200);
+}
+function cancelHold(){ clearTimeout(holdTimer); clearInterval(holdInterval); holdTimer=null; holdInterval=null; }
+function finishHold(choice){ cancelHold(); clearRipples(); exitChoice(); if(choice==='alice'){ window.location.href='https://annagreyhem-ui.github.io/annagreyhem/Alice_Hand.html'; } else { showAnnaResult(); } }
+
+function showAnnaResult(){ inAnnaResult=true; annaIdx=0; textEl.classList.remove('visible'); setTimeout(function(){ showAnnaLine(); },600); }
+function showAnnaLine(){
+  var line=annaLines[annaIdx];
+  textEl.classList.remove('visible');
+  setTimeout(function(){
+    textEl.textContent=line;
+    textEl.classList.add('visible');
+    annaIdx++;
+    if(annaIdx>=annaLines.length){
+      afterLastLine=true;
+      setTimeout(function(){ soupEl.classList.add('visible'); },3000);
+    }
+  },400);
+}
+
+function startAnnaHold(x,y){
+  inAnnaHold=true; tapArea.style.display='none'; setInstruction('hold');
+  annaHoldInterval=setInterval(function(){ addRipple(x,y,'rgba(255,255,255,A)'); },180);
+  annaHoldTimer=setTimeout(function(){ finishAnnaHold(); },2200);
+}
+function cancelAnnaHold(){
+  clearTimeout(annaHoldTimer); clearInterval(annaHoldInterval);
+  annaHoldTimer=null; annaHoldInterval=null;
+  inAnnaHold=false; tapArea.style.display=''; setInstruction('');
+}
+function finishAnnaHold(){
+  clearTimeout(annaHoldTimer); clearInterval(annaHoldInterval);
+  annaHoldTimer=null; annaHoldInterval=null;
+  inAnnaHold=false; clearRipples(); setInstruction(''); tapArea.style.display='';
+  textEl.classList.remove('visible');
+  setTimeout(function(){ textEl.textContent='Will life ever love me back?'; textEl.classList.add('visible'); afterLastLine=true; },400);
+}
+
+tapArea.addEventListener('click',function(){
+  if(inAnnaHold) return;
+  if(afterLastLine){ soupEl.classList.add('visible'); tapArea.style.display='none'; return; }
   if(inAnnaResult){
     if(annaIdx>=annaLines.length) return;
-    if(annaLines[annaIdx]==='HOLD') return; // handled by pointerdown
-    showAnnaLine();
-    return;
+    if(annaLines[annaIdx]==='HOLD') return;
+    showAnnaLine(); return;
   }
   advance();
 });
 
-// Anna hold – triggered on pointerdown when HOLD is next
-['mousedown','touchstart','pointerdown'].forEach(function(ev){
+['pointerdown','touchstart','mousedown'].forEach(function(ev){
   tapArea.addEventListener(ev,function(e){
-    if(inAnnaResult && annaIdx<annaLines.length && annaLines[annaIdx]==='HOLD'){
+    if(inAnnaResult&&!inAnnaHold&&annaIdx<annaLines.length&&annaLines[annaIdx]==='HOLD'){
       e.preventDefault();
       var pt=e.touches?e.touches[0]:e;
-      annaIdx++; // skip HOLD marker
+      annaIdx++;
       startAnnaHold(pt.clientX,pt.clientY);
     }
   },{passive:false});
 });
-['mouseup','touchend','touchcancel','pointerup','pointercancel'].forEach(function(ev){
-  document.addEventListener(ev,function(){
-    if(inAnnaHold) cancelAnnaHold();
-  });
+['pointerup','pointercancel','touchend','touchcancel','mouseup'].forEach(function(ev){
+  document.addEventListener(ev,function(){ if(inAnnaHold) cancelAnnaHold(); });
 });
 
-// Choice holds
-['mousedown','touchstart','pointerdown'].forEach(function(ev){
-  holdAnnaBtn.addEventListener(ev,function(e){
-    e.preventDefault();
-    var pt=e.touches?e.touches[0]:e;
-    startHold('anna',pt.clientX,pt.clientY);
-  },{passive:false});
-  holdAliceBtn.addEventListener(ev,function(e){
-    e.preventDefault();
-    var pt=e.touches?e.touches[0]:e;
-    startHold('alice',pt.clientX,pt.clientY);
-  },{passive:false});
+['pointerdown','touchstart','mousedown'].forEach(function(ev){
+  holdAnnaBtn.addEventListener(ev,function(e){ e.preventDefault(); var pt=e.touches?e.touches[0]:e; startHold('anna',pt.clientX,pt.clientY); },{passive:false});
+  holdAliceBtn.addEventListener(ev,function(e){ e.preventDefault(); var pt=e.touches?e.touches[0]:e; startHold('alice',pt.clientX,pt.clientY); },{passive:false});
 });
-['mouseup','mouseleave','touchend','touchcancel','pointerup','pointercancel'].forEach(function(ev){
+['pointerup','pointercancel','touchend','touchcancel','mouseup','mouseleave'].forEach(function(ev){
   holdAnnaBtn.addEventListener(ev,function(e){ e.preventDefault(); cancelHold(); },{passive:false});
   holdAliceBtn.addEventListener(ev,function(e){ e.preventDefault(); cancelHold(); },{passive:false});
 });
