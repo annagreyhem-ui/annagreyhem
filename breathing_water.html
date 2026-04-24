@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Anna Greyhem</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap"/>
+<style>
+:root { --hold-duration: 2200; }
+* { box-sizing:border-box; }
+html,body { margin:0; width:100%; height:100%; background:#000; color:#fff; font-family:Georgia,'Times New Roman',serif; overflow:hidden; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+body { display:flex; align-items:center; justify-content:center; }
+.wrap { width:min(680px,88vw); display:flex; align-items:center; justify-content:center; text-align:center; padding:2rem 1rem; z-index:2; pointer-events:none; }
+.text { font-family:Georgia,serif; font-size:clamp(17px,2.2vw,22px); line-height:1.9; max-width:540px; opacity:0; transform:translateY(8px); transition:opacity 500ms ease,transform 500ms ease; user-select:none; }
+.text.visible { opacity:1; transform:translateY(0); }
+.dim { color:#555; }
+.instruction { position:fixed; bottom:12vh; left:50%; transform:translateX(-50%); font-size:0.9rem; color:#9a9a9a; letter-spacing:0.08em; white-space:nowrap; opacity:0; transition:opacity 220ms ease; z-index:20; user-select:none; pointer-events:none; }
+.instruction.visible { opacity:1; }
+#choice-anna { position:fixed; top:10vh; left:50%; transform:translateX(-50%); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(20px,3vw,28px); color:#fff; letter-spacing:0.12em; opacity:0; transition:opacity 600ms ease; pointer-events:none; z-index:20; }
+#choice-alice { position:fixed; bottom:22vh; left:50%; transform:translateX(-50%); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(20px,3vw,28px); color:#4a6a8a; letter-spacing:0.12em; opacity:0; transition:opacity 600ms ease; pointer-events:none; z-index:20; }
+.choice-label.visible { opacity:1 !important; }
+#she-reached { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); font-family:Georgia,serif; font-size:clamp(17px,2.2vw,22px); color:#fff; opacity:0; transition:opacity 500ms ease; pointer-events:none; z-index:20; white-space:nowrap; margin-top:14px; }
+#she-reached.visible { opacity:1; }
+#water-line { position:fixed; left:0; right:0; top:50%; transform:translateY(-50%); pointer-events:none; z-index:19; opacity:0; transition:opacity 600ms ease; }
+#water-line.visible { opacity:1; }
+@keyframes wave { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+#ripple-canvas { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:3; }
+.tap-area { position:fixed; inset:0; background:transparent; border:0; padding:0; margin:0; z-index:4; appearance:none; -webkit-appearance:none; cursor:pointer; }
+#hold-anna { position:fixed; top:0; left:0; right:0; height:50%; background:transparent; border:0; padding:0; margin:0; z-index:5; appearance:none; display:none; cursor:pointer; }
+#hold-alice { position:fixed; bottom:0; left:0; right:0; height:50%; background:transparent; border:0; padding:0; margin:0; z-index:5; appearance:none; display:none; cursor:pointer; }
+#soup-note { position:fixed; bottom:5vh; left:50%; transform:translateX(-50%); font-family:Georgia,serif; font-size:clamp(15px,1.8vw,18px); color:#888; line-height:1.7; text-align:center; opacity:0; transition:opacity 1s ease; pointer-events:none; z-index:20; white-space:nowrap; }
+#soup-note.visible { opacity:1; }
+</style>
+</head>
+<body>
+<canvas id="ripple-canvas"></canvas>
+<div class="wrap"><div class="text" id="text"></div></div>
+<div class="instruction" id="instruction"></div>
+<div id="choice-anna" class="choice-label">Anna</div>
+<div id="choice-alice" class="choice-label">Alice</div>
+<div id="she-reached">She reached for</div>
+<div id="water-line">
+  <svg width="100%" height="28" viewBox="0 0 400 28" preserveAspectRatio="none" style="display:block;">
+    <g style="animation:wave 4s linear infinite;">
+      <path d="M0,14 C25,8 50,20 75,14 C100,8 125,20 150,14 C175,8 200,20 225,14 C250,8 275,20 300,14 C325,8 350,20 375,14 C400,8 425,20 450,14 C475,8 500,20 525,14 C550,8 575,20 600,14 C625,8 650,20 675,14 C700,8 725,20 750,14 C775,8 800,20 800,14" stroke="rgba(80,130,200,0.3)" stroke-width="1" fill="none"/>
+      <path d="M0,17 C30,12 60,22 90,17 C120,12 150,22 180,17 C210,12 240,22 270,17 C300,12 330,22 360,17 C390,12 420,22 450,17 C480,12 510,22 540,17 C570,12 600,22 630,17 C660,12 690,22 720,17 C750,12 780,22 800,17" stroke="rgba(80,130,200,0.15)" stroke-width="0.8" fill="none"/>
+    </g>
+  </svg>
+</div>
+<div id="soup-note">I'm craving soup.<br>→ p. 121</div>
+<button class="tap-area" id="tapArea" aria-label="next"></button>
+<button id="hold-anna" aria-label="Choose Anna"></button>
+<button id="hold-alice" aria-label="Choose Alice"></button>
+<script>
+var flow = [
+  'Anna kept floating in the water.',
+  'She couldn\u2019t feel the cold anymore.',
+  'Her body went quiet.',
+  {t:'She looked down.', dim:true},
+  'Alice was below her, deep in the ocean.',
+  'She looked up.',
+  'Anna was above her, at the surface.',
+  {t:'Both reached for her.', dim:true},
+  {t:'She had no air left.', dim:true},
+  'CHOICE'
+];
+var annaLines = ['Life.','It will always be life.','I love life. Even when it burns.','HOLD','Will life ever love me back?'];
+
+var textEl = document.getElementById('text');
+var instrEl = document.getElementById('instruction');
+var tapArea = document.getElementById('tapArea');
+var holdAnnaBtn = document.getElementById('hold-anna');
+var holdAliceBtn = document.getElementById('hold-alice');
+var soupEl = document.getElementById('soup-note');
+var canvas = document.getElementById('ripple-canvas');
+var ctx = canvas.getContext('2d');
+
+var idx = 0;
+var inChoice = false;
+var inAnnaResult = false;
+var annaIdx = 0;
+var inAnnaHold = false;
+var afterLastLine = false;
+var tapShown = false;
+var ripples = [];
+
+function resizeCanvas(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function addRipple(x,y,color){
+  ripples.push({x:x,y:y,r:0,alpha:0.5,color:color});
+}
+function drawRipples(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ripples = ripples.filter(function(r){return r.alpha>0.01;});
+  ripples.forEach(function(rp){
+    rp.r += 3.5; rp.alpha *= 0.965;
+    for(var k=0;k<3;k++){
+      var r=rp.r-k*28; if(r<0)continue;
+      ctx.beginPath(); ctx.arc(rp.x,rp.y,r,0,Math.PI*2);
+      ctx.strokeStyle=rp.color.replace('A',Math.max(0,rp.alpha-k*0.12).toFixed(2));
+      ctx.lineWidth=1.2-k*0.3; ctx.stroke();
+    }
+  });
+  requestAnimationFrame(drawRipples);
+}
+drawRipples();
+
+var holdTimer=null, holdInterval=null;
+function startHold(choice,x,y){
+  var color = choice==='anna' ? 'rgba(255,255,255,A)' : 'rgba(80,130,200,A)';
+  holdInterval=setInterval(function(){addRipple(x,y,color);},180);
+  holdTimer=setTimeout(function(){finishHold(choice);},2200);
+}
+function cancelHold(){
+  clearTimeout(holdTimer); clearInterval(holdInterval);
+  holdTimer=null; holdInterval=null;
+}
+function finishHold(choice){
+  cancelHold(); exitChoice();
+  if(choice==='alice'){ window.location.href='https://annagreyhem-ui.github.io/annagreyhem/Alice_Hand.html'; }
+  else { showAnnaResult(); }
+}
+
+var annaHoldTimer=null, annaHoldInterval=null;
+function startAnnaHold(x,y){
+  inAnnaHold=true;
+  tapArea.style.display='none';
+  setInstruction('hold');
+  annaHoldInterval=setInterval(function(){addRipple(x,y,'rgba(255,255,255,A)');},180);
+  annaHoldTimer=setTimeout(function(){finishAnnaHold();},2200);
+}
+function cancelAnnaHold(){
+  clearTimeout(annaHoldTimer); clearInterval(annaHoldInterval);
+  inAnnaHold=false; tapArea.style.display=''; setInstruction('');
+}
+function finishAnnaHold(){
+  clearTimeout(annaHoldTimer); clearInterval(annaHoldInterval);
+  inAnnaHold=false; tapArea.style.display=''; setInstruction('');
+  textEl.classList.remove('visible');
+  setTimeout(function(){
+    textEl.textContent='Will life ever love me back?';
+    textEl.classList.add('visible');
+    afterLastLine=true;
+  },400);
+}
+
+function enterChoice(){
+  inChoice=true;
+  tapArea.style.display='none';
+  holdAnnaBtn.style.display='block';
+  holdAliceBtn.style.display='block';
+  document.getElementById('choice-anna').classList.add('visible');
+  document.getElementById('choice-alice').classList.add('visible');
+  document.getElementById('water-line').classList.add('visible');
+  textEl.classList.remove('visible');
+  setTimeout(function(){ document.getElementById('she-reached').classList.add('visible'); },400);
+  setInstruction('hold to choose');
+}
+function exitChoice(){
+  inChoice=false;
+  holdAnnaBtn.style.display='none';
+  holdAliceBtn.style.display='none';
+  document.getElementById('choice-anna').classList.remove('visible');
+  document.getElementById('choice-alice').classList.remove('visible');
+  document.getElementById('water-line').classList.remove('visible');
+  document.getElementById('she-reached').classList.remove('visible');
+  tapArea.style.display=''; setInstruction('');
+}
+
+function showAnnaResult(){
+  inAnnaResult=true; annaIdx=0;
+  textEl.classList.remove('visible');
+  setTimeout(function(){ showAnnaLine(); },600);
+}
+function showAnnaLine(){
+  textEl.classList.remove('visible');
+  setTimeout(function(){
+    textEl.textContent=annaLines[annaIdx];
+    textEl.classList.add('visible');
+    annaIdx++;
+  },400);
+}
+
+function showText(item){
+  textEl.classList.remove('visible');
+  setTimeout(function(){
+    if(typeof item==='object' && item.dim) textEl.innerHTML='<span class="dim">'+item.t+'</span>';
+    else textEl.textContent=(typeof item==='object'?item.t:item);
+    textEl.classList.add('visible');
+  },300);
+}
+
+function setInstruction(txt){
+  instrEl.textContent=txt;
+  instrEl.classList.toggle('visible',!!txt);
+}
+
+function advance(){
+  if(idx>=flow.length) return;
+  var item=flow[idx];
+  if(item==='CHOICE'||item.t==='CHOICE'){ idx++; enterChoice(); return; }
+  showText(item); idx++;
+  if(!tapShown){ setInstruction('tap'); tapShown=true; } else { setInstruction(''); }
+}
+
+tapArea.addEventListener('click',function(e){
+  setInstruction('');
+  if(afterLastLine){
+    soupEl.classList.add('visible');
+    tapArea.style.display='none';
+    return;
+  }
+  if(inAnnaResult){
+    if(annaIdx>=annaLines.length) return;
+    if(annaLines[annaIdx]==='HOLD') return; // handled by pointerdown
+    showAnnaLine();
+    return;
+  }
+  advance();
+});
+
+// Anna hold – triggered on pointerdown when HOLD is next
+['mousedown','touchstart','pointerdown'].forEach(function(ev){
+  tapArea.addEventListener(ev,function(e){
+    if(inAnnaResult && annaIdx<annaLines.length && annaLines[annaIdx]==='HOLD'){
+      e.preventDefault();
+      var pt=e.touches?e.touches[0]:e;
+      annaIdx++; // skip HOLD marker
+      startAnnaHold(pt.clientX,pt.clientY);
+    }
+  },{passive:false});
+});
+['mouseup','touchend','touchcancel','pointerup','pointercancel'].forEach(function(ev){
+  document.addEventListener(ev,function(){
+    if(inAnnaHold) cancelAnnaHold();
+  });
+});
+
+// Choice holds
+['mousedown','touchstart','pointerdown'].forEach(function(ev){
+  holdAnnaBtn.addEventListener(ev,function(e){
+    e.preventDefault();
+    var pt=e.touches?e.touches[0]:e;
+    startHold('anna',pt.clientX,pt.clientY);
+  },{passive:false});
+  holdAliceBtn.addEventListener(ev,function(e){
+    e.preventDefault();
+    var pt=e.touches?e.touches[0]:e;
+    startHold('alice',pt.clientX,pt.clientY);
+  },{passive:false});
+});
+['mouseup','mouseleave','touchend','touchcancel','pointerup','pointercancel'].forEach(function(ev){
+  holdAnnaBtn.addEventListener(ev,function(e){ e.preventDefault(); cancelHold(); },{passive:false});
+  holdAliceBtn.addEventListener(ev,function(e){ e.preventDefault(); cancelHold(); },{passive:false});
+});
+
+advance();
+</script>
+</body>
+</html>
