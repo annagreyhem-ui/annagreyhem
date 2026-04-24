@@ -36,7 +36,7 @@ p:last-of-type { margin-bottom:0; }
 .sletter { display:inline-block; }
 /* Alive page */
 #alive-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding-bottom:80px; }
-#alive-text { font-family:'Cormorant Garamond',serif; font-style:normal; font-size:clamp(20px,3vw,32px); color:#fff; letter-spacing:0.08em; text-align:center; line-height:2; opacity:0; }
+#alive-text { font-family:'Cormorant Garamond',serif; font-style:normal; font-size:clamp(24px,4vw,40px); color:#fff; letter-spacing:0.1em; text-align:center; line-height:1.9; max-width:640px; width:100%; padding:0 40px; }
 @keyframes flicker-in { 0%{opacity:0} 8%{opacity:0.9} 14%{opacity:0.1} 20%{opacity:1} 25%{opacity:0.3} 30%{opacity:1} 35%{opacity:0.7} 40%{opacity:1} 100%{opacity:1} }
 /* 13-13-13 page */
 #thirteen-page { min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding-top:80px; padding-bottom:80px; }
@@ -60,8 +60,8 @@ p:last-of-type { margin-bottom:0; }
 <!-- P0: Warning / choice -->
 <div class="story active" id="p0">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:80px 40px 40px;text-align:center;">
-    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(20px,3vw,34px);color:#fff;line-height:1.6;max-width:580px;margin-bottom:24px;">Are you sure you want to go further into the dark?<br>This is the part I almost didn't write.</p>
-    <p style="font-family:Georgia,serif;font-size:clamp(15px,1.8vw,18px);color:#888;line-height:1.7;max-width:480px;margin-bottom:64px;">If you're not in a good place right now – come back another time. I'll still be here.</p>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(20px,3vw,34px);color:#fff;line-height:1.6;max-width:580px;margin-bottom:24px;">Are you sure you want to go further<br>into the dark?<br>This is the part I almost didn't write.</p>
+    <p style="font-family:Georgia,serif;font-size:clamp(15px,1.8vw,18px);color:#888;line-height:1.7;max-width:480px;margin-bottom:64px;">If you're not in a good place right now – come back another time.<br>I'll still be here.</p>
     <div style="display:flex;flex-direction:column;gap:20px;align-items:center;">
       <button id="btn-ready" style="background:none;border:none;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(18px,2.2vw,24px);color:#fff;letter-spacing:0.12em;cursor:pointer;padding:8px 0;border-bottom:1px solid #333;transition:border-color 0.3s;">I'm ready</button>
       <button id="btn-nottoday" style="background:none;border:none;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(18px,2.2vw,24px);color:#555;letter-spacing:0.12em;cursor:pointer;padding:8px 0;transition:color 0.3s;">Not today</button>
@@ -72,7 +72,7 @@ p:last-of-type { margin-bottom:0; }
 <!-- P1: DYING -->
 <div class="story" id="p1">
   <div class="story-inner center-page">
-    <h1 style="text-align:center;font-size:clamp(48px,10vw,96px);letter-spacing:0.18em;margin:0;color:#8b0000;font-style:normal;font-family:Georgia,serif;">DYING</h1>
+    <div style="text-align:center;font-size:clamp(48px,10vw,96px);letter-spacing:0.18em;margin:0;color:#8b0000;font-family:Georgia,serif;line-height:1;">DYING</div>
   </div>
 </div>
 
@@ -146,19 +146,7 @@ p:last-of-type { margin-bottom:0; }
   </div>
 </div>
 
-<!-- P8: Zweite Hochzeitsnacht -->
-<div class="story" id="p8">
-  <div class="story-inner">
-    <h1>Zweite Hochzeitsnacht</h1>
-    <span class="look-again">Look again.</span>
-    <p>Er starrte sich selbst durch die Scheibe an und durch sie hindurch. Sie befand sich in der schwarzen Kutsche, die vor das Anwesen fuhr. Sein Herz klopfte schneller bei diesem Anblick und seine Fingerspitzen strichen das k&uuml;hle Glas entlang. Sehnsuchtserf&uuml;llt glitt er in die Vormittagsluft und den Duft nach nassem Gras und Tannen. Heute war ihr Tag und alle waren gekommen, um sie zu sehen. Auch er hatte sich in seinem feinsten Anzug zurecht gemacht. Der Bart war getrimmt, so wie sie es mochte und alles war mit Blumen und Kerzen geschm&uuml;ckt. Er war emotional und nerv&ouml;s, heute w&uuml;rde auch viel Aufmerksamkeit auf ihn gerichtet sein.</p>
-    <p>Er betrat die Kirche. Sie sah wundersch&ouml;n aus, in ihrem prachtvollen wei&szlig;en Kleid. Den Atem hielt sie an und das Str&auml;u&szlig;chen in den H&auml;nden. Er hatte sie so sehr vermisst. Er vermisste sie immer noch und wollte endlich mit ihr alleine sein.</p>
-    <p>Nachdem die G&auml;ste gegangen waren, ging er zu ihr nach drau&szlig;en. Als er sie ansah und ihre eisigen H&auml;nde ber&uuml;hrte, wurde ihm klar, wie kalt ihr sein musste. Er nahm sie in den Arm und strich ihr &uuml;bers Haar. Er nahm ihr behutsam das Str&auml;u&szlig;chen ab, w&auml;hrend er sie k&uuml;sste. Es war als h&auml;tte sein Herz f&uuml;r einen Augenblick aufgeh&ouml;rt zu schlagen und endlich konnte er bei ihr sein.</p>
-    <p style="color:#555;">Er hielt sie und strich mit seinen Lippen &uuml;ber ihren Hals. Sein Verlangen wuchs, als er mit einer Hand unter ihr Kleid fuhr. Sie hatte die Augen noch immer geschlossen, sie schien genussvoll abwesend zu sein. Er zog ihr Kleid hoch, das H&ouml;schen aus. Seine Finger wanderten ihren ganzen K&ouml;rper entlang und in ihn hinein. Seine K&uuml;sse wurden heftiger und die Sehnsucht immer gr&ouml;&szlig;er. W&auml;hrend er zustie&szlig; hielt sie atemlos die Augen geschlossen. Sie wurde bei jeder Bewegung mitgerissen und ihr K&ouml;rper vibrierte als Echo seines St&ouml;hnens.</p>
-    <p style="color:#555;">Als er fertig war, lagen die beiden arm in arm und blickten zu den Sternen hinauf, bis er irgendwann erkannte, was er getan hatte. Das Mondlicht schien auf ihn hinab, bis auch er endlich seine Augen schloss.</p>
-    <p style="color:#555;">Als die Sonne langsam aufging, sah man die Erde, die neben dem Grabstein aufgeh&auml;uft war und den Spaten, der wie eine Sonnenuhr warnend auf ihn zeigte. Die beiden Leichen fand man erst gegen Mittag, als die Sonne hei&szlig; &uuml;ber ihnen stand und seine S&uuml;nden mit dem Duft nach Verwesendem anprangerte.</p>
-  </div>
-</div>
+
 
 <!-- P9: Annas Monster -->
 <div class="story" id="p9">
@@ -181,10 +169,13 @@ p:last-of-type { margin-bottom:0; }
   <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
     <div id="typewriter-text" style="max-width:720px;width:88vw;white-space:pre-wrap;font-family:Georgia,'Times New Roman',serif;font-size:1.3rem;line-height:1.6;color:#f2f2ee;"></div>
   </div>
+  <div style="text-align:center;padding-bottom:60px;font-family:Georgia,serif;font-size:clamp(15px,1.8vw,18px);color:#888;line-height:1.7;">
+    I'm craving soup.<br>→ p. 121
+  </div>
 </div>
 
 <script>
-var PAGES = ['p0','p1','p2','p3','p4','p5','p7','p8','p6','p9','p10'];
+var PAGES = ['p0','p1','p2','p3','p4','p5','p7','p6','p9','p10'];
 var TOTAL = PAGES.length - 1;
 var current = 0;
 function getEl(n) { return document.getElementById(PAGES[n]); }
@@ -204,7 +195,7 @@ document.getElementById('btn-ready').addEventListener('click', function() {
   goToPage('p1');
 });
 document.getElementById('btn-nottoday').addEventListener('click', function() {
-  goToPage('p10');
+  window.location.href = 'https://annagreyhem-ui.github.io/annagreyhem/Anna_Hand.html';
 });
 
 // hover effects for buttons
@@ -229,7 +220,7 @@ function showPage(n) {
   var pageId = PAGES[n];
   if (pageId === 'p6') startShiftGlitch();
   else stopShiftGlitch();
-  if (pageId === 'p3' && window._startAliveFlicker) window._startAliveFlicker();
+  
   if (pageId === 'p10') startTypewriter();
   if (pageId === 'p9') { /* Annas Monster - no special effect */ }
   else stopBlood();
@@ -302,54 +293,11 @@ function stopShiftGlitch() {
   if (shiftTimer) { clearTimeout(shiftTimer); shiftTimer = null; }
 }
 
-// ---- I was alive: build text then flicker in, then cycle 'alive' word ----
+// ---- I was alive: static text ----
 (function() {
   var el = document.getElementById('alive-text');
   if (!el) return;
-  el.innerHTML = 'I was <span id="alive-word">Anna</span> this morning,<br>but I have changed<br>a few times since then.';
-  el.style.opacity = '0';
-
-  function cycleAliveWord() {
-    var word = document.getElementById('alive-word');
-    if (!word) return;
-    // Step 1: Anna briefly
-    word.textContent = 'Anna';
-    word.style.color = '';
-    setTimeout(function() {
-      // Step 2: Alice in red, longer
-      word.textContent = 'Alice';
-      word.style.color = '#8b0000';
-      setTimeout(function() {
-        // Step 3: alive, normal color
-        word.textContent = 'alive';
-        word.style.color = '';
-        // Step 4: TV glitch blink
-        setTimeout(function() {
-          var blinks = 0;
-          var maxBlinks = 3 + Math.floor(Math.random() * 3);
-          function blink() {
-            if (blinks >= maxBlinks) { word.style.opacity = '1'; return; }
-            word.style.opacity = '0';
-            setTimeout(function() {
-              word.style.opacity = '1';
-              blinks++;
-              setTimeout(blink, 60 + Math.random() * 120);
-            }, 40 + Math.random() * 60);
-          }
-          blink();
-        }, 400);
-      }, 1500);
-    }, 50);
-  }
-
-  window._startAliveFlicker = function() {
-    el.style.opacity = '0';
-    el.style.animation = 'none';
-    setTimeout(function() {
-      el.style.animation = 'flicker-in 1.4s ease forwards';
-      setTimeout(cycleAliveWord, 1400);
-    }, 600);
-  };
+  el.innerHTML = 'I was alive this morning,<br>but I have changed a few times since then.';
 })();
 
 // ---- Typewriter for last page ----
