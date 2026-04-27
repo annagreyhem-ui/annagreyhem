@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna Greyhem – Dissolving</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background:#000;
+  color:#fff;
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:clamp(20px,3vw,24px);
+  line-height:1.85;
+  overflow-x:hidden;
+}
+
+.story { display:none; min-height:100vh; animation:fadein 1.4s ease forwards; }
+.story.active { display:block; }
+@keyframes fadein { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.story-inner {
+  max-width:640px;
+  margin:0 auto;
+  padding:80px 40px 120px;
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:clamp(20px,3vw,24px);
+  line-height:1.85;
+}
+
+.center-page {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding:80px 40px;
+  text-align:center;
+}
+
+h1 {
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(26px,4vw,40px);
+  color:#fff;
+  letter-spacing:0.08em;
+  margin-bottom:48px;
+  line-height:1.3;
+}
+
+p {
+  margin-bottom:1.2em;
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:clamp(20px,3vw,24px);
+  line-height:1.85;
+}
+p:last-of-type { margin-bottom:0; }
+
+em { font-style:italic; color:#aaa; }
+
+/* NAV ARROW */
+#fixed-nav {
+  position:fixed;
+  bottom:40px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:500;
+  display:none;
+  font-size:32px;
+  color:#555;
+  padding:8px 48px;
+  cursor:pointer;
+  transition:color 0.3s;
+  user-select:none;
+}
+#fixed-nav:hover { color:#fff; }
+
+/* DISSOLVING title */
+#dissolving-title {
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-weight:300;
+  font-size:clamp(42px,10vw,100px);
+  letter-spacing:0.18em;
+  color:#fff;
+  opacity:0;
+  animation:titlefade 2.5s ease forwards;
+}
+@keyframes titlefade { 0%{opacity:0} 100%{opacity:1} }
+
+/* TYPEWRITER page */
+#typewriter-page {
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  padding:80px 40px;
+}
+#typewriter-wrap {
+  max-width:640px;
+  width:100%;
+  margin:0 auto;
+}
+#typewriter-text {
+  white-space:pre-wrap;
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:clamp(20px,3vw,24px);
+  line-height:1.85;
+  color:#e8e0d0;
+  min-height:120px;
+}
+
+/* SHIFT glitch */
+.sletter { display:inline-block; }
+
+/* PAGE LINK */
+#page-link {
+  margin-top:60px;
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:clamp(15px,1.8vw,18px);
+  color:#aaa;
+  text-align:left;
+  opacity:0;
+  transition:opacity 1.5s ease;
+}
+
+@keyframes tw-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+@media (max-width:600px) {
+  .story-inner { padding:60px 24px 100px; }
+  .center-page { padding:60px 24px; }
+  #typewriter-page { padding:60px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div id="fixed-nav">&#8964;</div>
+
+<!-- P0: DISSOLVING title -->
+<div class="story active" id="p0">
+  <div class="center-page">
+    <div id="dissolving-title">DISSOLVING</div>
+  </div>
+</div>
+
+<!-- P1: Tap-through intro -->
+<div class="story" id="p1">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 40px;">
+    <div style="max-width:580px;width:100%;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(20px,3vw,24px);line-height:1.85;text-align:center;">
+      <div id="tap-text" style="opacity:0;transition:opacity 0.5s ease;transform:translateY(8px);transition:opacity 0.5s ease,transform 0.5s ease;"></div>
+      <div id="tap-hint" style="margin-top:48px;font-size:0.8em;color:#555;letter-spacing:0.1em;opacity:0;transition:opacity 0.5s ease;">tap</div>
+    </div>
+  </div>
+</div>
+
+<!-- P2: Mirror, mirror on the floor -->
+<div class="story" id="p2">
+  <div class="story-inner" style="line-height:1.6;">
+    <h1>Mirror, mirror on the floor</h1>
+    <p style="margin-bottom:0.7em;">Annas H&auml;nde zitterten. Das Wasser tropfte von ihrem Gesicht auf den Boden.</p>
+    <p style="margin-bottom:0.7em;">Ihr Spiegelbild war zersplittert in den Scherben vor ihren F&uuml;&szlig;en. Tausend falsche Versionen von ihr lagen auf den kalten Fliesen.</p>
+    <p style="margin-bottom:0.7em;">Sie sah sich nicht.</p>
+    <p style="margin-bottom:0.7em;">Also kniete sie sich hin und begann die Scherben zusammenzusetzen. Vorsichtig zuerst. Dann schneller.</p>
+    <p style="margin-bottom:0.7em;">Die Scherben passten nicht zusammen.</p>
+    <p style="margin-bottom:0.7em;">Je verzweifelter ich versuchte mich zusammenzusetzen, desto mehr schnitt ich mich. Das Blut mischte sich mit dem Wasser. Trotzdem gab ich nicht auf. Ich musste mich sehen. Ich musste wissen, ob ich noch da war. Ob ich jemals da gewesen bin.</p>
+    <p style="margin-bottom:0.7em;">Dann hatte ich es, das Puzzle war gel&ouml;st. Ich war bereit mir entgegenzublicken.</p>
+    <p style="margin-bottom:0.7em;">Doch eine Scherbe lag noch am Rand.</p>
+    <p style="margin-top:2.5em;">Hatte ich mich falsch zusammengesetzt?</p>
+  </div>
+</div>
+
+<!-- P3: Annas Monster -->
+<div class="story" id="p3">
+  <div class="story-inner">
+    <h1>Annas Monster</h1>
+    <p><em>Ich jagte der Hoffnung nach, dem Gef&uuml;hl zu f&uuml;hlen.</em></p>
+    <p>Zuerst kam das Buch, dann kam ich.</p>
+    <p>Auch Frankenstein hatte sein Monster geliebt.</p>
+    <p>Bin ich der Preis, den ich bezahle, damit dieses Buch existieren kann?</p>
+    <p><em>Dann traf mich die Hitze. Sie fra&szlig; sich durch meine Fl&uuml;gel, durch meine Haut. Mein Verlangen hatte mich verbrannt und ich bezahlte mit einem Teil von mir.</em></p>
+    <p>Ich fiel. Das Wasser kam mir entgegen.</p>
+    <p>Ich versuchte so lange wie m&ouml;glich die Luft anzuhalten und hoffte, dass jemand bemerken w&uuml;rde, dass ich fehlte.</p>
+    <p><em>Weit entfernt im kalten Wasser sah ich Alice.</em></p>
+    <p>W&uuml;rde ich je meinen Weg zur&uuml;ck an die Oberfl&auml;che finden?</p>
+  </div>
+</div>
+
+<!-- P4: A short insanity -->
+<div class="story" id="p4">
+  <div class="story-inner" id="insanity-inner">
+    <h1>A short insanity</h1>
+    <p>Es war als w&uuml;rde ich in dieses Buch gezogen.</p>
+    <p>Ich schlafe kaum noch. Die Gedanken warten nicht bis ich wach bin. Selbst unter der Dusche fl&uuml;stere ich neue Einf&auml;lle unentwegt vor mich hin, damit ich sie nicht vergesse.</p>
+    <p>Langsam wei&szlig; ich nicht mehr, wo das Buch aufh&ouml;rt und wo ich anfange. Zuerst kam das Buch, dann kam ich.</p>
+    <p>Ich suche etwas in diesem Buch. Wenn ich mich nur erinnern k&ouml;nnte, was es genau war. Ich bin sicher, dass es da ist. Es muss da sein. Ich habe zu viel geschrieben, damit es nicht da ist.</p>
+    <p>Aber wie kann ich es erkennen, wenn ich nicht wei&szlig;, was ich suche? Vielleicht erkenne ich es, wenn ich es finde. Vielleicht finde ich es, wenn ich aufh&ouml;re zu suchen. Aber ich kann nicht aufh&ouml;ren zu suchen.</p>
+    <p>Oder habe ich mich versteckt? Habe ich mich in viele glitzernde Splitter zerbrochen und verteilt, damit ich nicht gefunden werden kann?</p>
+    <p>Ich sollte Alice fragen. Oder Anna. Die beiden kennen sich hier besser aus als ich.</p>
+  </div>
+</div>
+
+<!-- P5: I keep shifting -->
+<div class="story" id="p5">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 40px;">
+    <div id="shift-text" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(24px,4vw,40px);color:#fff;letter-spacing:0.1em;text-align:center;"></div>
+  </div>
+</div>
+
+<!-- P6: Dear reader -->
+<div class="story" id="p6">
+  <div class="story-inner">
+    <h1>Dear reader,</h1>
+    <p>Isn&rsquo;t it strange. You&rsquo;ve been reading me this whole time.</p>
+    <p>But which one of us did you meet? I&rsquo;m not sure I know anymore.</p>
+    <p>Anna is smoke. She surrounds me, settles on my skin, disappears with me into the dark. Lately I forget where she ends.</p>
+    <p>Sometimes she is so close that I burn myself on her embers. And then it shifts, only her ashes stay with me. She changes the temperature in rooms. I can feel it.</p>
+  </div>
+</div>
+
+<!-- P7: Am I too much? -->
+<div class="story" id="p7">
+  <div class="story-inner">
+    <h1>Am I too much?</h1>
+    <p>Vielleicht lag dort eine Scherbe zu viel, weil die Summe meiner Teile mehr war als ich. Deshalb war ich zerbrochen. Ich war zu viel.</p>
+    <p>The salt water left an empty stomach. I was hungry. I was so hungry for life.</p>
+    <p>I&rsquo;m craving soup.</p>
+    <div id="page-link" style="text-align:center;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);width:auto;">&rarr; p. 119</div>
+  </div>
+</div>
+
+<script>
+var PAGES = ['p0','p1','p2','p3','p4','p5','p6','p7'];
+var TOTAL = PAGES.length - 1;
+var current = 0;
+
+function getEl(n) { return document.getElementById(PAGES[n]); }
+
+var fixedNav = document.getElementById('fixed-nav');
+fixedNav.addEventListener('click', function() { navigate(1); });
+
+function navigate(dir) {
+  var next = current + dir;
+  if (next < 0 || next > TOTAL) return;
+  getEl(current).classList.remove('active');
+  current = next;
+  getEl(current).classList.add('active');
+  window.scrollTo(0,0);
+  showPage(current);
+}
+
+function showPage(n) {
+  var pageId = PAGES[n];
+  fixedNav.style.display = (n < TOTAL && pageId !== 'p7') ? 'block' : 'none';
+  if (pageId === 'p1') startTapFlow();
+
+  if (pageId === 'p5') startShiftGlitch();
+  else stopShiftGlitch();
+  if (pageId === 'p7') setTimeout(function(){ document.getElementById('page-link').style.opacity = '1'; }, 2000);
+}
+
+// ── TAP-THROUGH INTRO ──
+var tapFlow = [
+  'Sie konnte ihren Kopf nicht länger gegen den Wasserhahn pressen.',
+  'Anna atmete hastig ein, als sie ihr Gesicht aus dem gefüllten Waschbecken zog.',
+  'Sie sah auf, blickte in den Spiegel, blickte ins Leere. Sie konnte sich nicht sehen.',
+  'Das Buch hatte sie verschluckt.'
+];
+var tapIdx = 0;
+var tapInitDone = false;
+
+function startTapFlow() {
+  tapIdx = 0;
+  tapInitDone = false;
+  showTapText(tapFlow[tapIdx++]);
+  setTimeout(function(){
+    document.getElementById('tap-hint').style.opacity = '1';
+  }, 800);
+}
+
+function showTapText(str) {
+  var el = document.getElementById('tap-text');
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(8px)';
+  setTimeout(function(){
+    el.textContent = str;
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  }, 300);
+}
+
+document.addEventListener('click', function(e) {
+  if (PAGES[current] !== 'p1') return;
+  // hide hint after first tap
+  var hint = document.getElementById('tap-hint');
+  if (hint) hint.style.opacity = '0';
+  if (tapIdx < tapFlow.length) {
+    showTapText(tapFlow[tapIdx++]);
+  } else {
+    navigate(1);
+  }
+});
+
+// ── I KEEP SHIFTING GLITCH ──
+var shiftStr = 'I keep shifting.';
+var shiftContainer = document.getElementById('shift-text');
+var shiftLetters = [];
+var glitchChars = ['a','e','i','o','s','h','f','t','g','x','z','#','&','@','!'];
+var shiftTimer = null;
+
+for (var si = 0; si < shiftStr.length; si++) {
+  var sp = document.createElement('span');
+  sp.className = 'sletter';
+  sp.textContent = shiftStr[si] === ' ' ? '\u00a0' : shiftStr[si];
+  shiftContainer.appendChild(sp);
+  shiftLetters.push(sp);
+}
+
+function doShiftGlitch() {
+  var n = 2 + Math.floor(Math.random() * 4);
+  var saved = [];
+  for (var g = 0; g < n; g++) {
+    var idx = Math.floor(Math.random() * shiftLetters.length);
+    if (shiftStr[idx] === ' ') continue;
+    var s = shiftLetters[idx];
+    s.style.transform = 'translate('+((Math.random()-0.5)*14)+'px,'+((Math.random()-0.5)*10)+'px) rotate('+((Math.random()-0.5)*18)+'deg) scale('+(0.6+Math.random()*0.7)+')';
+    s.style.opacity = String(0.3 + Math.random() * 0.7);
+    if (Math.random() < 0.6) s.textContent = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+    saved.push({ el:s, orig: shiftStr[idx] === ' ' ? '\u00a0' : shiftStr[idx] });
+  }
+  shiftContainer.style.transform = 'translate('+((Math.random()-0.5)*8)+'px,'+((Math.random()-0.5)*5)+'px)';
+  setTimeout(function() {
+    for (var r = 0; r < saved.length; r++) {
+      saved[r].el.style.transform = '';
+      saved[r].el.style.opacity = '1';
+      saved[r].el.textContent = saved[r].orig;
+    }
+    shiftContainer.style.transform = '';
+  }, 60 + Math.random() * 90);
+}
+
+function shiftBurst() {
+  var b = 3 + Math.floor(Math.random() * 4);
+  for (var i = 0; i < b; i++) {
+    (function(d){ setTimeout(doShiftGlitch, d); })(i * (70 + Math.random() * 100));
+  }
+}
+
+function startShiftGlitch() {
+  stopShiftGlitch();
+  shiftBurst();
+  function loop() { shiftBurst(); shiftTimer = setTimeout(loop, 1500 + Math.random() * 2000); }
+  shiftTimer = setTimeout(loop, 800);
+}
+
+function stopShiftGlitch() {
+  if (shiftTimer) { clearTimeout(shiftTimer); shiftTimer = null; }
+}
+
+
+
+(function(){
+  var s = document.createElement('style');
+  s.textContent = '@keyframes tw-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }';
+  document.head.appendChild(s);
+})();
+
+// init
+showPage(0);
+</script>
+</body>
+</html>
