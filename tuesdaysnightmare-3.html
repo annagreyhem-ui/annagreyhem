@@ -24,14 +24,14 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; cursor:n
   cursor:none;
   -webkit-tap-highlight-color:transparent;
   /* desktop default */
-  left:28%; top:42%;
+  left:28%; top:52%;
   transform:translate(-50%,-50%);
 }
 
 /* mobile override */
 @media (hover:none) and (pointer:coarse) {
   #switch {
-    left:15%; top:40%;
+    left:15%; top:50%;
   }
   #graffiti {
     top:20%;
@@ -114,7 +114,6 @@ body.on #cursor { background:rgba(0,0,0,0.28); }
 <script>
 var isMobile = window.matchMedia('(hover:none) and (pointer:coarse)').matches;
 
-// cursor
 var cur = document.getElementById('cursor');
 if (isMobile) {
   cur.style.display = 'none';
@@ -145,10 +144,8 @@ var DURATION = 2.894;
 var clickCount = 0;
 var rafId    = null;
 
-// Set video source based on device
 vid.src = isMobile ? './tuesdaysnightmare_phone.mp4' : './room.mp4';
 
-// iOS requires play() from a user gesture before seeking works
 var unlocked = false;
 
 function ensureUnlocked(cb) {
@@ -173,14 +170,12 @@ function ensureUnlocked(cb) {
   }
 }
 
-// Desktop: park on first frame once loaded
 if (!isMobile) {
   vid.addEventListener('loadeddata', function() {
     vid.currentTime = 0;
   });
 }
 
-// Mobile: unlock on first touch, then park on frame 0
 if (isMobile) {
   document.addEventListener('touchstart', function() {
     ensureUnlocked(function() {});
