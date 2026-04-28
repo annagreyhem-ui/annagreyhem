@@ -10,8 +10,8 @@
 html,body { width:100%; height:100%; background:#000; color:#fff; font-family:Georgia,serif; overflow:hidden; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
 body { display:flex; align-items:center; justify-content:center; }
 
-.wrap { width:min(680px,88vw); text-align:center; padding:2rem 1rem; pointer-events:none; z-index:2; }
-.text { font-size:clamp(19px,2.8vw,24px); line-height:1.85; max-width:560px; opacity:0; transform:translateY(8px); transition:opacity 500ms ease,transform 500ms ease; user-select:none; font-family:'Cormorant Garamond',Georgia,serif; }
+.wrap { width:min(680px,88vw); text-align:center; padding:2rem 1rem; pointer-events:none; z-index:2; margin:0 auto; }
+.text { font-size:clamp(19px,2.8vw,24px); line-height:1.85; max-width:560px; opacity:0; transform:translateY(8px); transition:opacity 500ms ease,transform 500ms ease; user-select:none; font-family:'Cormorant Garamond',Georgia,serif; margin:0 auto; }
 .text.visible { opacity:1; transform:translateY(0); }
 
 #instr { position:fixed; bottom:10vh; left:50%; transform:translateX(-50%); font-size:0.9rem; color:#9a9a9a; letter-spacing:0.08em; white-space:nowrap; opacity:0; transition:opacity 220ms ease; z-index:20; pointer-events:none; }
@@ -83,7 +83,7 @@ var flow = [
   'Anna kept floating in the water. She couldn\u2019t feel the cold anymore.',
   'Her body went quiet.',
   'She looked down.',
-  'Alice was below her, deep in the ocean. Smiling warmly, ready to drag her into eternal darkness.',
+  'Alice was below her, deep in the ocean. Smiling, ready to drag her into eternal darkness.',
   'She looked up.',
   'Anna was above her, at the surface. Tears ran down her face, she looked strangely distorted through the water.',
   'Both reached for her.'
