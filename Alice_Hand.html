@@ -21,6 +21,7 @@ body {
 .story { display:none; min-height:100vh; animation:fadein 1.4s ease forwards; }
 .story.active { display:block; }
 @keyframes fadein { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes appear { from{opacity:0} to{opacity:1} }
 
 .story-inner {
   max-width:640px;
@@ -222,9 +223,9 @@ em { font-style:italic; color:#aaa; }
 <div class="story" id="p2">
   <div class="center-page">
     <div id="decision-text">
-      <span class="d-line" style="opacity:0;display:block;animation:fadein 1s ease 0.4s forwards;">I wasn't supposed to die.</span>
-      <span class="d-line" style="opacity:0;display:block;animation:fadein 1s ease 1.4s forwards;">Was I?</span>
-      <span class="d-line" style="opacity:0;display:block;animation:fadein 1s ease 2.4s forwards;">Why did I die?</span>
+      <span class="d-line" style="opacity:0;display:block;animation:appear 1.2s ease 0.4s forwards;">I wasn't supposed to die.</span>
+      <span class="d-line" style="opacity:0;display:block;animation:appear 1.2s ease 1.5s forwards;">Was I?</span>
+      <span class="d-line" style="opacity:0;display:block;animation:appear 1.2s ease 2.6s forwards;">Why did I die?</span>
     </div>
     <div class="decision-buttons">
       <button class="decision-btn primary" id="btn-back">Decide again.</button>
@@ -272,16 +273,15 @@ em { font-style:italic; color:#aaa; }
 <div class="story" id="p6">
   <div class="story-inner">
     <h1>13-13-13</h1>
-    <p>He tastes like salt water and smells like Christmas with a hint of yesterday's weed.<br>
-    His black eyes never blink.</p>
-    <p>I always wanted a pretty death.<br>
-    Maybe a bit tragic and younger than expected.<br>
-    He was my water and all of that.</p>
-    <p>I felt so sure that he was the one.<br>
-    When I saw his eyes, when I heard his silence, I knew.</p>
-    <p>I fell for him.<br>
-    He led me home knowing that I would be his forever, drowned me.</p>
-    <p>He was in me while I died.</p>
+    <p>He tastes like salt water and smells like Christmas with a hint of yesterday&rsquo;s weed.</p>
+    <p>His black eyes never blink.</p>
+    <p>I always wanted a pretty death. Maybe a bit tragic and younger than expected.</p>
+    <p>He was all of that.</p>
+    <p>I felt so sure that he was the one.</p>
+    <p>When I saw his eyes, when I heard his silence, I knew.</p>
+    <p>I fell for him.</p>
+    <p>He led me home, drowned me.</p>
+    <p style="margin-top:3em;">He was in me while I died.</p>
   </div>
 </div>
 
