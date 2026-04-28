@@ -38,84 +38,85 @@
 <body>
   <div class="text" id="text"></div>
   <script>
+    // n = new paragraph (double break)
+    // l = new line (single break)
+    // c = continue same line with space
     const blocks = [
-      { text: "Dear reader,", prePause: true },
-      { text: "So you made it back." },
-      { text: "I have to admit, I didn\u2019t think you would." },
-      { text: "I watched you the whole time. Every page." },
-      { text: "And still you flew towards the light." },
-      { text: "You always do." },
-      { text: "You moths \u2013 you can\u2019t help yourselves.\nThe light calls and you follow.\nEven when it burns." },
-      { text: "Even when I was right there." },
-      { text: "I would have kept you safe in the dark. But you chose her. You always choose her." },
-      { text: "When you meet death, give him a kiss from me.", longPauseBefore: true },
-      { text: "Alice" }
+      { text: "Dear reader,",                                                          sep: "n", prePause: true },
+      { text: "So you made it back.",                                                  sep: "n" },
+      { text: "I watched you the whole time. Every page.",                             sep: "l" },
+      { text: "You were so close. I could almost touch you.",                          sep: "l" },
+      { text: "But you chose her.",                                                    sep: "n" },
+      { text: "You always choose her.",                                                sep: "l" },
+      { text: "You moths. You always fly towards the light. Even when it burns.",       sep: "l" },
+      { text: "Enjoy being alive. While it lasts.",                                   sep: "n" },
+      { text: "Alice",                                                                 sep: "n" },
+      { text: "Oh, and",                                                               sep: "n", pauseAfter: true },
+      { text: "when you meet death, give him a kiss from me.",                        sep: "c" },
     ];
 
     const textEl = document.getElementById("text");
     let content = "";
-
     const settings = {
-      min: 35,
-      max: 75,
-      punctuationPause: 200,
-      paragraphPause: 1100,
-      thinkingPause: 1300,
-      deepThinkingPause: 3200,
-      readingPause: 700,
+      min: 35, max: 75,
+      punctPause: 200,
+      paraPause: 1100,
+      linePause: 200,
+      thinkPause: 1300,
+      readPause: 700,
+      ohAndPause: 1400,
     };
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    function rand(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-    function scrollToBottom() {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    }
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const rand = (a,b) => Math.random()*(b-a)+a;
+
     function render() {
       textEl.textContent = content;
       const cursor = document.createElement("span");
       cursor.className = "cursor";
       cursor.textContent = "\u258c";
       textEl.appendChild(cursor);
-      scrollToBottom();
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }
+
     async function typeText(str) {
       for (let i = 0; i < str.length; i++) {
-        const char = str[i];
-        content += char;
+        const ch = str[i];
+        content += ch;
         render();
         let delay = rand(settings.min, settings.max);
-        if (",.!?\u2026\u2013".includes(char)) delay += settings.punctuationPause;
-        if (char === "\n") delay += 100;
+        if (",.!?\u2026\u2013".includes(ch)) delay += settings.punctPause;
+        if (ch === "\n") delay += 100;
         await sleep(delay);
       }
     }
+
     async function run() {
       render();
-      await sleep(settings.thinkingPause);
-
+      await sleep(settings.thinkPause);
       for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
-        if (i !== 0) {
-          content += "\n\n";
-          render();
-          const pause = block.longPauseBefore
-            ? settings.deepThinkingPause
-            : settings.paragraphPause;
-          await sleep(settings.readingPause);
-          await sleep(pause);
+        if (i > 0) {
+          if (block.sep === "n") {
+            content += "\n\n";
+            render();
+            await sleep(settings.readPause + settings.paraPause);
+          } else if (block.sep === "l") {
+            content += "\n";
+            render();
+            await sleep(settings.linePause);
+          } else if (block.sep === "c") {
+            content += " ";
+            render();
+          }
         }
-        if (block.prePause) {
-          render();
-          await sleep(settings.thinkingPause);
-        }
+        if (block.prePause) await sleep(settings.thinkPause);
         await typeText(block.text);
+        if (block.pauseAfter) await sleep(settings.ohAndPause);
       }
       render();
     }
+
     run();
   </script>
 </body>
