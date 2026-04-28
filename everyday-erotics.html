@@ -73,7 +73,6 @@ html, body {
   opacity:0;
 }
 
-/* ── SLIDER (both desktop and mobile) ── */
 #slider-wrap {
   position:fixed;
   bottom:0;
@@ -85,7 +84,6 @@ html, body {
   align-items:center;
   justify-content:center;
   gap:14px;
-  /* large touch zone – whole bottom strip */
 }
 
 #slider-hint {
@@ -102,7 +100,7 @@ html, body {
 #slider-track {
   position:relative;
   width:clamp(200px,55vw,340px);
-  height:20px; /* large hit area */
+  height:20px;
   display:flex;
   align-items:center;
   cursor:none;
@@ -134,22 +132,21 @@ html, body {
 <div id="page">
   <div id="title">Everyday erotics<span id="title-ext"></span></div>
   <ul id="poem">
-    <li><span class="base-line">Flüstern im Dunklen</span><span class="ext-line" id="e0"></span></li>
+    <li><span class="base-line">Fl&uuml;stern im Dunklen</span><span class="ext-line" id="e0"></span></li>
     <li><span class="base-line">Ein Kuss in einem Traum</span><span class="ext-line" id="e1"></span></li>
     <li><span class="base-line">Ein Schaumbad bei Kerzenschein</span><span class="ext-line" id="e2"></span></li>
-    <li><span class="base-line">Eiskaltes Wasser auf dem Gesicht am Morgen</span><span class="ext-line" id="e3"></span></li>
+    <li><span class="base-line">Eiskaltes Wasser im Gesicht am Morgen</span><span class="ext-line" id="e3"></span></li>
     <li><span class="base-line">Eine Flasche Merlot</span><span class="ext-line" id="e4"></span></li>
-    <li><span class="base-line">Ein Parfum, das nach Vanille und Dunkelheit duftet</span><span class="ext-line" id="e5"></span></li>
+    <li><span class="base-line">Ein Parfum das nach Vanille und Dunkelheit duftet</span><span class="ext-line" id="e5"></span></li>
     <li><span class="base-line">Sein Geruch</span><span class="ext-line" id="e6"></span></li>
     <li><span class="base-line">Sein Blick auf mir</span><span class="ext-line" id="e7"></span></li>
-    <li><span class="base-line">Seine Berührung</span><span class="ext-line" id="e8"></span></li>
-    <li><span class="base-line">Meine Berührung</span><span class="ext-line" id="e9"></span></li>
+    <li><span class="base-line">Seine Ber&uuml;hrung</span><span class="ext-line" id="e8"></span></li>
+    <li><span class="base-line">Meine Ber&uuml;hrung</span><span class="ext-line" id="e9"></span></li>
   </ul>
 </div>
 
-<!-- Slider (desktop + mobile) -->
 <div id="slider-wrap">
-  <div id="slider-hint">←&nbsp;&nbsp;&nbsp;→</div>
+  <div id="slider-hint">&larr;&nbsp;&nbsp;&nbsp;&rarr;</div>
   <div id="slider-track">
     <div id="slider-line"></div>
     <div id="slider-thumb"></div>
@@ -157,44 +154,39 @@ html, body {
 </div>
 
 <script>
-// cursor (desktop)
 var cur = document.getElementById('cursor');
-var isTouch = false;
 document.addEventListener('mousemove', function(e) {
   cur.style.left = e.clientX+'px';
   cur.style.top  = e.clientY+'px';
 });
 document.addEventListener('touchstart', function() {
-  isTouch = true;
   cur.style.display = 'none';
 }, {once:true, passive:true});
 
-// ── DATA ──────────────────────────────────────────────────────────────────────
-
 var ext_blue = [
-  'das mich nicht schlafen lässt',
-  'von dem er mir nichts erzählt',
+  'das mich nicht schlafen l\u00e4sst',
+  'von dem er mir nichts erz\u00e4hlt',
   'mit ihr',
   'um zu mir zu kommen',
   'steht noch da',
-  'gehört mir nicht',
+  'geh\u00f6rt mir nicht',
   'bleibt an ihr',
-  'nackt',
-  'ist kälter als sonst',
-  'hält mich fest',
+  'sucht sie',
+  'ist k\u00e4lter als sonst',
+  'h\u00e4lt mich fest. Ich lasse ihn nicht gehen.',
 ];
 
 var ext_orange = [
-  'das mich nicht schlafen lässt',
-  'von dem ich ihm nichts erzähle',
+  'das mich nicht schlafen l\u00e4sst',
+  'von dem ich ihm nichts erz\u00e4hle',
   'mit ihr',
   'um zu mir zu kommen',
   'steht noch da',
-  'lässt mich sie nicht vergessen',
+  'l\u00e4sst mich sie nicht vergessen',
   'macht mir ein schlechtes Gewissen',
   'nackt',
-  'spüre ich nicht mehr',
-  'bringt sie zum stöhnen',
+  'sp\u00fcre ich nicht mehr',
+  'bringt sie zum st\u00f6hnen',
 ];
 
 var titleExt   = document.getElementById('title-ext');
@@ -203,15 +195,12 @@ var sliderTrack = document.getElementById('slider-track');
 var sliderThumb = document.getElementById('slider-thumb');
 var sliderHint = document.getElementById('slider-hint');
 
-var currentVal = 0; // -1..1
-
-// ── RENDER ────────────────────────────────────────────────────────────────────
+var currentVal = 0;
 
 function render(val) {
   val = Math.max(-1, Math.min(1, val));
   currentVal = val;
 
-  // move thumb
   var pct = (val + 1) / 2 * 100;
   sliderThumb.style.left = pct + '%';
 
@@ -245,8 +234,6 @@ function render(val) {
   }
 }
 
-// ── DRAG LOGIC ────────────────────────────────────────────────────────────────
-
 function valFromClientX(clientX) {
   var rect = sliderTrack.getBoundingClientRect();
   var pct  = (clientX - rect.left) / rect.width;
@@ -255,7 +242,6 @@ function valFromClientX(clientX) {
 
 var dragging = false;
 
-// Mouse
 sliderWrap.addEventListener('mousedown', function(e) {
   dragging = true;
   render(valFromClientX(e.clientX));
@@ -266,7 +252,6 @@ document.addEventListener('mousemove', function(e) {
 });
 document.addEventListener('mouseup', function() { dragging = false; });
 
-// Touch – whole wrap is the touch zone
 sliderWrap.addEventListener('touchstart', function(e) {
   dragging = true;
   render(valFromClientX(e.touches[0].clientX));
