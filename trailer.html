@@ -1,0 +1,157 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.container { padding: 1rem 0; }
+h2.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.header { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.5rem; line-height: 1.6; }
+.scene { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); background: var(--color-background-primary); margin-bottom: 10px; overflow: hidden; }
+.scene-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--color-background-secondary); cursor: pointer; user-select: none; }
+.scene-num { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); min-width: 22px; }
+.scene-text { font-size: 13px; color: var(--color-text-primary); flex: 1; font-style: italic; line-height: 1.4; }
+.scene-duration { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-tertiary); padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.scene-body { padding: 12px 14px; border-top: 0.5px solid var(--color-border-tertiary); }
+.scene-desc { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; line-height: 1.5; }
+.upload-area { border: 1px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 12px; text-align: center; cursor: pointer; transition: background 0.15s; position: relative; }
+.upload-area:hover { background: var(--color-background-secondary); }
+.upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-area.has-file { border-color: var(--color-border-success); background: var(--color-background-success); }
+.upload-label { font-size: 12px; color: var(--color-text-secondary); }
+.upload-label.filled { color: var(--color-text-success); font-weight: 500; }
+.timing { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.timing label { font-size: 11px; color: var(--color-text-secondary); min-width: 55px; }
+.timing input[type=range] { flex: 1; }
+.timing span { font-size: 11px; color: var(--color-text-primary); min-width: 28px; text-align: right; }
+.progress-bar { height: 3px; background: var(--color-background-tertiary); border-radius: 2px; margin: 1rem 0; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--color-text-secondary); width: 0%; transition: width 0.3s; }
+.total { font-size: 12px; color: var(--color-text-secondary); text-align: right; margin-bottom: 1rem; }
+.export-btn { width: 100%; padding: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: var(--border-radius-md); background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); margin-top: 4px; }
+.export-btn:hover { background: var(--color-background-secondary); }
+.note { font-size: 11px; color: var(--color-text-tertiary); text-align: center; margin-top: 8px; line-height: 1.5; }
+.collapse-icon { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+.collapsed .collapse-icon { transform: rotate(-90deg); }
+.collapsed .scene-body { display: none; }
+</style>
+
+<div class="container">
+<h2 class="sr-only">Trailer video editor — assign stock clips to each scene</h2>
+
+<p class="header">Lade für jede Szene ein Stock-Video hoch. Die Länge kannst du per Slider anpassen.</p>
+
+<div id="scenes"></div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="total" id="total">Gesamtlänge: 0s</div>
+
+<button class="export-btn" onclick="exportList()"><i class="ti ti-download" aria-hidden="true"></i> Szenenliste exportieren</button>
+<p class="note">Die exportierte Liste zeigt dir Dateinamen + Timings — ideal für deinen Videoschnitt in Premiere, DaVinci oder Capcut.</p>
+</div>
+
+<script>
+const scenes = [
+  { text: "Dear Anna, / Tonight I am in Paris.", desc: "Paris bei Nacht. Lichter auf dem Wasser, Seine. Warm, golden.", duration: 3.5 },
+  { text: "I am so hungry. / I am so hungry for life.", desc: "Nahaufnahme einer Hand die sich ausstreckt. Oder jemand der isst.", duration: 2.5 },
+  { text: "I sent myself out on adventures... glitter on my pillow tonight.", desc: "Schnelle, lebendige Bilder. Jemand der allein tanzt. Vögel. Glitzer. Hell.", duration: 5 },
+  { text: "I do love life... every speck of dust on this pebble.", desc: "Zeitlupe. Jemand der in die Sonne schaut. Nahaufnahme eines Auges.", duration: 3 },
+  { text: "Isn't it strange. You've been listening to me this whole time.", desc: "Spiegel. Jemand der sich selbst anschaut, Bild unscharf oder zersplittert.", duration: 4 },
+  { text: "But which one of us did you meet? / I'm not sure I know anymore.", desc: "Schwarzblende. 1-2 Sekunden Stille im Bild.", duration: 2 },
+  { text: "Sometimes I wished I was Alice. She came home with blood on her hands.", desc: "Dunkler. Hände unter fließendem Wasser.", duration: 3 },
+  { text: "Anna is smoke. She surrounds me, settles on my skin, disappears into the dark.", desc: "Rauchaufnahme, langsam, gegen dunklen Hintergrund.", duration: 5 },
+  { text: "The more desperately I tried to put myself together, the more I cut myself.", desc: "Scherben auf dem Boden. Hände die Glas aufheben — vorsichtig, dann panisch.", duration: 3 },
+  { text: "The blood mixes with the water.", desc: "Wasser in einer Wanne. Rot das sich ausbreitet. Sehr langsam.", duration: 2.5 },
+  { text: "Still, I didn't give up... If I had ever been there.", desc: "Jemand der in einen dunklen Spiegel schaut. Keine oder verschwommene Reflexion.", duration: 4 },
+  { text: "Then I had it... But one shard remained at the edge.", desc: "Fast vollständiges Spiegelbild — aber eine Ecke fehlt.", duration: 3 },
+  { text: "Had I put myself together wrongly?", desc: "Freeze frame oder langsame Schwarzblende.", duration: 2 },
+  { text: "Pustet Kerze aus.", desc: "Einzelne Kerze. Nahaufnahme der Flamme. Sie erlischt. Rauch steigt auf.", duration: 4 },
+  { text: "Happy Birthday!", desc: "Schwarzer Screen. Nur Text.", duration: 2 },
+  { text: "Oh, and please don't write a letter to your older self, ever.", desc: "Schwarzer Screen. Nur Text. Langsamer.", duration: 3 },
+  { text: "Kiss, Anna / Buchtitel", desc: "How life feels... erscheint. Letztes Bild.", duration: 4 }
+];
+
+const files = {};
+const durations = {};
+scenes.forEach((s,i) => durations[i] = s.duration);
+
+function render() {
+  const container = document.getElementById('scenes');
+  container.innerHTML = '';
+  scenes.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'scene';
+    div.innerHTML = `
+      <div class="scene-header" onclick="toggleScene(${i}, this)">
+        <span class="scene-num">${i+1}</span>
+        <span class="scene-text">"${s.text}"</span>
+        <span class="scene-duration" id="dur-label-${i}">${durations[i].toFixed(1)}s</span>
+        <span class="collapse-icon">▾</span>
+      </div>
+      <div class="scene-body">
+        <p class="scene-desc">${s.desc}</p>
+        <div class="upload-area ${files[i] ? 'has-file' : ''}" id="upload-area-${i}">
+          <input type="file" accept="video/*" onchange="handleFile(${i}, this)" />
+          <span class="upload-label ${files[i] ? 'filled' : ''}" id="upload-label-${i}">
+            ${files[i] ? '<i class="ti ti-check" aria-hidden="true"></i> ' + files[i] : '<i class="ti ti-upload" aria-hidden="true"></i> Video hochladen'}
+          </span>
+        </div>
+        <div class="timing">
+          <label>Länge</label>
+          <input type="range" min="0.5" max="10" step="0.5" value="${durations[i]}" oninput="updateDur(${i}, this.value)" />
+          <span id="dur-${i}">${durations[i].toFixed(1)}s</span>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+  updateTotal();
+}
+
+function toggleScene(i, header) {
+  header.parentElement.classList.toggle('collapsed');
+}
+
+function handleFile(i, input) {
+  if (input.files[0]) {
+    files[i] = input.files[0].name;
+    document.getElementById('upload-label-' + i).innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> ' + files[i];
+    document.getElementById('upload-label-' + i).className = 'upload-label filled';
+    document.getElementById('upload-area-' + i).classList.add('has-file');
+    updateTotal();
+  }
+}
+
+function updateDur(i, val) {
+  durations[i] = parseFloat(val);
+  document.getElementById('dur-' + i).textContent = parseFloat(val).toFixed(1) + 's';
+  document.getElementById('dur-label-' + i).textContent = parseFloat(val).toFixed(1) + 's';
+  updateTotal();
+}
+
+function updateTotal() {
+  const total = Object.values(durations).reduce((a,b) => a+b, 0);
+  document.getElementById('total').textContent = 'Gesamtlänge: ' + total.toFixed(1) + 's (' + (total/60).toFixed(1) + ' min)';
+  const filled = Object.keys(files).length;
+  document.getElementById('progress').style.width = (filled / scenes.length * 100) + '%';
+}
+
+function exportList() {
+  let text = 'TRAILER SCHNITTLISTE — How life feels\n';
+  text += '=====================================\n\n';
+  let time = 0;
+  scenes.forEach((s, i) => {
+    const d = durations[i];
+    const file = files[i] || '[ kein video ]';
+    text += `Szene ${i+1} [${time.toFixed(1)}s – ${(time+d).toFixed(1)}s] (${d.toFixed(1)}s)\n`;
+    text += `Text: "${s.text}"\n`;
+    text += `Bild: ${s.desc}\n`;
+    text += `Datei: ${file}\n\n`;
+    time += d;
+  });
+  text += `GESAMT: ${time.toFixed(1)}s\n`;
+  const blob = new Blob([text], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trailer-schnittliste.txt';
+  a.click();
+}
+
+render();
+</script>
