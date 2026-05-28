@@ -17,7 +17,6 @@
       --top-h:      52px;
       --bot-h:      48px;
       --drawer-open: 240px;
-      --base: 'https://annagreyhem-ui.github.io/annagreyhem/';
     }
     html, body {
       height: 100dvh; overflow: hidden;
@@ -53,70 +52,97 @@
     .back-arrow.active { color: rgba(255,255,255,0.5); cursor: pointer; }
     .back-arrow.active:hover { color: rgba(255,255,255,0.85); }
 
-    /* ══════════════════════════════════
-       IMAGE AREA
-       Desktop: 75% wide, centered, static
-       Mobile:  full width, horizontal scroll
-    ══════════════════════════════════ */
-    #image-area {
+    /* ══════════════════════════════
+       UNIVERSAL SCROLL STAGE
+       Used for main image, newspaper, floorplan
+       Desktop: centered, 75% wide, static
+       Mobile:  full bleed, horizontal scroll
+    ══════════════════════════════ */
+    .scroll-stage {
       position: fixed;
       top: var(--top-h); left: 0; right: 0; bottom: 0;
       z-index: 0;
       background: var(--bg);
     }
+    /* hide all stages by default */
+    .scroll-stage { display: none; }
+    .scroll-stage.active { display: block; }
 
     /* DESKTOP */
     @media (min-width: 769px) {
-      #image-area {
+      .scroll-stage {
         display: flex;
         align-items: center; justify-content: center;
         overflow: hidden;
       }
-      #img-frame {
+      .scroll-stage.active { display: flex; }
+
+      .stage-frame {
         position: relative;
         width: 75%; height: 100%;
         overflow: hidden; flex-shrink: 0;
       }
-      /* side fade desktop */
-      #image-area::before {
+      /* side fade */
+      .scroll-stage::before {
         content: ''; position: absolute; inset: 0; z-index: 2;
         background: linear-gradient(to right,
           rgba(10,10,10,1) 0%, rgba(10,10,10,0) 12.5%,
           rgba(10,10,10,0) 87.5%, rgba(10,10,10,1) 100%);
         pointer-events: none;
       }
-      .scene-img {
+      .stage-img {
         width: 100%; height: 100%;
         object-fit: cover; object-position: center top;
-        display: block; position: absolute; top: 0; left: 0;
-        opacity: 0; transition: opacity 0.65s ease;
+        display: block;
+      }
+      /* newspaper and floorplan: contain on desktop */
+      #stage-newspaper .stage-img,
+      #stage-floorplan .stage-img {
+        object-fit: contain;
+        object-position: center center;
       }
     }
 
     /* MOBILE */
     @media (max-width: 768px) {
-      #image-area {
+      .scroll-stage {
         overflow-x: auto; overflow-y: hidden;
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
+        align-items: stretch;
       }
-      #image-area::-webkit-scrollbar { display: none; }
-      #img-frame {
+      .scroll-stage::-webkit-scrollbar { display: none; }
+      .scroll-stage.active { display: block; }
+
+      .stage-frame {
         position: relative;
         height: 100%;
-        /* width set by JS based on image natural ratio */
-        display: inline-block;
+        display: inline-block; /* natural width */
         white-space: nowrap;
       }
-      .scene-img {
+      .stage-img {
         height: 100%; width: auto;
         display: block;
-        position: absolute; top: 0; left: 0;
-        opacity: 0; transition: opacity 0.65s ease;
+        object-fit: unset;
       }
     }
 
+    /* scene switching within main stage */
+    .scene-img {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      opacity: 0; transition: opacity 0.65s ease;
+    }
     .scene-img.active { opacity: 1; }
+
+    /* mobile: scene imgs need auto width */
+    @media (max-width: 768px) {
+      .scene-img {
+        width: auto; height: 100%;
+        object-fit: unset;
+      }
+    }
 
     /* ── HOTSPOTS ── */
     .hotspot {
@@ -145,34 +171,6 @@
     }
     .hotspot:hover .hs-label { opacity: 1; }
 
-    /* ── SCROLL HINT (mobile only) ── */
-    #scroll-hint {
-      display: none;
-      position: fixed;
-      bottom: calc(var(--bot-h) + 14px);
-      left: 50%; transform: translateX(-50%);
-      z-index: 25; pointer-events: none;
-      align-items: center; gap: 10px;
-      opacity: 0.5;
-      transition: opacity 0.4s;
-    }
-    @media (max-width: 768px) { #scroll-hint { display: flex; } }
-    #scroll-hint.hidden { opacity: 0; }
-    .sh-arrow {
-      font-size: 18px; color: rgba(255,255,255,0.3);
-      animation: nudge 2s ease-in-out infinite;
-      font-family: Georgia, serif;
-    }
-    .sh-arrow.left  { animation-direction: reverse; }
-    @keyframes nudge {
-      0%,100% { transform: translateX(0); opacity: 0.3; }
-      50%      { transform: translateX(4px); opacity: 0.6; }
-    }
-    .sh-line {
-      width: 32px; height: 1px;
-      background: rgba(255,255,255,0.15);
-    }
-
     /* ── GATE CHOICE ── */
     #gate-choice {
       display: none; position: absolute; inset: 0; z-index: 15;
@@ -195,27 +193,7 @@
       background: none; border: none; font-family: 'Cormorant Garamond', serif;
     }
 
-    /* ── NEWSPAPER OVERLAY ── */
-    #newspaper-overlay {
-      display: none; position: fixed; inset: 0; z-index: 50;
-      background: rgba(10,10,10,0.93); flex-direction: column;
-    }
-    #newspaper-overlay.active { display: flex; }
-    .overlay-topbar {
-      height: var(--top-h); flex-shrink: 0;
-      display: grid; grid-template-columns: 60px 1fr 60px;
-      align-items: center; padding: 0 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      background: rgba(10,10,10,0.98);
-    }
-    #newspaper-scroll {
-      flex: 1; overflow-y: auto; scrollbar-width: none;
-      display: flex; align-items: flex-start; justify-content: center;
-      padding: 20px 20px calc(var(--bot-h) + 20px);
-    }
-    #newspaper-scroll::-webkit-scrollbar { display: none; }
-    #newspaper-wrap { position: relative; max-width: 860px; width: 100%; }
-    #newspaper-img { width: 100%; display: block; border-radius: 2px; }
+    /* Date hotspot on newspaper */
     #date-hotspot {
       position: absolute;
       top: 10.5%; left: 36%;
@@ -223,20 +201,33 @@
       cursor: pointer; z-index: 10;
     }
 
-    /* ── FLOORPLAN OVERLAY ── */
-    #floorplan-overlay {
-      display: none; position: fixed; inset: 0; z-index: 40;
-      background: var(--bg); flex-direction: column;
+    /* ── SCROLL HINT (mobile only) ── */
+    #scroll-hint {
+      display: none;
+      position: fixed;
+      bottom: calc(var(--bot-h) + 14px);
+      left: 50%; transform: translateX(-50%);
+      z-index: 25; pointer-events: none;
+      align-items: center; gap: 10px;
+      transition: opacity 0.5s;
     }
-    #floorplan-overlay.active { display: flex; }
-    #floorplan-body {
-      flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
+    @media (max-width: 768px) { #scroll-hint { display: flex; } }
+    #scroll-hint.hidden { opacity: 0; }
+    .sh-arrow {
+      font-size: 18px; color: rgba(255,255,255,0.3);
+      font-family: Georgia, serif;
     }
-    #floorplan-img {
-      max-width: 100%; max-height: 100%;
-      object-fit: contain; display: block;
-      filter: sepia(0.15) brightness(0.88);
+    .sh-arrow.left { animation: nudgeL 2s ease-in-out infinite; }
+    .sh-arrow.right { animation: nudgeR 2s ease-in-out infinite; }
+    @keyframes nudgeL {
+      0%,100% { transform: translateX(0); opacity: 0.3; }
+      50%      { transform: translateX(-4px); opacity: 0.6; }
     }
+    @keyframes nudgeR {
+      0%,100% { transform: translateX(0); opacity: 0.3; }
+      50%      { transform: translateX(4px); opacity: 0.6; }
+    }
+    .sh-line { width: 28px; height: 1px; background: rgba(255,255,255,0.12); }
 
     /* ── BOTTOM NAV ── */
     #botnav {
@@ -288,7 +279,6 @@
       opacity: 0; transition: opacity 0.35s ease 0.1s;
     }
     #drawer.open #drawer-inner { opacity: 1; }
-
     #tv-label {
       flex-shrink: 0; width: 90px;
       font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
@@ -296,12 +286,10 @@
     }
     #tv-label.house { color: rgba(212,180,131,0.8); }
     #tv-label.anna  { color: rgba(158,96,112,0.9); }
-
     #drawer-divider {
       flex-shrink: 0; width: 1px; height: 60%;
       background: rgba(255,255,255,0.08); align-self: center;
     }
-
     #lines-col {
       flex: 1; display: flex; flex-direction: column;
       justify-content: flex-end; overflow: hidden; min-height: 0;
@@ -309,7 +297,6 @@
       mask-image: linear-gradient(to bottom, transparent 0%, black 30%);
     }
     #lines-wrap { display: flex; flex-direction: column; gap: 2px; }
-
     .line {
       font-size: clamp(16px, 1.4vw, 21px); line-height: 1.9;
       color: var(--text); opacity: 0; transform: translateY(8px);
@@ -319,7 +306,6 @@
     .line.faded   { opacity: 0.15; transform: translateY(0); transition: opacity 0.4s ease; }
     .voice-house .line { font-style: italic; }
     .voice-anna  .line { font-style: normal; }
-
     #tap-hint {
       display: flex; align-items: center; gap: 5px;
       margin-top: 8px; flex-shrink: 0;
@@ -338,13 +324,6 @@
       50%      { opacity: 0.7; transform: scale(1.2); }
     }
     .tap-label { font-size: 10px; letter-spacing: 0.3em; color: var(--text-faint); }
-
-    /* Mobile: make drawer text a bit smaller */
-    @media (max-width: 768px) {
-      .line { font-size: 16px; }
-      #tv-label { font-size: 11px; width: 72px; }
-      --drawer-open: 200px;
-    }
   </style>
 </head>
 <body>
@@ -355,8 +334,9 @@
   <div class="room-tag" id="room-tag">gate</div>
 </div>
 
-<div id="image-area">
-  <div id="img-frame">
+<!-- MAIN IMAGE STAGE -->
+<div class="scroll-stage active" id="stage-main">
+  <div class="stage-frame" id="main-frame">
     <img class="scene-img active" id="img-gate" alt="gate" />
     <img class="scene-img" id="img-bird" alt="bird" />
 
@@ -381,41 +361,30 @@
   </div>
 </div>
 
-<!-- Scroll hint mobile -->
-<div id="scroll-hint">
-  <span class="sh-arrow left">←</span>
-  <div class="sh-line"></div>
-  <div class="sh-line"></div>
-  <span class="sh-arrow">→</span>
-</div>
-
-<!-- NEWSPAPER -->
-<div id="newspaper-overlay">
-  <div class="overlay-topbar">
-    <button class="back-arrow active" onclick="goBack()">←</button>
-    <div class="site-name">The House</div>
-    <div class="room-tag">gate</div>
-  </div>
-  <div id="newspaper-scroll">
-    <div id="newspaper-wrap">
-      <img id="newspaper-img" alt="" />
-      <div id="date-hotspot" onclick="clickDate()">
-        <div class="dot"></div>
-      </div>
+<!-- NEWSPAPER STAGE -->
+<div class="scroll-stage" id="stage-newspaper">
+  <div class="stage-frame" id="newspaper-frame">
+    <img class="stage-img" id="newspaper-img" alt="newspaper" />
+    <div id="date-hotspot" class="hotspot" style="left:36%;top:10.5%;" onclick="clickDate()">
+      <div class="dot"></div><div class="hs-label">13/13/13</div>
     </div>
   </div>
 </div>
 
-<!-- FLOORPLAN -->
-<div id="floorplan-overlay">
-  <div class="overlay-topbar">
-    <button class="back-arrow active" onclick="goBack()">←</button>
-    <div class="site-name">The House</div>
-    <div class="room-tag">floorplan</div>
+<!-- FLOORPLAN STAGE -->
+<div class="scroll-stage" id="stage-floorplan">
+  <div class="stage-frame" id="floorplan-frame">
+    <img class="stage-img" id="floorplan-img" alt="floorplan"
+         style="filter: sepia(0.15) brightness(0.88);" />
   </div>
-  <div id="floorplan-body">
-    <img id="floorplan-img" alt="" />
-  </div>
+</div>
+
+<!-- SCROLL HINT -->
+<div id="scroll-hint">
+  <span class="sh-arrow left">←</span>
+  <div class="sh-line"></div>
+  <div class="sh-line"></div>
+  <span class="sh-arrow right">→</span>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -456,46 +425,61 @@
 const BASE = 'https://annagreyhem-ui.github.io/annagreyhem/';
 const isMobile = () => window.innerWidth <= 768;
 
-// Set image sources
+// Load images
 document.getElementById('img-gate').src      = BASE + 'Gate.png';
 document.getElementById('img-bird').src      = BASE + 'Gate_day_bir.png';
 document.getElementById('newspaper-img').src = BASE + 'Gate_day_newspaper.png';
 document.getElementById('floorplan-img').src = BASE + 'Floorplan.png';
 
-// ── MOBILE: set panorama frame width from natural image size ──
-function setupMobileFrame() {
+// ── MOBILE FRAME SIZING ──
+// For each stage on mobile, set frame width = height * naturalRatio
+function sizeFrame(imgEl, frameEl) {
   if (!isMobile()) return;
-  const area = document.getElementById('image-area');
-  const areaH = area.clientHeight;
-  // Gate image is 16:9 approx — set frame width so image fills height
-  // We'll update once the active image loads
-  const active = document.querySelector('.scene-img.active');
-  if (!active) return;
-  const update = () => {
-    const ratio = active.naturalWidth / active.naturalHeight;
-    const w = areaH * ratio;
-    document.getElementById('img-frame').style.width = w + 'px';
-    // also set each scene-img width
-    document.querySelectorAll('.scene-img').forEach(img => {
-      img.style.width = 'auto';
-      img.style.height = '100%';
-    });
-  };
-  if (active.naturalWidth) update();
-  else active.addEventListener('load', update);
+  const stage = frameEl.closest('.scroll-stage');
+  const h = stage.clientHeight || window.innerHeight - 52 - 48;
+  const ratio = imgEl.naturalWidth / imgEl.naturalHeight;
+  if (!ratio) return;
+  frameEl.style.width = (h * ratio) + 'px';
+  frameEl.style.height = '100%';
+  imgEl.style.width = '100%';
+  imgEl.style.height = '100%';
+  imgEl.style.objectFit = 'cover';
 }
 
-window.addEventListener('resize', setupMobileFrame);
+function sizeAllFrames() {
+  if (!isMobile()) return;
+  const pairs = [
+    ['img-gate',       'main-frame'],
+    ['img-bird',       'main-frame'],
+    ['newspaper-img',  'newspaper-frame'],
+    ['floorplan-img',  'floorplan-frame'],
+  ];
+  // For main-frame, use the active scene image
+  const activeScene = document.querySelector('.scene-img.active');
+  if (activeScene && activeScene.naturalWidth) {
+    sizeFrame(activeScene, document.getElementById('main-frame'));
+  }
+  ['newspaper-img','floorplan-img'].forEach(id => {
+    const img = document.getElementById(id);
+    const frame = id === 'newspaper-img' ? 'newspaper-frame' : 'floorplan-frame';
+    if (img.naturalWidth) sizeFrame(img, document.getElementById(frame));
+  });
+}
 
-// Load images and setup
-document.getElementById('img-gate').addEventListener('load', setupMobileFrame);
-setupMobileFrame();
+// Fire sizing when images load
+['img-gate','img-bird','newspaper-img','floorplan-img'].forEach(id => {
+  const img = document.getElementById(id);
+  img.addEventListener('load', sizeAllFrames);
+  if (img.complete && img.naturalWidth) sizeAllFrames();
+});
+window.addEventListener('resize', sizeAllFrames);
 
-// ── SCROLL HINT — hide after first scroll ──
+// ── SCROLL HINT ──
 const scrollHint = document.getElementById('scroll-hint');
-document.getElementById('image-area').addEventListener('scroll', () => {
-  scrollHint.classList.add('hidden');
-}, { once: true });
+function hideScrollHint() { scrollHint.classList.add('hidden'); }
+['stage-main','stage-newspaper','stage-floorplan'].forEach(id => {
+  document.getElementById(id).addEventListener('scroll', hideScrollHint, { once: true });
+});
 
 // ── HISTORY ──
 let hist = ['gate'];
@@ -512,39 +496,45 @@ function navTo(state) {
   hist.push(state); applyState(state, true); updateBack();
 }
 
+function setStage(id) {
+  document.querySelectorAll('.scroll-stage').forEach(el => el.classList.remove('active'));
+  document.getElementById('stage-' + id).classList.add('active');
+  // reset scroll position
+  document.getElementById('stage-' + id).scrollLeft = 0;
+  // resize for mobile
+  setTimeout(sizeAllFrames, 50);
+}
+
 function applyState(state, forward) {
   closeDrawer(); closeGateChoice();
-  document.getElementById('newspaper-overlay').classList.remove('active');
-  document.getElementById('floorplan-overlay').classList.remove('active');
+  scrollHint.classList.remove('hidden');
   const gateHs = ['hs-gate','hs-bird','hs-news'];
 
   if (state === 'gate') {
+    setStage('main');
     showScene('gate');
     gateHs.forEach(id => document.getElementById(id).classList.remove('hidden'));
     document.getElementById('hs-bird-text').classList.add('hidden');
     document.getElementById('room-tag').textContent = 'gate';
-    scrollHint.classList.remove('hidden');
   } else if (state === 'bird') {
+    setStage('main');
     showScene('bird');
     gateHs.forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('hs-bird-text').classList.remove('hidden');
     document.getElementById('room-tag').textContent = 'gate';
-    scrollHint.classList.add('hidden');
   } else if (state === 'floorplan') {
-    document.getElementById('floorplan-overlay').classList.add('active');
+    setStage('floorplan');
     document.getElementById('room-tag').textContent = 'floorplan';
-    scrollHint.classList.add('hidden');
   } else if (state === 'newspaper') {
-    document.getElementById('newspaper-overlay').classList.add('active');
+    setStage('newspaper');
     document.getElementById('room-tag').textContent = 'gate';
-    scrollHint.classList.add('hidden');
   }
 }
 
 function showScene(id) {
   document.querySelectorAll('.scene-img').forEach(el => el.classList.remove('active'));
   document.getElementById('img-' + id).classList.add('active');
-  if (isMobile()) setupMobileFrame();
+  setTimeout(sizeAllFrames, 50);
 }
 
 // ── GATE CHOICE ──
@@ -642,8 +632,11 @@ function closeDrawer() {
   setTimeout(() => { document.getElementById('lines-wrap').innerHTML = ''; lineEls = []; currentIdx = 0; }, 450);
 }
 
-document.getElementById('image-area').addEventListener('click', e => {
-  if (isOpen && !e.target.closest('.hotspot') && !e.target.closest('#gate-choice')) closeDrawer();
+// Close drawer on image tap (not hotspot)
+['stage-main','stage-newspaper','stage-floorplan'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (isOpen && !e.target.closest('.hotspot') && !e.target.closest('#gate-choice')) closeDrawer();
+  });
 });
 
 updateBack();
