@@ -17,6 +17,7 @@
       --top-h:      52px;
       --bot-h:      48px;
       --drawer-open: 240px;
+      --base: 'https://annagreyhem-ui.github.io/annagreyhem/';
     }
     html, body {
       height: 100dvh; overflow: hidden;
@@ -52,101 +53,70 @@
     .back-arrow.active { color: rgba(255,255,255,0.5); cursor: pointer; }
     .back-arrow.active:hover { color: rgba(255,255,255,0.85); }
 
-    /* ── IMAGE AREA ── */
+    /* ══════════════════════════════════
+       IMAGE AREA
+       Desktop: 75% wide, centered, static
+       Mobile:  full width, horizontal scroll
+    ══════════════════════════════════ */
     #image-area {
       position: fixed;
-      top: var(--top-h); left: 0; right: 0; bottom: var(--bot-h);
-      display: flex; align-items: stretch; justify-content: center;
-      background: var(--bg); z-index: 0; overflow: hidden;
+      top: var(--top-h); left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      background: var(--bg);
     }
 
-    /* Desktop: 75% width centered */
-    #img-frame {
-      position: relative; width: 75%; flex-shrink: 0; overflow: hidden;
+    /* DESKTOP */
+    @media (min-width: 769px) {
+      #image-area {
+        display: flex;
+        align-items: center; justify-content: center;
+        overflow: hidden;
+      }
+      #img-frame {
+        position: relative;
+        width: 75%; height: 100%;
+        overflow: hidden; flex-shrink: 0;
+      }
+      /* side fade desktop */
+      #image-area::before {
+        content: ''; position: absolute; inset: 0; z-index: 2;
+        background: linear-gradient(to right,
+          rgba(10,10,10,1) 0%, rgba(10,10,10,0) 12.5%,
+          rgba(10,10,10,0) 87.5%, rgba(10,10,10,1) 100%);
+        pointer-events: none;
+      }
+      .scene-img {
+        width: 100%; height: 100%;
+        object-fit: cover; object-position: center top;
+        display: block; position: absolute; top: 0; left: 0;
+        opacity: 0; transition: opacity 0.65s ease;
+      }
     }
 
-    /* Mobile: full width, horizontal scroll */
+    /* MOBILE */
     @media (max-width: 768px) {
       #image-area {
-        justify-content: flex-start;
         overflow-x: auto; overflow-y: hidden;
-        scrollbar-width: none; -webkit-overflow-scrolling: touch;
-        align-items: stretch;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
       }
       #image-area::-webkit-scrollbar { display: none; }
       #img-frame {
-        width: auto;
+        position: relative;
         height: 100%;
-        min-width: 100vw;
+        /* width set by JS based on image natural ratio */
+        display: inline-block;
+        white-space: nowrap;
       }
-    }
-
-    .scene-img {
-      width: 100%; height: 100%;
-      object-fit: cover; object-position: center top;
-      display: block; position: absolute; top: 0; left: 0;
-      opacity: 0; transition: opacity 0.65s ease;
-    }
-    .scene-img.active { opacity: 1; }
-
-    @media (max-width: 768px) {
       .scene-img {
-        width: auto;
-        height: 100%;
-        object-fit: unset;
-        position: absolute;
-        top: 0; left: 0;
+        height: 100%; width: auto;
+        display: block;
+        position: absolute; top: 0; left: 0;
+        opacity: 0; transition: opacity 0.65s ease;
       }
     }
 
-    /* Side fade desktop only */
-    #image-area::before {
-      content: ''; position: absolute; inset: 0; z-index: 2;
-      background: linear-gradient(to right,
-        rgba(10,10,10,1) 0%, rgba(10,10,10,0) 12.5%,
-        rgba(10,10,10,0) 87.5%, rgba(10,10,10,1) 100%);
-      pointer-events: none;
-    }
-    @media (max-width: 768px) { #image-area::before { display: none; } }
-
-    /* ── SCROLL ARROWS mobile ── */
-    .scroll-arrow {
-      display: none; position: fixed; top: 50%; z-index: 25;
-      transform: translateY(-50%);
-      font-size: 28px; color: rgba(255,255,255,0.2);
-      pointer-events: none; font-family: Georgia, serif;
-      transition: opacity 0.4s; text-shadow: 0 0 8px rgba(0,0,0,0.8);
-    }
-    @media (max-width: 768px) { .scroll-arrow { display: block; } }
-    #arrow-left  { left: 10px; }
-    #arrow-right { right: 10px; }
-
-    /* ── FIRST VISIT HINT mobile ── */
-    #scroll-hint-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 60;
-      background: rgba(10,10,10,0.92);
-      flex-direction: column; align-items: center; justify-content: center;
-      gap: 20px; padding: 40px 32px; text-align: center;
-    }
-    #scroll-hint-overlay.show { display: flex; }
-    .hint-title {
-      font-size: 11px; letter-spacing: 0.38em; text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-    }
-    .hint-body {
-      font-size: clamp(16px, 4vw, 20px); line-height: 1.9;
-      color: rgba(255,255,255,0.65); max-width: 300px;
-    }
-    .hint-icon { font-size: 32px; color: rgba(255,255,255,0.2); letter-spacing: 16px; }
-    .hint-dismiss {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 11px; letter-spacing: 0.3em; text-transform: lowercase;
-      color: rgba(255,255,255,0.35); cursor: pointer;
-      padding: 12px 28px; border: 1px solid rgba(255,255,255,0.1);
-      background: none; transition: color 0.2s, border-color 0.2s; margin-top: 8px;
-    }
-    .hint-dismiss:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.25); }
+    .scene-img.active { opacity: 1; }
 
     /* ── HOTSPOTS ── */
     .hotspot {
@@ -174,6 +144,34 @@
       white-space: nowrap; opacity: 0; transition: opacity 0.3s; pointer-events: none;
     }
     .hotspot:hover .hs-label { opacity: 1; }
+
+    /* ── SCROLL HINT (mobile only) ── */
+    #scroll-hint {
+      display: none;
+      position: fixed;
+      bottom: calc(var(--bot-h) + 14px);
+      left: 50%; transform: translateX(-50%);
+      z-index: 25; pointer-events: none;
+      align-items: center; gap: 10px;
+      opacity: 0.5;
+      transition: opacity 0.4s;
+    }
+    @media (max-width: 768px) { #scroll-hint { display: flex; } }
+    #scroll-hint.hidden { opacity: 0; }
+    .sh-arrow {
+      font-size: 18px; color: rgba(255,255,255,0.3);
+      animation: nudge 2s ease-in-out infinite;
+      font-family: Georgia, serif;
+    }
+    .sh-arrow.left  { animation-direction: reverse; }
+    @keyframes nudge {
+      0%,100% { transform: translateX(0); opacity: 0.3; }
+      50%      { transform: translateX(4px); opacity: 0.6; }
+    }
+    .sh-line {
+      width: 32px; height: 1px;
+      background: rgba(255,255,255,0.15);
+    }
 
     /* ── GATE CHOICE ── */
     #gate-choice {
@@ -219,8 +217,10 @@
     #newspaper-wrap { position: relative; max-width: 860px; width: 100%; }
     #newspaper-img { width: 100%; display: block; border-radius: 2px; }
     #date-hotspot {
-      position: absolute; top: 10.5%; left: 36%;
-      transform: translate(-50%, -50%); cursor: pointer; z-index: 10;
+      position: absolute;
+      top: 10.5%; left: 36%;
+      transform: translate(-50%, -50%);
+      cursor: pointer; z-index: 10;
     }
 
     /* ── FLOORPLAN OVERLAY ── */
@@ -281,12 +281,14 @@
     }
     #drawer-inner {
       position: relative; z-index: 1;
-      display: flex; flex-direction: row; align-items: center;
-      height: 100%; padding: 20px 24px 16px; gap: 20px;
+      display: flex; flex-direction: row;
+      align-items: center; height: 100%;
+      padding: 20px 24px 16px; gap: 20px;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
       opacity: 0; transition: opacity 0.35s ease 0.1s;
     }
     #drawer.open #drawer-inner { opacity: 1; }
+
     #tv-label {
       flex-shrink: 0; width: 90px;
       font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase;
@@ -294,10 +296,12 @@
     }
     #tv-label.house { color: rgba(212,180,131,0.8); }
     #tv-label.anna  { color: rgba(158,96,112,0.9); }
+
     #drawer-divider {
       flex-shrink: 0; width: 1px; height: 60%;
       background: rgba(255,255,255,0.08); align-self: center;
     }
+
     #lines-col {
       flex: 1; display: flex; flex-direction: column;
       justify-content: flex-end; overflow: hidden; min-height: 0;
@@ -305,6 +309,7 @@
       mask-image: linear-gradient(to bottom, transparent 0%, black 30%);
     }
     #lines-wrap { display: flex; flex-direction: column; gap: 2px; }
+
     .line {
       font-size: clamp(16px, 1.4vw, 21px); line-height: 1.9;
       color: var(--text); opacity: 0; transform: translateY(8px);
@@ -314,6 +319,7 @@
     .line.faded   { opacity: 0.15; transform: translateY(0); transition: opacity 0.4s ease; }
     .voice-house .line { font-style: italic; }
     .voice-anna  .line { font-style: normal; }
+
     #tap-hint {
       display: flex; align-items: center; gap: 5px;
       margin-top: 8px; flex-shrink: 0;
@@ -332,37 +338,27 @@
       50%      { opacity: 0.7; transform: scale(1.2); }
     }
     .tap-label { font-size: 10px; letter-spacing: 0.3em; color: var(--text-faint); }
+
+    /* Mobile: make drawer text a bit smaller */
+    @media (max-width: 768px) {
+      .line { font-size: 16px; }
+      #tv-label { font-size: 11px; width: 72px; }
+      --drawer-open: 200px;
+    }
   </style>
 </head>
 <body>
 
-<!-- FIRST VISIT HINT — mobile only, hidden by default -->
-<div id="scroll-hint-overlay">
-  <div class="hint-title">The House</div>
-  <div class="hint-body">
-    Scroll left and right to explore each room.<br>
-    Tap the glowing points to interact.
-  </div>
-  <div class="hint-icon">← →</div>
-  <button class="hint-dismiss" onclick="dismissHint()">enter</button>
-</div>
-
-<!-- SCROLL ARROWS — mobile -->
-<div class="scroll-arrow" id="arrow-left">‹</div>
-<div class="scroll-arrow" id="arrow-right">›</div>
-
-<!-- TOPBAR -->
 <div id="topbar">
   <button class="back-arrow" id="back-btn" onclick="goBack()">←</button>
   <div class="site-name">The House</div>
   <div class="room-tag" id="room-tag">gate</div>
 </div>
 
-<!-- IMAGE -->
 <div id="image-area">
   <div id="img-frame">
-    <img class="scene-img active" id="img-gate" src="https://annagreyhem-ui.github.io/annagreyhem/Gate.png" alt="gate" />
-    <img class="scene-img" id="img-bird" src="https://annagreyhem-ui.github.io/annagreyhem/Gate_day_bir.png" alt="bird" />
+    <img class="scene-img active" id="img-gate" alt="gate" />
+    <img class="scene-img" id="img-bird" alt="bird" />
 
     <div id="hs-gate" class="hotspot" style="left:50%;top:62%;" onclick="showGateChoice()">
       <div class="dot"></div><div class="hs-label">the gate</div>
@@ -373,7 +369,7 @@
     <div id="hs-news" class="hotspot" style="left:43%;top:87%;" onclick="navTo('newspaper')">
       <div class="dot"></div><div class="hs-label">the newspaper</div>
     </div>
-    <div id="hs-bird-text" class="hotspot hidden" style="left:55%;top:38%;" onclick="openDrawer('bird')">
+    <div id="hs-bird-text" class="hotspot hidden" style="left:62%;top:42%;" onclick="openDrawer('bird')">
       <div class="dot"></div><div class="hs-label">the bird</div>
     </div>
 
@@ -385,6 +381,14 @@
   </div>
 </div>
 
+<!-- Scroll hint mobile -->
+<div id="scroll-hint">
+  <span class="sh-arrow left">←</span>
+  <div class="sh-line"></div>
+  <div class="sh-line"></div>
+  <span class="sh-arrow">→</span>
+</div>
+
 <!-- NEWSPAPER -->
 <div id="newspaper-overlay">
   <div class="overlay-topbar">
@@ -394,7 +398,7 @@
   </div>
   <div id="newspaper-scroll">
     <div id="newspaper-wrap">
-      <img id="newspaper-img" src="https://annagreyhem-ui.github.io/annagreyhem/Gate_day_newspaper.png" alt="" />
+      <img id="newspaper-img" alt="" />
       <div id="date-hotspot" onclick="clickDate()">
         <div class="dot"></div>
       </div>
@@ -410,7 +414,7 @@
     <div class="room-tag">floorplan</div>
   </div>
   <div id="floorplan-body">
-    <img id="floorplan-img" src="https://annagreyhem-ui.github.io/annagreyhem/Floorplan.png" alt="" />
+    <img id="floorplan-img" alt="" />
   </div>
 </div>
 
@@ -449,49 +453,51 @@
 </div>
 
 <script>
+const BASE = 'https://annagreyhem-ui.github.io/annagreyhem/';
 const isMobile = () => window.innerWidth <= 768;
-const HINT_KEY = 'the_house_scroll_hint_seen';
 
-// Show hint on mobile first visit only
-(function() {
-  if (!isMobile()) return;
-  let seen = false;
-  try { seen = !!localStorage.getItem(HINT_KEY); } catch(e) {}
-  if (!seen) document.getElementById('scroll-hint-overlay').classList.add('show');
-})();
+// Set image sources
+document.getElementById('img-gate').src      = BASE + 'Gate.png';
+document.getElementById('img-bird').src      = BASE + 'Gate_day_bir.png';
+document.getElementById('newspaper-img').src = BASE + 'Gate_day_newspaper.png';
+document.getElementById('floorplan-img').src = BASE + 'Floorplan.png';
 
-function dismissHint() {
-  try { localStorage.setItem(HINT_KEY, '1'); } catch(e) {}
-  document.getElementById('scroll-hint-overlay').classList.remove('show');
-}
-
-// Scroll arrows
-function updateArrows() {
+// ── MOBILE: set panorama frame width from natural image size ──
+function setupMobileFrame() {
   if (!isMobile()) return;
   const area = document.getElementById('image-area');
-  const atLeft  = area.scrollLeft <= 10;
-  const atRight = area.scrollLeft >= area.scrollWidth - area.clientWidth - 10;
-  document.getElementById('arrow-left').style.opacity  = atLeft  ? '0' : '1';
-  document.getElementById('arrow-right').style.opacity = atRight ? '0' : '1';
-}
-document.getElementById('image-area').addEventListener('scroll', updateArrows, { passive: true });
-window.addEventListener('resize', updateArrows);
-setTimeout(updateArrows, 300);
-
-// Scroll to hotspot on mobile
-function scrollToHotspot(pctX) {
-  if (!isMobile()) return;
-  const area  = document.getElementById('image-area');
-  const frame = document.getElementById('img-frame');
-  setTimeout(() => {
-    const imgW  = frame.scrollWidth;
-    const viewW = area.clientWidth;
-    area.scrollTo({ left: Math.max(0, (pctX / 100) * imgW - viewW / 2), behavior: 'smooth' });
-    setTimeout(updateArrows, 400);
-  }, 150);
+  const areaH = area.clientHeight;
+  // Gate image is 16:9 approx — set frame width so image fills height
+  // We'll update once the active image loads
+  const active = document.querySelector('.scene-img.active');
+  if (!active) return;
+  const update = () => {
+    const ratio = active.naturalWidth / active.naturalHeight;
+    const w = areaH * ratio;
+    document.getElementById('img-frame').style.width = w + 'px';
+    // also set each scene-img width
+    document.querySelectorAll('.scene-img').forEach(img => {
+      img.style.width = 'auto';
+      img.style.height = '100%';
+    });
+  };
+  if (active.naturalWidth) update();
+  else active.addEventListener('load', update);
 }
 
-// History
+window.addEventListener('resize', setupMobileFrame);
+
+// Load images and setup
+document.getElementById('img-gate').addEventListener('load', setupMobileFrame);
+setupMobileFrame();
+
+// ── SCROLL HINT — hide after first scroll ──
+const scrollHint = document.getElementById('scroll-hint');
+document.getElementById('image-area').addEventListener('scroll', () => {
+  scrollHint.classList.add('hidden');
+}, { once: true });
+
+// ── HISTORY ──
 let hist = ['gate'];
 function cur() { return hist[hist.length - 1]; }
 function updateBack() {
@@ -507,8 +513,7 @@ function navTo(state) {
 }
 
 function applyState(state, forward) {
-  closeDrawer();
-  closeGateChoice();
+  closeDrawer(); closeGateChoice();
   document.getElementById('newspaper-overlay').classList.remove('active');
   document.getElementById('floorplan-overlay').classList.remove('active');
   const gateHs = ['hs-gate','hs-bird','hs-news'];
@@ -518,27 +523,31 @@ function applyState(state, forward) {
     gateHs.forEach(id => document.getElementById(id).classList.remove('hidden'));
     document.getElementById('hs-bird-text').classList.add('hidden');
     document.getElementById('room-tag').textContent = 'gate';
-    if (forward) scrollToHotspot(50);
+    scrollHint.classList.remove('hidden');
   } else if (state === 'bird') {
     showScene('bird');
     gateHs.forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById('hs-bird-text').classList.remove('hidden');
     document.getElementById('room-tag').textContent = 'gate';
-    if (forward) scrollToHotspot(55);
+    scrollHint.classList.add('hidden');
   } else if (state === 'floorplan') {
     document.getElementById('floorplan-overlay').classList.add('active');
     document.getElementById('room-tag').textContent = 'floorplan';
+    scrollHint.classList.add('hidden');
   } else if (state === 'newspaper') {
     document.getElementById('newspaper-overlay').classList.add('active');
     document.getElementById('room-tag').textContent = 'gate';
+    scrollHint.classList.add('hidden');
   }
 }
 
 function showScene(id) {
   document.querySelectorAll('.scene-img').forEach(el => el.classList.remove('active'));
   document.getElementById('img-' + id).classList.add('active');
+  if (isMobile()) setupMobileFrame();
 }
 
+// ── GATE CHOICE ──
 function showGateChoice() { document.getElementById('gate-choice').classList.add('active'); }
 function closeGateChoice() { document.getElementById('gate-choice').classList.remove('active'); }
 function chooseLeave() {
@@ -549,8 +558,11 @@ function chooseLeave() {
   ]);
 }
 function chooseExplore() { closeGateChoice(); navTo('floorplan'); }
+
+// ── DATE ──
 function clickDate() { openDrawer('date'); }
 
+// ── FRAGMENTS ──
 const frags = {
   bird: {
     voice: 'Anna', vc: 'anna',
@@ -571,9 +583,13 @@ const frags = {
   }
 };
 
-let currentIdx = 0, lineEls = [], isOpen = false, _hasMore = false, _queue = [];
+let currentIdx = 0, lineEls = [], isOpen = false;
+let _hasMore = false, _queue = [];
 
-function openDrawer(key) { const f = frags[key]; if (!f) return; _loadFragment(f, false); }
+function openDrawer(key) {
+  const f = frags[key]; if (!f) return;
+  _loadFragment(f, false);
+}
 function openDrawerSequence(items) { _queue = [...items]; _nextInQueue(); }
 function _nextInQueue() { if (!_queue.length) return; _loadFragment(_queue.shift(), _queue.length > 0); }
 
@@ -601,7 +617,7 @@ function showLine(idx) {
   });
   lineEls[idx].classList.add('visible');
   currentIdx = idx;
-  setTimeout(() => { lineEls[idx].scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 80);
+  setTimeout(() => lineEls[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
   if (idx === lineEls.length - 1)
     setTimeout(() => document.getElementById('tap-hint').classList.add('done'), 700);
 }
