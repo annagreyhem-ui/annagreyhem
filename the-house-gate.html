@@ -71,9 +71,14 @@
         justify-content: flex-start;
         overflow-x: auto; overflow-y: hidden;
         scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        align-items: stretch;
       }
       #image-area::-webkit-scrollbar { display: none; }
-      #img-frame { width: auto; }
+      #img-frame {
+        width: auto;
+        height: 100%;
+        min-width: 100vw;
+      }
     }
 
     .scene-img {
@@ -86,7 +91,11 @@
 
     @media (max-width: 768px) {
       .scene-img {
-        width: auto; height: 100%; object-fit: unset;
+        width: auto;
+        height: 100%;
+        object-fit: unset;
+        position: absolute;
+        top: 0; left: 0;
       }
     }
 
