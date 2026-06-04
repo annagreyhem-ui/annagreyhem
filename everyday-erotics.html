@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-
 html, body {
   min-height:100%;
   background:#0a0a0a;
@@ -18,7 +17,6 @@ html, body {
   cursor:none;
   overflow-x:hidden;
 }
-
 #cursor {
   position:fixed;
   width:1px; height:20px;
@@ -35,13 +33,12 @@ html, body {
   width:20px; height:1px;
   background:rgba(255,255,255,0.35);
 }
-
 #page {
   max-width:600px;
   margin:0 auto;
-  padding:clamp(56px,10vh,96px) clamp(28px,8vw,72px) clamp(80px,14vh,130px);
+  /* Extra bottom padding so poem doesn't hide behind slider + footer */
+  padding:clamp(56px,10vh,96px) clamp(28px,8vw,72px) clamp(160px,22vh,200px);
 }
-
 #title {
   font-size:clamp(19px,2.4vw,26px);
   font-style:italic;
@@ -50,20 +47,15 @@ html, body {
   margin-bottom:clamp(40px,6vh,64px);
   line-height:1.5;
 }
-
 #title-ext {
   transition:opacity 0.6s ease, color 0.6s ease;
   opacity:0;
 }
-
 #poem { list-style:none; }
-
 #poem li {
   margin-bottom:clamp(20px,3vh,32px);
 }
-
 .base-line { display:block; }
-
 .ext-line {
   display:block;
   padding-left:1.4em;
@@ -73,30 +65,55 @@ html, body {
   opacity:0;
 }
 
-#slider-wrap {
+/* ── Footer ── */
+footer.site-footer {
   position:fixed;
   bottom:0;
   left:0; right:0;
-  height:clamp(70px,12vh,100px);
-  z-index:50;
+  padding:14px 16px;
+  text-align:center;
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-size:13px;
+  letter-spacing:0.15em;
+  color:rgba(255,255,255,0.25);
+  background:#0a0a0a;
+  z-index:100;
+}
+footer.site-footer a {
+  color:rgba(255,255,255,0.25);
+  text-decoration:none;
+}
+footer.site-footer a:hover {
+  color:rgba(255,255,255,0.5);
+}
+
+/* ── Slider — sits above footer ── */
+#slider-wrap {
+  position:fixed;
+  /* footer is ~42px tall; add 24px gap above it */
+  bottom:66px;
+  left:0; right:0;
+  height:clamp(60px,10vh,88px);
+  /* higher than footer (100) so it's never covered */
+  z-index:200;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:14px;
+  gap:12px;
+  /* subtle fade so slider doesn't collide visually with footer */
+  padding-bottom:4px;
 }
-
 #slider-hint {
   font-style:normal;
-  font-size:16px;
-  color:rgba(255,255,255,0.5);
-  letter-spacing:0.4em;
+  font-size:13px;
+  color:rgba(255,255,255,0.35);
+  letter-spacing:0.5em;
   text-align:center;
   transition:opacity 1s ease;
   opacity:0;
   pointer-events:none;
 }
-
 #slider-track {
   position:relative;
   width:clamp(200px,55vw,340px);
@@ -105,14 +122,12 @@ html, body {
   align-items:center;
   cursor:none;
 }
-
 #slider-line {
   position:absolute;
   left:0; right:0;
   height:1px;
   background:rgba(255,255,255,0.2);
 }
-
 #slider-thumb {
   position:absolute;
   width:12px; height:12px;
@@ -126,9 +141,7 @@ html, body {
 </style>
 </head>
 <body>
-
 <div id="cursor"></div>
-
 <div id="page">
   <div id="title">Everyday erotics<span id="title-ext"></span></div>
   <ul id="poem">
@@ -153,6 +166,14 @@ html, body {
   </div>
 </div>
 
+<footer class="site-footer">
+  <a href="https://annagreyhem.com/">Anna Greyhem</a>
+  &nbsp;·&nbsp;
+  <a href="https://annagreyhem.com/impressum/">impressum</a>
+  &nbsp;·&nbsp;
+  <a href="https://annagreyhem.com/datenschutz/">datenschutz</a>
+</footer>
+
 <script>
 var cur = document.getElementById('cursor');
 document.addEventListener('mousemove', function(e) {
@@ -175,7 +196,6 @@ var ext_blue = [
   'ist k\u00e4lter als sonst',
   'h\u00e4lt mich fest. Ich lasse ihn nicht gehen.',
 ];
-
 var ext_orange = [
   'das mich nicht schlafen l\u00e4sst',
   'von dem ich ihm nichts erz\u00e4hle',
@@ -189,21 +209,18 @@ var ext_orange = [
   'bringt sie zum st\u00f6hnen',
 ];
 
-var titleExt   = document.getElementById('title-ext');
-var sliderWrap = document.getElementById('slider-wrap');
+var titleExt    = document.getElementById('title-ext');
+var sliderWrap  = document.getElementById('slider-wrap');
 var sliderTrack = document.getElementById('slider-track');
 var sliderThumb = document.getElementById('slider-thumb');
-var sliderHint = document.getElementById('slider-hint');
-
-var currentVal = 0;
+var sliderHint  = document.getElementById('slider-hint');
+var currentVal  = 0;
 
 function render(val) {
   val = Math.max(-1, Math.min(1, val));
   currentVal = val;
-
   var pct = (val + 1) / 2 * 100;
   sliderThumb.style.left = pct + '%';
-
   if (val < 0) {
     var t = -val;
     for (var i = 0; i < 10; i++) {
@@ -241,7 +258,6 @@ function valFromClientX(clientX) {
 }
 
 var dragging = false;
-
 sliderWrap.addEventListener('mousedown', function(e) {
   dragging = true;
   render(valFromClientX(e.clientX));
@@ -263,27 +279,7 @@ document.addEventListener('touchmove', function(e) {
 document.addEventListener('touchend', function() { dragging = false; }, {passive:true});
 
 setTimeout(function() { sliderHint.style.opacity = '1'; }, 1500);
-
 render(0);
 </script>
-  <footer style="
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px;
-  text-align: center;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 14px;
-  color: rgba(255,255,255,0.55);
-  background: #000;
-  z-index: 100;
-">
-  <a href="https://annagreyhem.com/" style="color: rgba(255,255,255,0.55); text-decoration: none;">annagreyhem</a>
-  &nbsp;·&nbsp;
-  <a href="https://annagreyhem.com/impressum/" style="color: rgba(255,255,255,0.55); text-decoration: none;">impressum</a>
-  &nbsp;·&nbsp;
-  <a href="https://annagreyhem.com/datenschutz/" style="color: rgba(255,255,255,0.55); text-decoration: none;">datenschutz</a>
-</footer>
 </body>
 </html>
